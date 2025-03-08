@@ -1,0 +1,19 @@
+{
+    "databaseCredentials": {
+        "user": "user",
+        "host": "127.0.0.1",
+        "database": "thetreedb",
+        "password": "secret_password",
+        "port": 5432
+    },
+    "jwt": {
+        "access": {
+            "validityPeriod": 3600,
+            "secret": "access_secret"
+        }
+    },
+    "refreshToken": {
+        "validityPeriod": 360000
+    },
+    "debug": true
+}
