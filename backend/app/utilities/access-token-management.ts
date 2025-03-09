@@ -14,12 +14,12 @@ export interface AccessTokenPayload {
 export class AccessTokenManagement {
 
     static getToken(sub: number): string {
-        return this._getToken(sub, config.jwt.access.validityPeriod, config.jwt.access.secret)
+        return this._getToken(sub, config.tokens.access.validityPeriod, config.tokens.access.secret)
     }
 
     static verifyToken(token: string): AccessTokenPayload | null {
         try {
-            const secret = config.jwt.access.secret
+            const secret = config.tokens.access.secret
             const payload = jwtWebToken.verify(token, secret)
             // @ts-ignore
             return payload

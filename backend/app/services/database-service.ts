@@ -11,7 +11,7 @@ const pool = new Pool(config.databaseCredentials)
 export default class DatabaseService implements Service {
     async registerUser(login: string, password: string): Promise<void> {
         try {
-            pool.query("SELECT api.register_user($1, $2);", [login, password])
+            await pool.query("SELECT api.register_user($1, $2);", [login, password])
         } catch (error) {
             if (error instanceof DatabaseError) {
                 if (error.code === "P1001") {
@@ -120,7 +120,7 @@ export default class DatabaseService implements Service {
     }
 
     async _getTokenPair(userId: number): Promise<{ accessToken: string, refreshToken: string }> {
-        const refreshResult = await pool.query("SELECT api.create_refresh_token($1, $2);", [userId, config.refreshToken.validityPeriod])
+        const refreshResult = await pool.query("SELECT api.create_refresh_token($1, $2);", [userId, config.tokens.refresh.validityPeriod])
         const refreshToken = refreshResult.rows[0].create_refresh_token as string
 
         const accessToken = AccessTokenManagement.getToken(userId)
