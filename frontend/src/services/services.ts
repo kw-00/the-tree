@@ -14,8 +14,8 @@ interface APICallResultBody {
 
 export async function registerUser(login: string, password: string): Promise<APICallResult> {
     const response = await fetch(`${baseUrl}${API.AUTHENTICATE_USER}`,{
+        method: "POST",
         headers: {
-            method: "POST",
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
