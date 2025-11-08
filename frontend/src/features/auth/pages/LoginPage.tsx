@@ -1,10 +1,19 @@
-import { useState } from "react"
 import CredentialForm from "../components/CredentialForm"
+import { registerUser } from "@/services/services"
 
-function LoginPage() {
+export default function LoginPage() {
 
-    const handleSubmit = (login: string, password: string) => {
+    const handleSubmit = async (login: string, password: string) => {
+        const apiCallResult = await registerUser(login, password)
 
+        const {status} = apiCallResult
+        if (status === 200) {
+
+        } else if (status === 400) {
+
+        } else if (status === 500) {
+            
+        }
     }
 
     return (
@@ -15,5 +24,3 @@ function LoginPage() {
         </>
     )
 }
-
-export default LoginPage

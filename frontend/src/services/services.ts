@@ -1,0 +1,32 @@
+import {API} from "./api"
+
+const baseUrl = import.meta.env.VITE_API_BASE_URL
+
+interface APICallResult {
+    status: number,
+    body: APICallResultBody
+}
+
+interface APICallResultBody {
+    status: string,
+    message: string
+}
+
+export async function registerUser(login: string, password: string): Promise<APICallResult> {
+    const response = await fetch(`${baseUrl}${API.AUTHENTICATE_USER}`,{
+        headers: {
+            method: "POST",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            login: login,
+            password: password
+        })
+    })
+    const {status} = response
+    const body = await response.json()
+    return {
+        status: status,
+        body: body
+    }
+}

@@ -14,7 +14,7 @@ export default function CredentialForm({callback, submitButtonText}: CredentialF
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
-        callback({login, password})
+        callback(login, password)
     }
 
     return (
