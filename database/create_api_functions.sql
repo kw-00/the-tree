@@ -2,6 +2,9 @@ CREATE SCHEMA IF NOT EXISTS api;
 
 
 /*
+Registers a new user. Throws an error if login is already taken.
+Returns the ID of the newly registered user.
+
 PARAMS:
 	p_login
 	p_password
@@ -43,6 +46,9 @@ LANGUAGE plpgsql;
 
 /*
 PARAMS:
+Authenticates a user. Throws an error when login and password do not match
+any user. Returns the ID of the user if authentication is successful.
+
 	* p_login
 	* p_password
 	
@@ -78,6 +84,10 @@ $function$
 LANGUAGE plpgsql;
 
 /*
+Checks whether a refresh token is valid.
+Expired, used or revoked refresh tokens cause
+an error to be thrown.
+
 PARAMS:
 	* p_refresh_token_uuid
 
@@ -128,6 +138,8 @@ LANGUAGE plpgsql;
 
 
 /*
+Creates and returns a new refresh token for a user.
+
 PARAMS:
 	* p_user_id
 	* p_validity_period_seconds — the validity period of 
@@ -171,13 +183,16 @@ $function$
 LANGUAGE plpgsql;
 
 /*
+Revokes all tokens that share a user with the given
+refresh token.
+
 PARAMS:
-	* p_user_id
+	* p_refresh_token_uuid — the refresh token in question
 
 RETURNS VOID
 
 RAISES:
-	* P4001 user_not_found — when there is no user with the given ID.
+	* P4001 'refresh_token_not_found' — when the refresh token does not exist.
 */
 CREATE OR REPLACE FUNCTION api.revoke_related_tokens(
 	p_refresh_token_uuid UUID
@@ -201,6 +216,9 @@ LANGUAGE plpgsql;
 
 
 /*
+Creates a message between sender and receiver, 
+saving it in the database.
+
 PARAMS:
 	* p_sender_id
 	* p_recipient_id
@@ -244,6 +262,9 @@ LANGUAGE plpgsql;
 
 
 /*
+Finds all users that have messaged or been messaged by 
+any given user.
+
 PARAMS:
 	* p_user_id — the user for whom we're trying to find 
 		other users that messaged or received a message from them.
@@ -281,6 +302,8 @@ $function$
 LANGUAGE plpgsql;
 
 /*
+Returns all messages between two users.
+
 PARAMS:
 	* p_user1_id
 	* p_user2_id
