@@ -1,7 +1,7 @@
 import CredentialForm from "../components/CredentialForm"
 import { registerUser } from "@/services/services"
 
-export default function LoginPage() {
+export default function RegisterPage() {
 
     const handleSubmit = async (login: string, password: string) => {
         const apiCallResult = await registerUser(login, password)

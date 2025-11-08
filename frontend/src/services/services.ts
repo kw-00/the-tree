@@ -13,7 +13,7 @@ interface APICallResultBody {
 }
 
 export async function registerUser(login: string, password: string): Promise<APICallResult> {
-    const response = await fetch(`${baseUrl}${API.AUTHENTICATE_USER}`,{
+    const response = await fetch(`${baseUrl}${API.REGISTER_USER}`,{
         method: "POST",
         headers: {
             "Content-Type": "application/json"
