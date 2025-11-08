@@ -8,11 +8,11 @@ export default function LoginPage() {
 
         const {status} = apiCallResult
         if (status === 200) {
-
+            console.log("success")
         } else if (status === 400) {
-
+            console.log("conflict")
         } else if (status === 500) {
-            
+            console.log("bad request")
         }
     }
 
