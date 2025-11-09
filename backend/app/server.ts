@@ -76,8 +76,8 @@ app.post("/authenticate_user",
             const { login, password } = req.body
             const { accessToken, refreshToken } = await databaseService.authenticateUser(login, password)
             res.status(200)
-                .cookie("access_token", accessToken, { "httpOnly": true })
-                .cookie("refresh_token", refreshToken, { "httpOnly": true })
+                .cookie("access_token", accessToken, { httpOnly: true, sameSite: "none" })
+                .cookie("refresh_token", refreshToken, { httpOnly: true, sameSite: "none" })
                 .json({
                     status: "success",
                     message: "Authentication successful!"
@@ -104,8 +104,8 @@ app.post("/refresh_token",
             const currentRefreshToken = req.body.refresh_token as string
             const { accessToken, refreshToken } = await databaseService.refreshToken(currentRefreshToken)
             res.status(200)
-                .cookie("access_token", accessToken, { "httpOnly": true })
-                .cookie("refresh_token", refreshToken, { "httpOnly": true })
+                .cookie("access_token", accessToken, { httpOnly: true, sameSite: "none" })
+                .cookie("refresh_token", refreshToken, { httpOnly: true, sameSite: "none" })
                 .json({
                     status: "success",
                     message: "Token refreshed successfully!"
