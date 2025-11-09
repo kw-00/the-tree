@@ -19,7 +19,7 @@ export default function RegisterPage() {
     return (
         <>
             <div>
-                <CredentialForm callback={handleSubmit} submitButtonText="Log in"/>
+                <CredentialForm callback={handleSubmit} submitButtonText="Register user"/>
             </div>
         </>
     )
