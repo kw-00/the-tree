@@ -30,3 +30,22 @@ export async function registerUser(login: string, password: string): Promise<API
         body: body
     }
 }
+
+export async function authenticateUser(login: string, password: string): Promise<APICallResult> {
+    const response = await fetch(`${baseUrl}${API.AUTHENTICATE_USER}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            login: login,
+            password: password
+        })
+    })
+    const {status} = response
+    const body = await response.json()
+    return {
+        status: status,
+        body: body
+    }
+}
