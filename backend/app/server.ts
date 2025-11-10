@@ -8,10 +8,16 @@ import * as validator from "express-validator"
 
 import config from "./utilities/config"
 
+import https from "https"
+import fs from "fs"
+
 const app = express()
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors())
+app.use(cors({
+    origin: (origin, callback) => { callback(null, origin)},
+    credentials: true
+}))
 
 const databaseService = new DatabaseService()
 
@@ -34,7 +40,7 @@ const respondWithUnknownError = (res: express.Response) => {
 }
 
 
-app.post("/register_user",
+app.post("/api/register_user",
     loginAndPasswordValidators,
 
     async (req: express.Request, res: express.Response) => {
@@ -63,7 +69,7 @@ app.post("/register_user",
 )
 
 
-app.post("/authenticate_user",
+app.post("/api/authenticate_user",
     loginAndPasswordValidators,
     async (req: express.Request, res: express.Response) => {
         try {
@@ -76,8 +82,9 @@ app.post("/authenticate_user",
             const { login, password } = req.body
             const { accessToken, refreshToken } = await databaseService.authenticateUser(login, password)
             res.status(200)
-                .cookie("access_token", accessToken, { httpOnly: true, sameSite: "none" })
-                .cookie("refresh_token", refreshToken, { httpOnly: true, sameSite: "none" })
+                .cookie("mycookie", "datdadadatcookie", {httpOnly: true, sameSite: "lax", secure: false})
+                // .cookie("access_token", accessToken, { httpOnly: true, sameSite: "lax", secure: false })
+                // .cookie("refresh_token", refreshToken, { httpOnly: true, sameSite: "lax", secure: false })
                 .json({
                     status: "success",
                     message: "Authentication successful!"
@@ -91,7 +98,7 @@ app.post("/authenticate_user",
         }
     })
 
-app.post("/refresh_token",
+app.post("/api/refresh_token",
     refreshTokenValidator,
     async (req: express.Request, res: express.Response) => {
         try {
@@ -101,11 +108,11 @@ app.post("/refresh_token",
                 return
             }
 
-            const currentRefreshToken = req.body.refresh_token as string
+            const currentRefreshToken = req.cookies.refresh_token as string
             const { accessToken, refreshToken } = await databaseService.refreshToken(currentRefreshToken)
             res.status(200)
-                .cookie("access_token", accessToken, { httpOnly: true, sameSite: "none" })
-                .cookie("refresh_token", refreshToken, { httpOnly: true, sameSite: "none" })
+                .cookie("access_token", accessToken, { httpOnly: true, sameSite: "lax", secure: false })
+                .cookie("refresh_token", refreshToken, { httpOnly: true, sameSite: "lax", secure: false })
                 .json({
                     status: "success",
                     message: "Token refreshed successfully!"
@@ -120,7 +127,7 @@ app.post("/refresh_token",
     }
 
 )
-app.post("/create_message",
+app.post("/api/create_message",
     [
         accessTokenValidator,
         validator.body("recipient_id").isInt(),
@@ -152,7 +159,7 @@ app.post("/create_message",
         }
     }
 )
-app.post("/find_connected_users",
+app.post("/api/find_connected_users",
     accessTokenValidator,
     async (req: express.Request, res: express.Response) => {
         try {
@@ -179,7 +186,7 @@ app.post("/find_connected_users",
         }
     }
 )
-app.post("/get_conversation",
+app.post("/api/get_conversation",
     [
         accessTokenValidator,
         validator.body("other_user_id").isInt()
@@ -210,4 +217,10 @@ app.post("/get_conversation",
     }
 )
 
-app.listen(3000)
+const options = {
+    key: fs.readFileSync("./cert/key.pem"),
+    cert: fs.readFileSync("./cert/certificate.crt")
+
+}
+
+https.createServer(options, app).listen(3000)

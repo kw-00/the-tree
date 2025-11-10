@@ -37,11 +37,16 @@ export async function authenticateUser(login: string, password: string): Promise
         headers: {
             "Content-Type": "application/json"
         },
+        credentials: "include",
         body: JSON.stringify({
             login: login,
             password: password
         })
     })
+
+    // console.log("======================")
+    // console.log(response.headers)
+
     const {status} = response
     const body = await response.json()
     return {
