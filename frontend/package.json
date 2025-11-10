@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@types/node": "^24.10.0",
+    "@types/react-router-dom": "^5.3.3",
     "dotenv": "^17.2.3",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.9.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

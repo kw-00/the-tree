@@ -1,5 +1,5 @@
 import { authenticateUser } from "@/services/services"
-import CredentialForm from "../components/CredentialForm"
+import CredentialForm from "./components/CredentialForm"
 
 
 export default function LoginPage() {

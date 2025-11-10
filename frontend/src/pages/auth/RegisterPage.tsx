@@ -1,4 +1,4 @@
-import CredentialForm from "../components/CredentialForm"
+import CredentialForm from "./components/CredentialForm"
 import { registerUser } from "@/services/services"
 
 export default function RegisterPage() {
