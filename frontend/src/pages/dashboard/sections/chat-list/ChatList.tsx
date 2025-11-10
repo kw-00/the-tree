@@ -8,12 +8,15 @@ interface ChatListProps {
 export default function ChatList({connectedUserIds}: ChatListProps) {
     const {currentRecipientId, setCurrentRecipientId} = useChatContext()
     return (
-        connectedUserIds.map(id => {
-            <ChatListElement 
-            recipientId={id} 
-            isSelected={currentRecipientId === id ? true : false} 
-            onClick={() => setCurrentRecipientId(id)}
-            />
-        })
+        <div>
+            {connectedUserIds.map(id => 
+                    <ChatListElement 
+                        recipientId={id} 
+                        isSelected={currentRecipientId === id ? true : false} 
+                        onClick={() => setCurrentRecipientId(id)}
+                    />
+                )
+            }
+        </div>
     )
 }
