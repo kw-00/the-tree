@@ -98,6 +98,7 @@ app.post("/api/authenticate_user",
         }
     })
 
+
 app.post("/api/refresh_token",
     refreshTokenValidator,
     async (req: express.Request, res: express.Response) => {
@@ -155,6 +156,7 @@ app.post("/api/log_out_user",
     }
 )
 
+
 app.post("/api/create_message",
     [
         accessTokenValidator,
@@ -187,6 +189,8 @@ app.post("/api/create_message",
         }
     }
 )
+
+
 app.post("/api/find_connected_users",
     accessTokenValidator,
     async (req: express.Request, res: express.Response) => {
@@ -214,6 +218,8 @@ app.post("/api/find_connected_users",
         }
     }
 )
+
+
 app.post("/api/get_conversation",
     [
         accessTokenValidator,
@@ -244,6 +250,7 @@ app.post("/api/get_conversation",
         }
     }
 )
+
 
 const options = {
     key: fs.readFileSync("./cert/key.pem"),
