@@ -192,7 +192,7 @@ PARAMS:
 RETURNS VOID
 
 RAISES:
-	* P4001 'refresh_token_not_found' — when the refresh token does not exist.
+	* P4002 'refresh_token_not_found' — when the refresh token does not exist.
 */
 CREATE OR REPLACE FUNCTION api.revoke_related_tokens(
 	p_refresh_token_uuid UUID
