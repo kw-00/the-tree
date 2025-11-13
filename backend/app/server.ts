@@ -125,8 +125,36 @@ app.post("/api/refresh_token",
             }
         }
     }
-
 )
+
+
+app.post("/api/log_out_user",
+    refreshTokenValidator,
+    async (req: express.Request, res: express.Response) => {
+        try {
+            const validationErrors = validator.validationResult(req)
+            if (!validationErrors.isEmpty()) {
+                res.status(400).json({validationErrors: validationErrors.array()})
+                return
+            }
+
+            const refreshToken = req.cookies.refresh_token
+            await databaseService.logOutUser(refreshToken)
+
+            res.status(200).json({
+                status: "success",
+                message: "Logged out successfully!"
+            })
+        } catch (error) {
+            if (error instanceof appErrors.AppError) {
+                res.status(error.httpStatusCode).json(error.errorPayload)
+            } else {
+                respondWithUnknownError(res)
+            }
+        }
+    }
+)
+
 app.post("/api/create_message",
     [
         accessTokenValidator,
