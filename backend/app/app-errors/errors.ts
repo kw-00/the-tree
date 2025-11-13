@@ -71,6 +71,12 @@ export class RefreshTokenRevokedError extends AppError {
     }
 }
 
+export class RefreshTokenNotFoundError extends AppError {
+    constructor(message: string) {
+        super("REFRESH_TOKEN_NOT_FOUND", message, 404)
+    }
+}
+
 
 export class GenericError extends AppError {
     constructor(message: string, encapsulatedError: Error) {

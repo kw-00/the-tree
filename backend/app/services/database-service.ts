@@ -67,6 +67,19 @@ export default class DatabaseService implements Service {
         }
     }
 
+    async logOutUser(refreshToken: string): Promise<void> {
+        try {
+            await pool.query("SELECT api.revoke_related_tokens($1)", [refreshToken])
+        } catch (error) {
+            if (error instanceof DatabaseError) {
+                if (error.code === "P4002") {
+                    throw new appErrors.RefreshTokenNotFoundError(error.message)
+                }
+            }
+            throw new appErrors.GenericError("An error occurred.", error as Error)
+        }
+    }
+
     async createMessage(accessToken: string, recipientId: number, content: string): Promise<void> {
         try {
             const accessTokenPayload = this._verifyAccessToken(accessToken)
