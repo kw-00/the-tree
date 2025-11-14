@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import CredentialForm from "./components/CredentialForm"
 import { registerUser } from "@/services/services"
+import NavigationButton from "@/components/NavigationButton"
 
 export default function RegisterPage() {
     const navigate = useNavigate()
@@ -18,6 +19,9 @@ export default function RegisterPage() {
         <>
             <div>
                 <CredentialForm callback={handleSubmit} submitButtonText="Register user"/>
+            </div>
+            <div>
+                <NavigationButton path="/login" title="Log in instead"/>
             </div>
         </>
     )
