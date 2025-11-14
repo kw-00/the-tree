@@ -69,7 +69,7 @@ export default class DatabaseService implements Service {
 
     async logOutUser(refreshToken: string): Promise<void> {
         try {
-            await pool.query("SELECT api.revoke_related_tokens($1)", [refreshToken])
+            await pool.query("SELECT api.revoke_related_tokens($1);", [refreshToken])
         } catch (error) {
             if (error instanceof DatabaseError) {
                 if (error.code === "P4002") {
@@ -84,7 +84,7 @@ export default class DatabaseService implements Service {
         try {
             const accessTokenPayload = this._verifyAccessToken(accessToken)
             
-            await pool.query("SELECT api.create_message($1, $2, $3)", [accessTokenPayload.sub, recipientId, content])
+            await pool.query("SELECT api.create_message($1, $2, $3);", [accessTokenPayload.sub, recipientId, content])
         } catch (error) {
             if (error instanceof DatabaseError) {
                 if (error.code === "P4001") throw new appErrors.UserNotFoundError(error.message)
@@ -99,7 +99,7 @@ export default class DatabaseService implements Service {
         try {
             const accessTokenPayload = this._verifyAccessToken(accessToken)
 
-            const result = await pool.query("SELECT api.find_connected_users($1)", [accessTokenPayload.sub])
+            const result = await pool.query("SELECT api.find_connected_users($1);", [accessTokenPayload.sub])
             return result.rows
 
         } catch (error) {
@@ -115,7 +115,7 @@ export default class DatabaseService implements Service {
         try {
             const accessTokenPayload = this._verifyAccessToken(accessToken)
 
-            const result = await pool.query("SELECT api.get_conversation($1, $2)", [accessTokenPayload.sub, otherUserId])
+            const result = await pool.query("SELECT api.get_conversation($1, $2);", [accessTokenPayload.sub, otherUserId])
             return result.rows
         } catch (error) {
             if (error instanceof DatabaseError) {
