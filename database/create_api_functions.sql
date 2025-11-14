@@ -183,6 +183,36 @@ $function$
 LANGUAGE plpgsql;
 
 /*
+Revokes the given refresh token.
+
+PARAMS:
+	* p_refresh_token_uuid — the refresh token to be revoked
+
+RETURNS VOID
+
+RAISES:
+
+*/
+
+CREATE OR REPLACE FUNCTION api.revoke_token(
+	p_refresh_token_uuid UUID
+)
+RETURNS VOID
+AS
+$function$
+BEGIN
+	IF NOT EXISTS(SELECT 1 FROM refresh_tokens WHERE uuid = p_refresh_token_uuid) THEN
+		PERFORM utils.raise_custom_exception('P4002', ARRAY[p_refresh_token_uuid]);
+	END IF;
+	
+	UPDATE refresh_tokens
+	SET status = 'revoked'
+	WHERE uuid = p_refresh_token_uuid;
+END
+$function$
+LANGUAGE plpgsql;
+
+/*
 Revokes all tokens that share a user with the given
 refresh token.
 
@@ -205,7 +235,7 @@ DECLARE
 BEGIN
 	SELECT user_id INTO v_user_id FROM refresh_tokens WHERE uuid = p_refresh_token_uuid;
 	IF v_user_id IS NULL THEN
-		PERFORM utils.raise_custom_error('P4002', ARRAY[p_refresh_token_uuid]);
+		PERFORM utils.raise_custom_exception('P4002', ARRAY[p_refresh_token_uuid]);
 	END IF;
 	UPDATE refresh_tokens
 	SET status = 'revoked'
@@ -251,9 +281,9 @@ BEGIN
 EXCEPTION
 	WHEN SQLSTATE '23503' THEN -- foreign_key_violation
 		IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_sender_id) THEN
-			PERFORM utils.raise_custom_error('P4001', ARRAY[p_sender_id]);
+			PERFORM utils.raise_custom_exception('P4001', ARRAY[p_sender_id]);
 		ELSE
-			PERFORM utils.raise_custom_error('P4001', ARRAY[p_recipient_id]);
+			PERFORM utils.raise_custom_exception('P4001', ARRAY[p_recipient_id]);
 		END IF;
 END;
 $function$
@@ -287,7 +317,7 @@ BEGIN
 	PERFORM utils.null_check(p_user_id, 'p_user_id');
 
 	IF NOT EXISTS(SELECT 1 FROM users u WHERE u.id = p_user_id) THEN
-		PERFORM utils.raise_custom_error('4001', ARRAY[p_user_id]);
+		PERFORM utils.raise_custom_exception('4001', ARRAY[p_user_id]);
 	END IF;
 
 	RETURN QUERY SELECT DISTINCT u.id, u.login
