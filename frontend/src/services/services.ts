@@ -75,3 +75,23 @@ export async function logOutUser(): Promise<APICallResult> {
         body: body
     }
 }
+
+
+async function refreshToken(): Promise<APICallResult> {
+    const response = await fetch(`${baseUrl}${API.REFRESH_TOKEN}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "include"
+    })
+
+    const {status} = response
+    const body = await response.json()
+
+    return {
+        status: status,
+        body: body
+    }
+}
+
