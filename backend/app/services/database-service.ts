@@ -69,7 +69,7 @@ export default class DatabaseService implements Service {
 
     async logOutUser(refreshToken: string): Promise<void> {
         try {
-            await pool.query("SELECT api.revoke_related_tokens($1);", [refreshToken])
+            await pool.query("SELECT api.revoke_token($1);", [refreshToken])
         } catch (error) {
             if (error instanceof DatabaseError) {
                 if (error.code === "P4002") {
