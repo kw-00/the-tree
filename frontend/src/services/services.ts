@@ -14,7 +14,7 @@ interface APICallResultBody {
 }
 
 
-export async function registerUser(login: string, password: string): Promise<APICallResult> {
+async function registerUser(login: string, password: string): Promise<APICallResult> {
     const response = await fetch(`${baseUrl}${API.REGISTER_USER}`,{
         method: "POST",
         headers: {
@@ -55,6 +55,14 @@ export async function authenticateUser(login: string, password: string): Promise
     }
 }
 
+export async function registerAndLogIn(login: string, password: string): Promise<APICallResult> {
+    const registrationResult = await registerUser(login, password)
+    if (registrationResult.status !== 200) {
+        return registrationResult
+    }
+    const authenticationResult = await authenticateUser(login, password)
+    return authenticationResult
+}
 
 export async function logOutUser(): Promise<APICallResult> {
     const response = await fetch(`${baseUrl}${API.LOG_OUT_USER}`, {

@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom"
 import CredentialForm from "./components/CredentialForm"
-import { registerUser } from "@/services/services"
+import { registerAndLogIn } from "@/services/services"
 import NavigationButton from "@/components/NavigationButton"
 
 export default function RegisterPage() {
     const navigate = useNavigate()
 
     const handleSubmit = async (login: string, password: string) => {
-        const apiCallResult = await registerUser(login, password)
+        const apiCallResult = await registerAndLogIn(login, password)
 
         const {status} = apiCallResult
         if (status === 200) {
