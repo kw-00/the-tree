@@ -47,9 +47,6 @@ export async function authenticateUser(login: string, password: string): Promise
         })
     })
 
-    // console.log("======================")
-    // console.log(response.headers)
-
     const {status} = response
     const body = await response.json()
     return {
