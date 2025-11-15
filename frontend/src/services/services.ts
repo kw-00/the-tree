@@ -2,19 +2,27 @@ import {API} from "./api"
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL
 
-interface APICallResult {
+type APICallResult<T> = {
     status: number,
-    body: APICallResultBody
+    body: T
 }
 
 
-interface APICallResultBody {
+type StandardBody = {
     status: string,
     message: string
 }
 
+type FindConnectedUsersFields = {
+    connectedUsers?: {id: string, login: string}[]
+}
 
-async function registerUser(login: string, password: string): Promise<APICallResult> {
+type GetConversationFields = {
+    conversation: {senderId: number, content: string}[]
+}
+
+
+async function registerUser(login: string, password: string): Promise<APICallResult<StandardBody>> {
     const response = await fetch(`${baseUrl}${API.REGISTER_USER}`,{
         method: "POST",
         headers: {
@@ -34,7 +42,7 @@ async function registerUser(login: string, password: string): Promise<APICallRes
 }
 
 
-export async function authenticateUser(login: string, password: string): Promise<APICallResult> {
+export async function authenticateUser(login: string, password: string): Promise<APICallResult<StandardBody>> {
     const response = await fetch(`${baseUrl}${API.AUTHENTICATE_USER}`, {
         method: "POST",
         headers: {
@@ -55,7 +63,7 @@ export async function authenticateUser(login: string, password: string): Promise
     }
 }
 
-export async function registerAndLogIn(login: string, password: string): Promise<APICallResult> {
+export async function registerAndLogIn(login: string, password: string): Promise<APICallResult<StandardBody>> {
     const registrationResult = await registerUser(login, password)
     if (registrationResult.status !== 200) {
         return registrationResult
@@ -64,7 +72,7 @@ export async function registerAndLogIn(login: string, password: string): Promise
     return authenticationResult
 }
 
-export async function logOutUser(): Promise<APICallResult> {
+export async function logOutUser(): Promise<APICallResult<StandardBody>> {
     const response = await fetch(`${baseUrl}${API.LOG_OUT_USER}`, {
         method: "POST",
         headers: {
@@ -82,7 +90,7 @@ export async function logOutUser(): Promise<APICallResult> {
 }
 
 
-async function refreshToken(): Promise<APICallResult> {
+async function refreshToken(): Promise<APICallResult<StandardBody>> {
     const response = await fetch(`${baseUrl}${API.REFRESH_TOKEN}`, {
         method: "POST",
         headers: {
@@ -101,7 +109,7 @@ async function refreshToken(): Promise<APICallResult> {
 }
 
 
-async function findConnectedUsers(): Promise<APICallResult> {
+export async function findConnectedUsers(): Promise<APICallResult<StandardBody & FindConnectedUsersFields>> {
     const response = await fetch(`${baseUrl}${API.FIND_CONNECTED_USERS}`, {
         method: "POST",
         headers: {
