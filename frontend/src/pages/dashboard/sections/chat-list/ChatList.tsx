@@ -5,13 +5,14 @@ interface ChatListProps {
     connectedUserIds: number[]
 }
 
-export default function ChatList({connectedUserIds}: ChatListProps) {
-    const {currentRecipientId, setCurrentRecipientId} = useChatContext()
+export default function ChatList() {
+    const {currentRecipientId, setCurrentRecipientId, connectedUsers} = useChatContext()
     return (
         <div>
-            {connectedUserIds.map(id => 
+            {connectedUsers.map(({id, login}) => 
                     <ChatListElement 
-                        recipientId={id} 
+                        recipientId={id}
+                        recipientLogin={login}
                         isSelected={currentRecipientId === id ? true : false} 
                         onClick={() => setCurrentRecipientId(id)}
                     />
