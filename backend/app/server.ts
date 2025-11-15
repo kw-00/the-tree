@@ -176,8 +176,8 @@ app.post("/api/create_message",
 
             await databaseService.createMessage(accessToken, recipientId, content)
             res.status(200).json({
-                "status": "success",
-                "message": "Message successfully sent!"
+                status: "success",
+                message: "Message successfully sent!"
             })
         } catch (error) {
             if (error instanceof appErrors.AppError) {
@@ -203,9 +203,9 @@ app.post("/api/find_connected_users",
             const accessToken = req.cookies.access_token
             const connectedUsers = await databaseService.findConnectedUsers(accessToken)
             res.status(200).json({
-                "status": "success",
-                "message": "Connected users successfully determined!",
-                "connected_users": connectedUsers
+                status: "success",
+                message: "Connected users successfully determined!",
+                connectedUsers: connectedUsers
             })
 
         } catch (error) {
@@ -237,7 +237,7 @@ app.post("/api/get_conversation",
 
             const conversation = await databaseService.getConversation(accessToken, otherUserId)
             res.status(200).json({
-                "conversation": conversation
+                conversation: conversation
             })
 
         } catch (error) {
