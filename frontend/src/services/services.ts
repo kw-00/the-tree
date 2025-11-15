@@ -100,3 +100,22 @@ async function refreshToken(): Promise<APICallResult> {
     }
 }
 
+
+async function findConnectedUsers(): Promise<APICallResult> {
+    const response = await fetch(`${baseUrl}${API.FIND_CONNECTED_USERS}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "include"
+    })
+
+    const {status} = response
+    const body = await response.json()
+
+    return {
+        status: status,
+        body: body
+    }
+}
+
