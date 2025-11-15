@@ -15,7 +15,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     const [connectedUsers, setConnectedUsers] = useState([])
 
     useEffect(() => {
-        var timeoutId: ReturnType<typeof setTimeout>
+        let timeoutId: ReturnType<typeof setTimeout>
 
         const fetchConnectedUsers = async () => {
             const apiCallResult = await findConnectedUsers()
@@ -31,7 +31,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         }
         fetchConnectedUsers()
         return () => clearTimeout(timeoutId)
-    })
+    }, [])
 
     const value: ChatContextValue = {currentRecipientId, setCurrentRecipientId, connectedUsers}
 
