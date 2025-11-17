@@ -55,17 +55,27 @@ export async function findConnectedUsers(): Promise<APICallResult<StandardBody &
     return await attemptAndRefreshToken(API.FIND_CONNECTED_USERS)
 }
 
+export async function getConversation(otherUserId: number) {
+    return await attemptAndRefreshToken(API.GET_CONVERSATION, {otherUserId: otherUserId})
+}
+
+export async function createMessage(recipientId: number, content: string) {
+    return await attemptAndRefreshToken(API.CREATE_MESSAGE, {
+        recipientId: recipientId,
+        content: content
+    })
+}
 
 async function refreshToken(): Promise<APICallResult<StandardBody>> {
     return await makeRequest(API.REFRESH_TOKEN)
 }
 
-async function attemptAndRefreshToken(endpointUrl: string): Promise<APICallResult<StandardBody & any>> {
-    let response = await makeRequest(endpointUrl)
+async function attemptAndRefreshToken(endpointUrl: string, body?: object): Promise<APICallResult<StandardBody & any>> {
+    let response = await makeRequest(endpointUrl, body)
     if (response.status === 401) {
         const refreshAttemptResult = await refreshToken()
         if (refreshAttemptResult.status === 200) {
-            response = await makeRequest(endpointUrl)
+            response = await makeRequest(endpointUrl, body)
         }
     }
     return response
