@@ -116,7 +116,16 @@ export default class DatabaseService implements Service {
             const accessTokenPayload = this._verifyAccessToken(accessToken)
 
             const result = await pool.query("SELECT * FROM api.get_conversation($1, $2);", [accessTokenPayload.sub, otherUserId])
-            return result.rows
+            const camelCaseResult: {senderId: number, content: string}[] = []
+            for (const message of result.rows) {
+                const {sender_id, content} = message
+                camelCaseResult.push({
+                    senderId: sender_id,
+                    content: content
+                })
+            }
+            return camelCaseResult
+
         } catch (error) {
             if (error instanceof DatabaseError) {
                 if (error.code === "P4001") throw new appErrors.UserNotFoundError(error.message)
