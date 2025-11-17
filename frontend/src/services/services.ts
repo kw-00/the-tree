@@ -55,11 +55,11 @@ export async function findConnectedUsers(): Promise<APICallResult<StandardBody &
     return await attemptAndRefreshToken(API.FIND_CONNECTED_USERS)
 }
 
-export async function getConversation(otherUserId: number) {
+export async function getConversation(otherUserId: number): Promise<APICallResult<StandardBody & GetConversationFields>> {
     return await attemptAndRefreshToken(API.GET_CONVERSATION, {otherUserId: otherUserId})
 }
 
-export async function createMessage(recipientId: number, content: string) {
+export async function createMessage(recipientId: number, content: string): Promise<APICallResult<StandardBody>> {
     return await attemptAndRefreshToken(API.CREATE_MESSAGE, {
         recipientId: recipientId,
         content: content
