@@ -7,6 +7,6 @@ export const API = {
     REFRESH_TOKEN: "/refresh_token",
     CREATE_MESSAGE: "/create_message",
     FIND_CONNECTED_USERS: "/find_connected_users",
-    GET_CONVERSATION: "get_conversation"
+    GET_CONVERSATION: "/get_conversation"
 
 }
