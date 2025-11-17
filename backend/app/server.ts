@@ -47,7 +47,7 @@ app.post("/api/register_user",
         try {
             const validationErrors = validator.validationResult(req)
             if (!validationErrors.isEmpty()) {
-                res.status(400).json({ validation_errors: validationErrors.array() })
+                res.status(400).json({ validationErrors: validationErrors.array() })
                 return
             }
 
@@ -75,7 +75,7 @@ app.post("/api/authenticate_user",
         try {
             const validationErrors = validator.validationResult(req)
             if (!validationErrors.isEmpty()) {
-                res.status(400).json({ validation_errors: validationErrors.array() })
+                res.status(400).json({ validationErrors: validationErrors.array() })
                 return
             }
 
@@ -104,7 +104,7 @@ app.post("/api/refresh_token",
         try {
             const validationErrors = validator.validationResult(req)
             if (!validationErrors.isEmpty()) {
-                res.status(400).json({ validation_errors: validationErrors.array() })
+                res.status(400).json({ validationErrors: validationErrors.array() })
                 return
             }
 
@@ -159,7 +159,7 @@ app.post("/api/log_out_user",
 app.post("/api/create_message",
     [
         accessTokenValidator,
-        validator.body("recipient_id").isInt(),
+        validator.body("recipientId").isInt(),
         validator.body("content").isString()
     ],
     async (req: express.Request, res: express.Response) => {
@@ -222,7 +222,7 @@ app.post("/api/find_connected_users",
 app.post("/api/get_conversation",
     [
         accessTokenValidator,
-        validator.body("other_user_id").isInt()
+        validator.body("otherUserId").isInt()
     ],
     async (req: express.Request, res: express.Response) => {
         try {
