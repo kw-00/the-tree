@@ -13,8 +13,8 @@ export default function Chat() {
                 <b>{getLogin(currentRecipientId)}</b>
             </div>
             <div>
-                {conversation.map(({senderId, content}) => 
-                        <Message senderId={senderId} content={content}/>
+                {conversation.map(({senderId, content}, n) => 
+                        <Message key={n} senderId={senderId} content={content}/>
                     )
                 }
             </div>

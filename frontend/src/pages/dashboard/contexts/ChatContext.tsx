@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useRef, useState } from "react"
 import { findConnectedUsers, getConversation } from "@/services/services"
 
 interface ChatContextValue {
@@ -17,10 +17,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     const [connectedUsers, setConnectedUsers] = useState<{id: number, login: string}[]>([])
     const [conversation, setConversation] = useState<{senderId: number, content: string}[]>([])
 
+    const currentRecipientIdRef = useRef(currentRecipientId)
+    useEffect(() => {currentRecipientIdRef.current = currentRecipientId}, [currentRecipientId])
+
     useEffect(() => {
         let timeoutId: ReturnType<typeof setTimeout>
 
-        const fetchUsersAndMessages = async () => {
+        const fetchUsersAndMessages = async (recipientId: number) => {
             const findConnectedUsersResult = await findConnectedUsers()
 
             if (findConnectedUsersResult.status === 200) {
@@ -28,16 +31,20 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                 setConnectedUsers(fetchedUsers)
             }
 
-            const getConversationResult = await getConversation(currentRecipientId)
+            const getConversationResult = await getConversation(recipientId)
             if (getConversationResult.status === 200) {
                 const fetchedConversation = getConversationResult.body.conversation as any
                 setConversation(fetchedConversation)
             }
+            console.log(getConversationResult)
 
-
-            timeoutId = setTimeout(fetchUsersAndMessages, 2000)
+            console.log(currentRecipientId)
+            console.log(recipientId)
+            console.log(currentRecipientIdRef.current)
+            console.log()
+            timeoutId = setTimeout(() => fetchUsersAndMessages(currentRecipientIdRef.current), 2000)
         }
-        fetchUsersAndMessages()
+        fetchUsersAndMessages(currentRecipientId)
         return () => clearTimeout(timeoutId)
     }, [])
 
@@ -47,8 +54,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         connectedUsers, 
         conversation,
         getLogin: (id: number) => {
-            if (id === -1) return undefined
-            return connectedUsers.filter((el) => id === el.id).slice(-1)[0].login
+            const possibleLogins = connectedUsers.filter((el) => id === el.id)
+            if (possibleLogins.length > 0) return possibleLogins.slice(-1)[0].login
+            else return undefined
         }
     }
 
