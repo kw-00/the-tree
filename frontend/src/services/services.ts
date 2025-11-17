@@ -23,44 +23,18 @@ type GetConversationFields = {
 
 
 async function registerUser(login: string, password: string): Promise<APICallResult<StandardBody>> {
-    const response = await fetch(`${baseUrl}${API.REGISTER_USER}`,{
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            login: login,
-            password: password
-        })
+    return await makeRequest(API.REGISTER_USER, {
+        login: login,
+        password: password
     })
-    const {status} = response
-    const body = await response.json()
-    return {
-        status: status,
-        body: body
-    }
 }
 
 
 export async function authenticateUser(login: string, password: string): Promise<APICallResult<StandardBody>> {
-    const response = await fetch(`${baseUrl}${API.AUTHENTICATE_USER}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({
-            login: login,
-            password: password
-        })
-    })
-
-    const {status} = response
-    const body = await response.json()
-    return {
-        status: status,
-        body: body
-    }
+    return await makeRequest(API.AUTHENTICATE_USER, {
+        login: login,
+        password: password
+    }) 
 }
 
 export async function registerAndLogIn(login: string, password: string): Promise<APICallResult<StandardBody>> {
@@ -73,44 +47,17 @@ export async function registerAndLogIn(login: string, password: string): Promise
 }
 
 export async function logOutUser(): Promise<APICallResult<StandardBody>> {
-    const response = await fetch(`${baseUrl}${API.LOG_OUT_USER}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include"
-    })
-
-    const {status} = response
-    const body = await response.json()
-    return {
-        status: status,
-        body: body
-    }
+    return await makeRequest(API.LOG_OUT_USER)
 }
 
 
 export async function findConnectedUsers(): Promise<APICallResult<StandardBody & FindConnectedUsersFields>> {
-    return attemptAndRefreshToken(API.FIND_CONNECTED_USERS)
+    return await attemptAndRefreshToken(API.FIND_CONNECTED_USERS)
 }
 
 
 async function refreshToken(): Promise<APICallResult<StandardBody>> {
-    const response = await fetch(`${baseUrl}${API.REFRESH_TOKEN}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include"
-    })
-
-    const {status} = response
-    const body = await response.json()
-
-    return {
-        status: status,
-        body: body
-    }
+    return await makeRequest(API.REFRESH_TOKEN)
 }
 
 async function attemptAndRefreshToken(endpointUrl: string): Promise<APICallResult<StandardBody & any>> {
@@ -124,14 +71,13 @@ async function attemptAndRefreshToken(endpointUrl: string): Promise<APICallResul
     return response
 }
 
-async function makeRequest(endpointUrl: string): Promise<APICallResult<StandardBody & any>> {
+async function makeRequest(endpointUrl: string, requestBody?: object): Promise<APICallResult<StandardBody & any>> {
     const response = await fetch(
         `${baseUrl}${endpointUrl}`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include"
+            headers: requestBody !== undefined ? {"Content-Type": "application/json"} : undefined,
+            credentials: "include",
+            body: requestBody !== undefined ? JSON.stringify(requestBody) : undefined
         }
     )
     const {status} = response
