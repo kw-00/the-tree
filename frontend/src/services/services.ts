@@ -110,13 +110,26 @@ async function refreshToken(): Promise<APICallResult<StandardBody>> {
 
 
 export async function findConnectedUsers(): Promise<APICallResult<StandardBody & FindConnectedUsersFields>> {
-    const response = await fetch(`${baseUrl}${API.FIND_CONNECTED_USERS}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include"
-    })
+    const findUsers = async () => {
+        return await fetch(`${baseUrl}${API.FIND_CONNECTED_USERS}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include"
+        })
+    }
+    
+    let response = await findUsers()
+
+    if (response.status === 401) {
+        const refreshAttemptResult = await refreshToken()
+        if (refreshAttemptResult.status === 200) {
+            response = await findUsers()
+        } else {
+            return refreshAttemptResult
+        }
+    }
 
     const {status} = response
     const body = await response.json()
