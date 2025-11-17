@@ -53,7 +53,7 @@ export default class DatabaseService implements Service {
         } catch (error) {
             if (error instanceof DatabaseError) {
                 if (error.code === "P3000") {
-                    throw new appErrors.AuthorizationFailedError(error.message)
+                    throw new appErrors.InvalidAccessTokenError(error.message)
                 } else if (error.code === "P3001") {
                     throw new appErrors.RefreshTokenExpiredError(error.message)
                 } else if (error.code === "P3002") {
@@ -128,7 +128,7 @@ export default class DatabaseService implements Service {
 
     _verifyAccessToken(accessToken: string): AccessTokenPayload {
         const accessTokenPayload = AccessTokenManagement.verifyToken(accessToken)
-        if (accessTokenPayload === null) throw new appErrors.AuthorizationFailedError("Invalid access token.")
+        if (accessTokenPayload === null) throw new appErrors.InvalidAccessTokenError("Invalid access token.")
         return accessTokenPayload
     }
 

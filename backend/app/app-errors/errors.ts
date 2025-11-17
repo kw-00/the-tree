@@ -47,27 +47,27 @@ export class AuthenticationFailedError extends AppError {
     }
 }
 
-export class AuthorizationFailedError extends AppError {
+export class InvalidAccessTokenError extends AppError {
     constructor(message: string) {
-        super("AUTHORIZATION_FAILED", message, 403)
+        super("INVALID_ACCESS_TOKEN", message, 401)
     }
 }
 
 export class RefreshTokenExpiredError extends AppError {
     constructor(message: string) {
-        super("REFRESH_TOKEN_EXPIRED", message, 403)
+        super("REFRESH_TOKEN_EXPIRED", message, 401)
     }
 }
 
 export class RefreshTokenReuseError extends AppError {
     constructor(message: string) {
-        super("REFRESH_TOKEN_REUSE", message, 403)
+        super("REFRESH_TOKEN_REUSE", message, 401)
     }
 }
 
 export class RefreshTokenRevokedError extends AppError {
     constructor(message: string) {
-        super("REFRESH_TOKEN_REVOKED", message, 403)
+        super("REFRESH_TOKEN_REVOKED", message, 401)
     }
 }
 
