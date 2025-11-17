@@ -28,8 +28,8 @@ const loginAndPasswordValidators = [
         .isLength({ min: config.dataRules.password.minLength, max: config.dataRules.password.maxLength }),
 ]
 
-const accessTokenValidator = validator.check("access_token").isJWT()
-const refreshTokenValidator = validator.check("refresh_token").isUUID("4")
+const accessTokenValidator = validator.check("accessToken").isJWT()
+const refreshTokenValidator = validator.check("refreshToken").isUUID("4")
 
 const respondWithUnknownError = (res: express.Response) => {
     res.status(500).json({
@@ -82,8 +82,8 @@ app.post("/api/authenticate_user",
             const { login, password } = req.body
             const { accessToken, refreshToken } = await databaseService.authenticateUser(login, password)
             res.status(200)
-                .cookie("access_token", accessToken, { httpOnly: true, sameSite: "strict", secure: true })
-                .cookie("refresh_token", refreshToken, { httpOnly: true, sameSite: "strict", secure: true })
+                .cookie("accessToken", accessToken, { httpOnly: true, sameSite: "strict", secure: true })
+                .cookie("refreshToken", refreshToken, { httpOnly: true, sameSite: "strict", secure: true })
                 .json({
                     status: "success",
                     message: "Authentication successful!"
@@ -108,11 +108,11 @@ app.post("/api/refresh_token",
                 return
             }
 
-            const currentRefreshToken = req.cookies.refresh_token as string
+            const currentRefreshToken = req.cookies.refreshToken as string
             const { accessToken, refreshToken } = await databaseService.refreshToken(currentRefreshToken)
             res.status(200)
-                .cookie("access_token", accessToken, { httpOnly: true, sameSite: "strict", secure: true })
-                .cookie("refresh_token", refreshToken, { httpOnly: true, sameSite: "strict", secure: true })
+                .cookie("accessToken", accessToken, { httpOnly: true, sameSite: "strict", secure: true })
+                .cookie("refreshToken", refreshToken, { httpOnly: true, sameSite: "strict", secure: true })
                 .json({
                     status: "success",
                     message: "Token refreshed successfully!"
@@ -138,7 +138,7 @@ app.post("/api/log_out_user",
                 return
             }
 
-            const refreshToken = req.cookies.refresh_token
+            const refreshToken = req.cookies.refreshToken
             await databaseService.logOutUser(refreshToken)
 
             res.status(200).json({
@@ -170,8 +170,8 @@ app.post("/api/create_message",
                 return
             }
 
-            const accessToken = req.cookies.access_token
-            const recipientId = req.body.recipient_id
+            const accessToken = req.cookies.accessToken
+            const recipientId = req.body.recipientId
             const content = req.body.content
 
             await databaseService.createMessage(accessToken, recipientId, content)
@@ -200,7 +200,7 @@ app.post("/api/find_connected_users",
                 return
             }
 
-            const accessToken = req.cookies.access_token
+            const accessToken = req.cookies.accessToken
             const connectedUsers = await databaseService.findConnectedUsers(accessToken)
             res.status(200).json({
                 status: "success",
@@ -233,7 +233,7 @@ app.post("/api/get_conversation",
             }
 
             const accessToken = req.cookies.accessToken
-            const otherUserId = req.body.other_user_id
+            const otherUserId = req.body.otherUserId
 
             const conversation = await databaseService.getConversation(accessToken, otherUserId)
             res.status(200).json({
