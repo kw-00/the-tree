@@ -90,6 +90,11 @@ export async function logOutUser(): Promise<APICallResult<StandardBody>> {
 }
 
 
+export async function findConnectedUsers(): Promise<APICallResult<StandardBody & FindConnectedUsersFields>> {
+    return attemptAndRefreshToken(API.FIND_CONNECTED_USERS)
+}
+
+
 async function refreshToken(): Promise<APICallResult<StandardBody>> {
     const response = await fetch(`${baseUrl}${API.REFRESH_TOKEN}`, {
         method: "POST",
@@ -108,29 +113,27 @@ async function refreshToken(): Promise<APICallResult<StandardBody>> {
     }
 }
 
+async function attemptAndRefreshToken(endpointUrl: string): Promise<APICallResult<StandardBody & any>> {
+    let response = await makeRequest(endpointUrl)
+    if (response.status === 401) {
+        const refreshAttemptResult = await refreshToken()
+        if (refreshAttemptResult.status === 200) {
+            response = await makeRequest(endpointUrl)
+        }
+    }
+    return response
+}
 
-export async function findConnectedUsers(): Promise<APICallResult<StandardBody & FindConnectedUsersFields>> {
-    const findUsers = async () => {
-        return await fetch(`${baseUrl}${API.FIND_CONNECTED_USERS}`, {
+async function makeRequest(endpointUrl: string): Promise<APICallResult<StandardBody & any>> {
+    const response = await fetch(
+        `${baseUrl}${endpointUrl}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             credentials: "include"
-        })
-    }
-    
-    let response = await findUsers()
-
-    if (response.status === 401) {
-        const refreshAttemptResult = await refreshToken()
-        if (refreshAttemptResult.status === 200) {
-            response = await findUsers()
-        } else {
-            return refreshAttemptResult
         }
-    }
-
+    )
     const {status} = response
     const body = await response.json()
 
