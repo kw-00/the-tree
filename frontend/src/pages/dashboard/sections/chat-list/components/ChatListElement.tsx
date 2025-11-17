@@ -8,7 +8,7 @@ interface ChatListElementProps {
 }
 export default function ChatListElement(props: ChatListElementProps) {
     return (
-        <div>
+        <div onClick={props.onClick}>
             login: {props.recipientLogin}
         </div>
     )

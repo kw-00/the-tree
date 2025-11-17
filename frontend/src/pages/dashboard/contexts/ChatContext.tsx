@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { findConnectedUsers } from "@/services/services"
+import { findConnectedUsers, getConversation } from "@/services/services"
 
 interface ChatContextValue {
     currentRecipientId: number
     setCurrentRecipientId: React.Dispatch<React.SetStateAction<number>>
     connectedUsers: {id: number, login: string}[]
+    conversation: {senderId: number, content: string}[]
+    getLogin: (id: number) => string | undefined
 }
 
 const ChatContext = createContext<ChatContextValue | null>(null)
@@ -12,28 +14,43 @@ const ChatContext = createContext<ChatContextValue | null>(null)
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
     const [currentRecipientId, setCurrentRecipientId] = useState(-1)
-    const [connectedUsers, setConnectedUsers] = useState([])
+    const [connectedUsers, setConnectedUsers] = useState<{id: number, login: string}[]>([])
+    const [conversation, setConversation] = useState<{senderId: number, content: string}[]>([])
 
     useEffect(() => {
         let timeoutId: ReturnType<typeof setTimeout>
 
-        const fetchConnectedUsers = async () => {
-            const apiCallResult = await findConnectedUsers()
-            const {status} = apiCallResult
+        const fetchUsersAndMessages = async () => {
+            const findConnectedUsersResult = await findConnectedUsers()
 
-            if (status === 200) {
-                const fetchedUsers = apiCallResult.body.connectedUsers
-                if (fetchedUsers !== undefined) {
-                    setConnectedUsers(fetchedUsers as any)
-                }
+            if (findConnectedUsersResult.status === 200) {
+                const fetchedUsers = findConnectedUsersResult.body.connectedUsers as any
+                setConnectedUsers(fetchedUsers)
             }
-            timeoutId = setTimeout(fetchConnectedUsers, 2000)
+
+            const getConversationResult = await getConversation(currentRecipientId)
+            if (getConversationResult.status === 200) {
+                const fetchedConversation = getConversationResult.body.conversation as any
+                setConversation(fetchedConversation)
+            }
+
+
+            timeoutId = setTimeout(fetchUsersAndMessages, 2000)
         }
-        fetchConnectedUsers()
+        fetchUsersAndMessages()
         return () => clearTimeout(timeoutId)
     }, [])
 
-    const value: ChatContextValue = {currentRecipientId, setCurrentRecipientId, connectedUsers}
+    const value: ChatContextValue = {
+        currentRecipientId, 
+        setCurrentRecipientId, 
+        connectedUsers, 
+        conversation,
+        getLogin: (id: number) => {
+            if (id === -1) return undefined
+            return connectedUsers.filter((el) => id === el.id).slice(-1)[0].login
+        }
+    }
 
     return (
         <ChatContext.Provider value={value}>
