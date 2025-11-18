@@ -7,7 +7,7 @@
   "type": "module",
   "main": "app/server.ts",
   "scripts": {
-    "test": "nodemon --exec npx tsx app/server.ts"
+    "dev": "nodemon --exec npx tsx app/server.ts"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",

@@ -1,4 +1,4 @@
-import { ChatProvider, useChatContext } from "@/pages/dashboard/contexts/ChatContext"
+import { useChatContext } from "@/pages/dashboard/contexts/ChatContext"
 
 interface MessageProps {
     senderId: number
