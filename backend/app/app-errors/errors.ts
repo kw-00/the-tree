@@ -1,6 +1,3 @@
-import config from "../utilities/config"
-
-
 interface ErrorPayload {
     status: "error"
     code: string
@@ -80,6 +77,6 @@ export class RefreshTokenNotFoundError extends AppError {
 
 export class GenericError extends AppError {
     constructor(message: string, encapsulatedError: Error) {
-        super("GENERIC_ERROR", config.debug ? encapsulatedError.message : message, 500)
+        super("GENERIC_ERROR", process.env.DEBUG === "true" ? encapsulatedError.message : message, 500)
     }
 }

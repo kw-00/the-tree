@@ -1,8 +1,6 @@
 import fs from "fs"
 import path from "path"
-import jwtWebToken, { JwtPayload } from "jsonwebtoken"
-
-import config from "./config"
+import jwtWebToken from "jsonwebtoken"
 
 
 export interface AccessTokenPayload {
@@ -14,15 +12,14 @@ export interface AccessTokenPayload {
 export class AccessTokenManagement {
 
     static getToken(sub: number): string {
-        return this._getToken(sub, config.tokens.access.validityPeriod, config.tokens.access.secret)
+        return this._getToken(sub, Number(process.env.ACCESS_TOKEN_VALIDITY_PERIOD), process.env.ACCESS_TOKEN_SECRET as string)
     }
 
     static verifyToken(token: string): AccessTokenPayload | null {
         try {
-            const secret = config.tokens.access.secret
+            const secret = process.env.ACCESS_TOKEN_SECRET as string
             const payload = jwtWebToken.verify(token, secret)
-            // @ts-ignore
-            return payload
+            return payload as any
         } catch (err) {
             return null
         }

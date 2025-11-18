@@ -1,12 +1,18 @@
 import { DatabaseError, Pool } from "pg"
 
-import config from "../utilities/config"
 import Service from "./service"
 import * as appErrors from "../app-errors/errors"
 import { AccessTokenManagement, AccessTokenPayload } from "../utilities/access-token-management"
 
+const databaseCredentials = {
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: Number(process.env.DB_PORT)
+}
 
-const pool = new Pool(config.databaseCredentials)
+const pool = new Pool(databaseCredentials)
 
 export default class DatabaseService implements Service {
     async registerUser(login: string, password: string): Promise<void> {
@@ -142,7 +148,7 @@ export default class DatabaseService implements Service {
     }
 
     async _getTokenPair(userId: number): Promise<{ accessToken: string, refreshToken: string }> {
-        const refreshResult = await pool.query("SELECT api.create_refresh_token($1, $2);", [userId, config.tokens.refresh.validityPeriod])
+        const refreshResult = await pool.query("SELECT api.create_refresh_token($1, $2);", [userId, process.env.REFRESH_TOKEN_VALIDITY_PERIOD])
         const refreshToken = refreshResult.rows[0].create_refresh_token as string
 
         const accessToken = AccessTokenManagement.getToken(userId)

@@ -1,3 +1,5 @@
+import "dotenv/config"
+
 import express from "express"
 import DatabaseService from "./services/database-service"
 import * as appErrors from "./app-errors/errors"
@@ -5,8 +7,6 @@ import * as appErrors from "./app-errors/errors"
 import cookieParser from "cookie-parser"
 import cors from "cors"
 import * as validator from "express-validator"
-
-import config from "./utilities/config"
 
 import https from "https"
 import fs from "fs"
@@ -23,9 +23,9 @@ const databaseService = new DatabaseService()
 
 const loginAndPasswordValidators = [
     validator.body("login").isString().notEmpty()
-        .isLength({ min: config.dataRules.login.minLength, max: config.dataRules.login.maxLength }),
+        .isLength({min: Number(process.env.LOGIN_LENGTH_MIN), max: Number(process.env.LOGIN_LENGTH_MAX)}),
     validator.body("password").isString().notEmpty()
-        .isLength({ min: config.dataRules.password.minLength, max: config.dataRules.password.maxLength }),
+        .isLength({min: Number(process.env.PASSWORD_LENGTH_MIN), max: Number(process.env.PASSWORD_LENGTH_MAX) }),
 ]
 
 const accessTokenValidator = validator.check("accessToken").isJWT()
