@@ -367,7 +367,7 @@ BEGIN
 	FROM messages m
 	WHERE m.sender_id IN (p_user1_id, p_user2_id)
 		AND m.recipient_id IN (p_user1_id, p_user2_id)
-	ORDER BY created_at DESC;
+	ORDER BY created_at ASC;
 END;
 $function$
 LANGUAGE plpgsql;
