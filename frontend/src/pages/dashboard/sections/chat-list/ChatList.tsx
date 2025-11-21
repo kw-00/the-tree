@@ -2,16 +2,15 @@ import { useChatContext } from "../../contexts/ChatContext"
 import ChatListElement from "./components/ChatListElement"
 
 export default function ChatList() {
-    const {currentRecipientId, setCurrentRecipientId, connectedUsers} = useChatContext()
+    const {currentRecipient, setCurrentRecipient, connectedUsers} = useChatContext()
     return (
         <div>
-            {connectedUsers.map(({id, login}, n) => 
+            {connectedUsers.map((recipient, n) => 
                     <ChatListElement 
                         key={n}
-                        recipientId={id}
-                        recipientLogin={login}
-                        isSelected={currentRecipientId === id ? true : false} 
-                        onClick={() => setCurrentRecipientId(id)}
+                        recipient={recipient}
+                        isSelected={currentRecipient?.id === recipient.id ? true : false} 
+                        onClick={() => setCurrentRecipient(recipient)}
                     />
                 )
             }

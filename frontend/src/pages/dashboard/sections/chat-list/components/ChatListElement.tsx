@@ -1,15 +1,15 @@
+import type { User } from "@/pages/dashboard/contexts/ChatContext"
 
 
 interface ChatListElementProps {
-    recipientId: number
-    recipientLogin: string
+    recipient: User
     isSelected: boolean
     onClick: () => void
 }
 export default function ChatListElement(props: ChatListElementProps) {
     return (
         <div onClick={props.onClick}>
-            login: {props.recipientLogin}
+            login: {props.recipient.login}
         </div>
     )
 }
