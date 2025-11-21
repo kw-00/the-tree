@@ -325,6 +325,7 @@ BEGIN
 	INNER JOIN messages m 
 	ON u.id IN (m.sender_id, m.recipient_id)
 		AND p_user_id IN (m.sender_id, m.recipient_id)
+	WHERE u.id != p_user_id
 	ORDER BY login ASC;
 	
 END;
