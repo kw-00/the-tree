@@ -19,11 +19,16 @@ export default function LoginPage() {
 
     return (
         <>
-            <div>
-                <CredentialForm callback={handleSubmit} submitButtonText="Log in"/>
-            </div>
-            <div>
-                <NavigationButton path="/register" title="Register instead"/>
+            <div className="bg-1 v-container align-items-center">
+                <div className="bg-1 v-container width-384 padding-32 align-items-center">
+                    <div><h1>Welcome back!</h1></div>
+                    <div className="v-container width-full">
+                        <CredentialForm callback={handleSubmit} className="v-stack justify-content-center width-full" submitButtonText="Log in"/>
+                    </div>
+                    <div className="bg-2 width-full">
+                        <NavigationButton path="/register" className="clickable-contrasting width-full">Register instead</NavigationButton>
+                    </div>
+                </div>
             </div>
         </>
     )

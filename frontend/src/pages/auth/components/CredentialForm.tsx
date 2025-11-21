@@ -6,9 +6,11 @@ type CredentialFormHandler = (login: string, password: string) => void
 interface CredentialFormProps {
     callback: CredentialFormHandler
     submitButtonText: string
+
+    className?: string
 }
 
-export default function CredentialForm({callback, submitButtonText}: CredentialFormProps) {
+export default function CredentialForm({callback, submitButtonText, className}: CredentialFormProps) {
 
     const [login, setLogin] = useState("")
     const [password, setPassword] = useState("")
@@ -20,17 +22,17 @@ export default function CredentialForm({callback, submitButtonText}: CredentialF
 
     return (
         <>
-            <form onSubmit={handleSubmit}>
-                <label>
+            <form onSubmit={handleSubmit} className={className}>
+                <label className="width-full padding-vertical-8">
                     Login
-                    <input type="text" onChange={e => setLogin(e.target.value)}/>
+                    <input type="text" onChange={e => setLogin(e.target.value)} className="width-full"/>
                 </label>
-                <label>
+                <label className="width-full padding-vertical-8">
                     Password
-                    <input type="password" onChange={e => setPassword(e.target.value)}/>
+                    <input type="password" onChange={e => setPassword(e.target.value)} className="width-full"/>
                 </label>
 
-                <button type="submit">{submitButtonText}</button>
+                <button type="submit" className="clickable-transparent clickable-border width-full">{submitButtonText}</button>
             </form>
         </>
     )

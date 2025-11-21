@@ -80,7 +80,7 @@ export function useChatContext() {
 
     const context = useContext(ChatContext)
 
-    if (!context) {
+    if (context === null) {
         throw new Error("Function useChatContext() must be used within a ChatProvider.")
     }
     return context

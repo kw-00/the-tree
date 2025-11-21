@@ -2,11 +2,12 @@ import { useNavigate } from "react-router-dom"
 
 
 interface NavigationButtonProps {
-    title: string
     path: string
+    className?: string
+    children?: React.ReactNode
 }
 
-export default function NavigationButton({title, path}: NavigationButtonProps) {
+export default function NavigationButton({path, className, children}: NavigationButtonProps) {
 
     const navigate = useNavigate()
 
@@ -16,6 +17,6 @@ export default function NavigationButton({title, path}: NavigationButtonProps) {
     }
 
     return (
-        <button onClick={handleClick}>{title}</button>
+        <button onClick={handleClick} className={className}>{children}</button>
     )
 }

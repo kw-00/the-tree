@@ -1,7 +1,8 @@
-import './App.css'
 import RegisterPage from '@/pages/auth/RegisterPage'
 import LoginPage from '@/pages/auth/LoginPage'
 import Dashboard from '@/pages/dashboard/Dashboard'
+
+import '@/styles/global.css'
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 

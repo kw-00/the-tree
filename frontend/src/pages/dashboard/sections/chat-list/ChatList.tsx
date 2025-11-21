@@ -1,10 +1,10 @@
 import { useChatContext } from "../../contexts/ChatContext"
 import ChatListElement from "./components/ChatListElement"
 
-export default function ChatList() {
+export default function ChatList({className}: {className?: string}) {
     const {currentRecipient, setCurrentRecipient, connectedUsers} = useChatContext()
     return (
-        <div>
+        <div className={className}>
             {connectedUsers.map((recipient, n) => 
                     <ChatListElement 
                         key={n}
