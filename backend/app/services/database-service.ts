@@ -117,16 +117,17 @@ export default class DatabaseService implements Service {
         }
     }
 
-    async getConversation(accessToken: string, otherUserId: number): Promise<{ senderId: number, content: string }[]> {
+    async getConversation(accessToken: string, otherUserId: number): Promise<{ senderId: number, senderLogin: string, content: string }[]> {
         try {
             const accessTokenPayload = this._verifyAccessToken(accessToken)
 
             const result = await pool.query("SELECT * FROM api.get_conversation($1, $2);", [accessTokenPayload.sub, otherUserId])
-            const camelCaseResult: {senderId: number, content: string}[] = []
+            const camelCaseResult: {senderId: number, senderLogin: string, content: string}[] = []
             for (const message of result.rows) {
-                const {sender_id, content} = message
+                const {sender_id, sender_login, content} = message
                 camelCaseResult.push({
                     senderId: sender_id,
+                    senderLogin: sender_login,
                     content: content
                 })
             }
