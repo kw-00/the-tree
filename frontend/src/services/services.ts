@@ -18,7 +18,7 @@ type FindConnectedUsersFields = {
 }
 
 type GetConversationFields = {
-    conversation: {senderId: number, content: string}[]
+    conversation: {senderId: number, senderLogin: string, content: string}[]
 }
 
 

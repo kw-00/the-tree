@@ -2,62 +2,64 @@ import { createContext, useContext, useEffect, useRef, useState } from "react"
 import { findConnectedUsers, getConversation } from "@/services/services"
 
 interface ChatContextValue {
-    currentRecipientId: number
-    setCurrentRecipientId: React.Dispatch<React.SetStateAction<number>>
+    currentRecipient: {id: number, login: string} | null
+    setCurrentRecipient: React.Dispatch<React.SetStateAction<{id: number, login: string} | null>>
+
     connectedUsers: {id: number, login: string}[]
-    conversation: {senderId: number, content: string}[]
-    getLogin: (id: number) => string | undefined
+    conversation: {senderId: number, senderLogin: string, content: string}[] | null
 }
 
 const ChatContext = createContext<ChatContextValue | null>(null)
 
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
-    const [currentRecipientId, setCurrentRecipientId] = useState(-1)
+    const [currentRecipient, setCurrentRecipient] = useState<{id: number, login: string} | null>(null)
     const [connectedUsers, setConnectedUsers] = useState<{id: number, login: string}[]>([])
-    const [conversation, setConversation] = useState<{senderId: number, content: string}[]>([])
+    const [conversation, setConversation] = useState<{senderId: number, senderLogin: string, content: string}[] | null>(null)
 
-    const currentRecipientIdRef = useRef(currentRecipientId)
-    useEffect(() => {currentRecipientIdRef.current = currentRecipientId}, [currentRecipientId])
+    const currentRecipientRef = useRef(currentRecipient)
+    useEffect(() => {currentRecipientRef.current = currentRecipient}, [currentRecipient])
 
     useEffect(() => {
         let timeoutId: ReturnType<typeof setTimeout>
 
-        const fetchUsersAndMessages = async (recipientId: number) => {
+        const fetchUsersAndMessages = async (recipient: {id: number, login: string} | null) => {
+            if (recipient === null) {
+                timeoutId = setTimeout(() => {}, 5000)
+                return
+            }
+
+
             const findConnectedUsersResult = await findConnectedUsers()
 
             if (findConnectedUsersResult.status === 200) {
-                const fetchedUsers = findConnectedUsersResult.body.connectedUsers as any
-                setConnectedUsers(fetchedUsers)
+                const fetchedUsers = findConnectedUsersResult.body.connectedUsers
+                setConnectedUsers(fetchedUsers as any)
             }
 
-            const getConversationResult = await getConversation(recipientId)
+            const getConversationResult = await getConversation(recipient.id)
             if (getConversationResult.status === 200) {
-                const fetchedConversation = getConversationResult.body.conversation as any
+                const fetchedConversation = getConversationResult.body.conversation
                 setConversation(fetchedConversation)
             }
             console.log(getConversationResult)
 
-            console.log(currentRecipientId)
-            console.log(recipientId)
-            console.log(currentRecipientIdRef.current)
+            console.log(currentRecipient)
+            console.log(recipient)
+            console.log(currentRecipientRef.current)
             console.log()
-            timeoutId = setTimeout(() => fetchUsersAndMessages(currentRecipientIdRef.current), 2000)
+            timeoutId = setTimeout(() => fetchUsersAndMessages(currentRecipientRef.current), 2000)
         }
-        fetchUsersAndMessages(currentRecipientId)
+
+        fetchUsersAndMessages(currentRecipient)
         return () => clearTimeout(timeoutId)
     }, [])
 
     const value: ChatContextValue = {
-        currentRecipientId, 
-        setCurrentRecipientId, 
+        currentRecipient, 
+        setCurrentRecipient, 
         connectedUsers, 
-        conversation,
-        getLogin: (id: number) => {
-            const possibleLogins = connectedUsers.filter((el) => id === el.id)
-            if (possibleLogins.length > 0) return possibleLogins.slice(-1)[0].login
-            else return undefined
-        }
+        conversation
     }
 
     return (

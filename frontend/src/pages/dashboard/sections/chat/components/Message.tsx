@@ -1,14 +1,13 @@
-import { useChatContext } from "@/pages/dashboard/contexts/ChatContext"
+
 
 interface MessageProps {
-    senderId: number
+    senderLogin: string
     content: string
 }
 
-export default function Message({senderId, content}: MessageProps) {
-    const {getLogin} = useChatContext()
+export default function Message({senderLogin, content}: MessageProps) {
 
     return (
-        <p>{getLogin(senderId) + ":\n" + content}</p>
+        <p>{senderLogin + ":\n" + content}</p>
     )
 }

@@ -5,21 +5,24 @@ import MessageInput from "./components/MessageInput"
 
 
 export default function Chat() {
-    const {currentRecipientId, conversation, getLogin} = useChatContext()
+    const {currentRecipient, conversation} = useChatContext()
 
     return (
         <>
             <div>
-                <b>{getLogin(currentRecipientId)}</b>
+                <b>{currentRecipient !== null ? currentRecipient.login : "Select chat or start a new one"}</b>
             </div>
             <div>
-                {conversation.map(({senderId, content}, n) => 
-                        <Message key={n} senderId={senderId} content={content}/>
+                {conversation !== null ? 
+                    conversation.map(({senderLogin, content}, n) => 
+                        <Message key={n} senderLogin={senderLogin} content={content}/>
                     )
+                    : <></>
+
                 }
             </div>
             <div>
-                <MessageInput onSubmit={((message) => createMessage(currentRecipientId, message))}/>
+                <MessageInput onSubmit={currentRecipient !== null ? async (message) => await createMessage(currentRecipient.id, message) : () => {}}/>
             </div>
         </>
     )
