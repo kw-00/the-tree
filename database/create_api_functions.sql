@@ -350,7 +350,7 @@ CREATE OR REPLACE FUNCTION api.get_conversation(
 	p_user1_id INT,
 	p_user2_id INT
 )
-RETURNS TABLE(sender_id INT, content TEXT)
+RETURNS TABLE(sender_id INT, sender_login TEXT, content TEXT)
 AS
 $function$
 BEGIN
@@ -363,11 +363,12 @@ BEGIN
 		PERFORM utils.raise_custom_exception('P4001', ARRAY[p_user2_id]);
 	END IF;
 	
-	RETURN QUERY SELECT m.sender_id, m.content
+	RETURN QUERY SELECT m.sender_id, u.login, m.content
 	FROM messages m
+	INNER JOIN users u ON u.id = m.sender_id
 	WHERE m.sender_id IN (p_user1_id, p_user2_id)
 		AND m.recipient_id IN (p_user1_id, p_user2_id)
-	ORDER BY created_at ASC;
+	ORDER BY m.created_at ASC;
 END;
 $function$
 LANGUAGE plpgsql;
