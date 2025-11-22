@@ -27,13 +27,13 @@ export default function CredentialForm({callback, submitButtonText, className}: 
         <>
             <form onSubmit={handleSubmit} className={className}>
                 <div className="h-cont jst-sb fl-gr-0 pad-v-3xs">
-                    <label className="fl-bs-sm">Login</label>
-                    <input type="text" onChange={e => setLogin(e.target.value)} className="fl-bs-l fl-gr-1"/>
+                    <label htmlFor={loginId} className="fl-bs-sm">Login</label>
+                    <input id={loginId} type="text" onChange={e => setLogin(e.target.value)} className="fl-bs-l fl-gr-1"/>
                 </div>
 
                 <div className="h-cont jst-sb fl-gr-0 pad-v-3xs">
-                    <label className="fl-bs-sm">Password</label>
-                    <input type="password" onChange={e => setPassword(e.target.value)} className="fl-bs-l fl-gr-1"/>
+                    <label htmlFor={passwordId} className="fl-bs-sm">Password</label>
+                    <input id={passwordId} type="password" onChange={e => setPassword(e.target.value)} className="fl-bs-l fl-gr-1"/>
                 </div>
 
 
