@@ -2,22 +2,22 @@ import {API} from "./api"
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL
 
-type APICallResult<T> = {
+export type APICallResult<T> = {
     status: number,
     body: T
 }
 
 
-type StandardBody = {
+export type StandardBody = {
     status: string,
     message: string
 }
 
-type FindConnectedUsersFields = {
+export type FindConnectedUsersFields = {
     connectedUsers?: {id: string, login: string}[]
 }
 
-type GetConversationFields = {
+export type GetConversationFields = {
     conversation: {senderId: number, senderLogin: string, content: string}[]
 }
 

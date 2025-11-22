@@ -23,16 +23,16 @@ export default function CredentialForm({callback, submitButtonText, className}: 
     return (
         <>
             <form onSubmit={handleSubmit} className={className}>
-                <label className="width-full padding-vertical-8">
+                <label className="width-auto padding-vertical-8">
                     Login
-                    <input type="text" onChange={e => setLogin(e.target.value)} className="width-full"/>
+                    <input type="text" onChange={e => setLogin(e.target.value)} className="width-auto"/>
                 </label>
-                <label className="width-full padding-vertical-8">
+                <label className="width-auto padding-vertical-8">
                     Password
-                    <input type="password" onChange={e => setPassword(e.target.value)} className="width-full"/>
+                    <input type="password" onChange={e => setPassword(e.target.value)} className="width-auto"/>
                 </label>
 
-                <button type="submit" className="clickable-transparent clickable-border width-full">{submitButtonText}</button>
+                <button type="submit" className="clickable-transparent clickable-border width-auto">{submitButtonText}</button>
             </form>
         </>
     )
