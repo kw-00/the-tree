@@ -25,12 +25,16 @@ export default function CredentiaPage({submitHandler, submitButtonText, alternat
 
     return (
         <>
-            <div className="bg-1 v-container align-items-center">
-                <div className="bg-1 v-container width-384 padding-32 align-items-center">
-                    <div><h1>Welcome!</h1></div>
-                    <CredentialForm callback={handleSubmit} className="v-stack justify-content-center flex-grow-1" submitButtonText={submitButtonText}/>
-                    <NavigationButton path={alternativePath} className="clickable-contrasting">{alternativeText}</NavigationButton>
+            <div className="bg-1 v-cont jst-sb al-i-c pad-h-4xl pad-v-2xl">
+                <div className="v-cont al-s-st">
+                    <div className="bw-b-m bs-solid tx-c al-s-st"><h1>Welcome!</h1></div>
+                    <div className="fl-bs-xs"></div>
                 </div>
+
+                <div className="v-cont jst-sb al-i-st w-xl">
+                    <CredentialForm callback={handleSubmit} className="v-cont jst-ct al-i-st" submitButtonText={submitButtonText}/>
+                </div>
+                <NavigationButton path={alternativePath} className="clickable-contrasting">{alternativeText}</NavigationButton>
             </div>
         </>
     )

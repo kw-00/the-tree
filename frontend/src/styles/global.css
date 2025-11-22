@@ -23,6 +23,7 @@
     --size-xl: 26rem;
     --size-2xl: 39rem;
     --size-3xl: 58rem;
+    --size-auto: auto;
 
     --padding-3xs: 0.25rem;
     --padding-2xs: 0.375rem;
@@ -35,15 +36,58 @@
     --padding-xl: 6.5rem;
     --padding-2xl: 9.75rem;
     --padding-3xl: 14.5rem;
+    --padding-4xl: 21.75rem;
+    --padding-5xl: 32.625rem;
+
+    --border-width-xs: 0.025rem;
+    --border-width-s: 0.05rem;
+    --border-width-m: 0.1rem;
+    --border-width-l: 0.2rem;
+    --border-width-xl: 0.4rem;
+
+    --border-radius-0: 0rem;
+    --border-radius-3xs: 0.0125rem;
+    --border-radius-2xs: 0.025rem;
+    --border-radius-xs: 0.05rem;
+    --border-radius-s: 0.1rem;
+    --border-radius-sm: 0.2rem;
+    --border-radius-m: 0.4rem;
+    --border-radius-ml: 0.8rem;
+    --border-radius-l: 1.6rem;
+    --border-radius-xl: 3.2rem;
+    --border-radius-2xl: 6.4rem;
+    --border-radius-3xl: 12.8rem;
+    --border-radius-full: 9999rem;
 
 
-    --font-xs: 0.5rem;
-    --font-s: 0.75rem;
+    --font-3xs: 0.65rem;
+    --font-2xs: 0.7rem;
+    --font-xs: 0.75rem;
+    --font-s: 0.8rem;
+    --font-sm: 0.9rem;
     --font-m: 1rem;
-    --font-l: 1.5rem;
-    --font-xl: 2rem;
-    --font-2xl: 3rem;
-    --font-3xl: 4rem;
+    --font-ml: 1.1rem;
+    --font-l: 1.2rem;
+    --font-xl: 1.3rem;
+    --font-2xl: 1.5rem;
+    --font-3xl: 1.7rem;
+    --font-4xl: 2rem;
+    --font-5xl: 2.5rem;
+    --font-6xl: 3rem;
+    --font-7xl: 4rem;
+
+    --fs: flex-start;
+    --c: center;
+    --fe: flex-end;
+    --sb: space-between;
+    --sa: space-around;
+    --se: space-evenly;
+    --st: stretch;
+
+    --s: start;
+    --c: center;
+    --e: end;
+    --j: justify;
 }
 
 * {
@@ -94,8 +138,8 @@ button {
     justify-content: center;
     align-items: center;
 
-    height: 32px;
-    width: 128px;
+    height: var(--size-2xs);
+    width: var(--size-ml);
 
     border-radius: 4px;
     border-style: hidden;
@@ -116,13 +160,13 @@ button {
 }
 
 /* Containers */
-.v-container {
+.v-cont {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
 }
 
-.h-container {
+.h-cont {
     display: flex;
     flex-direction: row;
 
