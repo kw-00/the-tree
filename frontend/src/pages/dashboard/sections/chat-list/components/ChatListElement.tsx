@@ -1,4 +1,4 @@
-import type { User } from "@/pages/dashboard/contexts/ChatContext"
+import type { User } from "@/contexts/ChatContext"
 
 
 interface ChatListElementProps {

@@ -1,24 +1,15 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react"
 import { findConnectedUsers, getConversation } from "@/services/services"
+import type { MessageData, User } from "@/types/data-types"
 
 interface ChatContextValue {
     currentRecipient: User | null
     setCurrentRecipient: React.Dispatch<React.SetStateAction<User | null>>
 
     connectedUsers: User[]
-    conversation: ConversationElement[] | null
+    conversation: MessageData[] | null
 }
 
-export type User = {
-    id: number,
-    login: string
-}
-
-export type ConversationElement = {
-    senderId: number,
-    senderLogin: string,
-    content: string
-}
 
 const ChatContext = createContext<ChatContextValue | null>(null)
 
@@ -26,7 +17,7 @@ const ChatContext = createContext<ChatContextValue | null>(null)
 export function ChatProvider({ children }: { children: React.ReactNode }) {
     const [currentRecipient, setCurrentRecipient] = useState<User | null>(null)
     const [connectedUsers, setConnectedUsers] = useState<User[]>([])
-    const [conversation, setConversation] = useState<ConversationElement[] | null>(null)
+    const [conversation, setConversation] = useState<MessageData[] | null>(null)
 
     const currentRecipientRef = useRef(currentRecipient)
     useEffect(() => {currentRecipientRef.current = currentRecipient}, [currentRecipient])
@@ -55,7 +46,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                 console.log(currentRecipientRef.current)
                 console.log()
             }
-            timeoutId = setTimeout(() => fetchUsersAndMessages(currentRecipientRef.current), 10000)
+            timeoutId = setTimeout(() => fetchUsersAndMessages(currentRecipientRef.current), 1000)
         }
 
         fetchUsersAndMessages(currentRecipient)

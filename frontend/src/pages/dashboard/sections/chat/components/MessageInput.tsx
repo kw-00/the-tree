@@ -1,11 +1,11 @@
-import type { FormEvent } from "react"
+import { Button, HStack, Textarea, VStack, type BoxProps, type StackProps } from "@chakra-ui/react"
+import type { ComponentProps, FormEvent } from "react"
 
 interface MessageInputProps {
     onSubmit: (message: string) => void
-    className?: string
 }
 
-export default function MessageInput({onSubmit, className}: MessageInputProps) {
+export default function MessageInput({onSubmit, ...rest}: MessageInputProps & StackProps) {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
         const form = e.currentTarget as HTMLFormElement
@@ -15,15 +15,15 @@ export default function MessageInput({onSubmit, className}: MessageInputProps) {
     }
 
     return (
-        <div className={className}>
-            <form onSubmit={handleSubmit} className="h-container width-full">
-                <label className="width-full">
-                    <textarea name="message" placeholder="Type something..." className="width-full" />
-                </label>
-                <div className="height-full width-8"/>
-                <button type="submit" className="clickable clickable-border">Send</button>
+        <VStack bg="currentBg" alignItems="stretch" {...rest}>
+            <form onSubmit={handleSubmit}>
+                <HStack alignItems="end">
+                    <Textarea name="message" placeholder="Type something..." autoresize={true}/>
+                    <Button type="submit" variant="primary">Send</Button>
+                </HStack>
+
             </form>
-        </div>
+        </VStack>
     )
 
 }

@@ -1,3 +1,4 @@
+import { Flex, Text, type FlexProps } from "@chakra-ui/react"
 
 
 interface MessageProps {
@@ -5,9 +6,12 @@ interface MessageProps {
     content: string
 }
 
-export default function Message({senderLogin, content}: MessageProps) {
+export default function Message({senderLogin, content, ...rest}: MessageProps & FlexProps) {
 
     return (
-        <p>{senderLogin + ":\n" + content}</p>
+        <Flex flexDir="column" justifyContent="space-between"  borderTopWidth="thin" borderBottomWidth="thin"{...rest}>
+            <Text fontWeight="semibold">{senderLogin}:</Text>
+            <Text pt="1" ps="1">{content}</Text>
+        </Flex>
     )
 }

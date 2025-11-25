@@ -1,13 +1,12 @@
+import { Button, type ButtonProps } from "@chakra-ui/react"
 import { useNavigate } from "react-router-dom"
 
 
-interface NavigationButtonProps {
+interface NavigationButtonProps{
     path: string
-    className?: string
-    children?: React.ReactNode
 }
 
-export default function NavigationButton({path, className, children}: NavigationButtonProps) {
+export default function NavigationButton({path, children, ...rest}: NavigationButtonProps & ButtonProps) {
 
     const navigate = useNavigate()
 
@@ -17,6 +16,6 @@ export default function NavigationButton({path, className, children}: Navigation
     }
 
     return (
-        <button onClick={handleClick} className={className}>{children}</button>
+        <Button onClick={handleClick} {...rest}>{children}</Button>
     )
 }

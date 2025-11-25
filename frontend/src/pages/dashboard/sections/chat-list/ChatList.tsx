@@ -1,4 +1,4 @@
-import { useChatContext } from "../../contexts/ChatContext"
+import { useChatContext } from "../../../../contexts/ChatContext"
 import ChatListElement from "./components/ChatListElement"
 
 export default function ChatList({className}: {className?: string}) {

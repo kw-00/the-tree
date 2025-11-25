@@ -1,28 +1,20 @@
 import { createMessage } from "@/services/services"
-import { useChatContext } from "../../contexts/ChatContext"
-import Message from "./components/Message"
+import { useChatContext } from "../../../../contexts/ChatContext"
 import MessageInput from "./components/MessageInput"
+import { Heading, VStack, Wrap, type StackProps } from "@chakra-ui/react"
+import Conversation from "./components/Conversation"
 
 
-export default function Chat({className}: {className?: string}) {
+export default function Chat(props: StackProps) {
     const {currentRecipient, conversation} = useChatContext()
 
     return (
-        <div className={className}>
-            <div>
-                <b>{currentRecipient !== null ? currentRecipient.login : "Select chat or start a new one"}</b>
-            </div>
-            <div>
-                {conversation !== null ? 
-                    conversation.map(({senderLogin, content}, n) => 
-                        <Message key={n} senderLogin={senderLogin} content={content}/>
-                    )
-                    : <></>
+        <VStack alignItems="stretch" {...props}>
+            <Heading size="xl" pb="2">{currentRecipient !== null ? currentRecipient.login : "Select chat or start a new one"}</Heading>
+            <Conversation messages={conversation ? conversation : []} alignItems="stretch"/>
 
-                }
-            </div>
-            <MessageInput onSubmit={currentRecipient !== null ? async (message) => await createMessage(currentRecipient.id, message) : () => {}}
-                className="width-full"/>
-        </div>
+            <MessageInput onSubmit={currentRecipient !== null ? async (message) => await createMessage(currentRecipient.id, message as any) : () => {}}
+                position="sticky" bottom={0}/>
+        </VStack>
     )
 }

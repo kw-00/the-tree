@@ -1,7 +1,8 @@
 import { logOutUser } from "@/services/services"
+import { Button, type ButtonProps } from "@chakra-ui/react"
 import { useNavigate } from "react-router-dom"
 
-export default function LogoutButton() {
+export default function LogoutButton(props: ButtonProps) {
 
     const navigate = useNavigate()
 
@@ -14,8 +15,8 @@ export default function LogoutButton() {
     }
 
     return (
-        <button onClick={handleClick} className="clickable">
+        <Button onClick={handleClick} {...props}>
             Log out
-        </button>
+        </Button>
     )
 }

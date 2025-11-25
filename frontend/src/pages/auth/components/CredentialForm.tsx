@@ -1,5 +1,9 @@
-import { useId, useState } from "react"
+import Form from "@/components/Form"
+import { PasswordInput } from "@/components/ui/password-input"
+import { Button, Field, Fieldset, Heading, Input, type FieldsetRootProps } from "@chakra-ui/react"
+import { useState } from "react"
 import type { FormEvent } from "react"
+import type { FormProps } from "react-router-dom"
 
 type CredentialFormHandler = (login: string, password: string) => void
 
@@ -10,35 +14,35 @@ interface CredentialFormProps {
     className?: string
 }
 
-export default function CredentialForm({callback, submitButtonText, className}: CredentialFormProps) {
+export default function CredentialForm({callback, submitButtonText, ...rest}: CredentialFormProps & FieldsetRootProps) {
 
     const [login, setLogin] = useState("")
     const [password, setPassword] = useState("")
 
-    const loginId = useId()
-    const passwordId = useId()
-
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
         callback(login, password)
+        console.log("Hello,", login)
     }
 
     return (
-        <>
-            <form onSubmit={handleSubmit} className={className}>
-                <div className="h-cont jst-sb fl-gr-0 pad-v-3xs">
-                    <label htmlFor={loginId} className="fl-bs-sm">Login</label>
-                    <input id={loginId} type="text" onChange={e => setLogin(e.target.value)} className="fl-bs-l fl-gr-1"/>
-                </div>
-
-                <div className="h-cont jst-sb fl-gr-0 pad-v-3xs">
-                    <label htmlFor={passwordId} className="fl-bs-sm">Password</label>
-                    <input id={passwordId} type="password" onChange={e => setPassword(e.target.value)} className="fl-bs-l fl-gr-1"/>
-                </div>
-
-
-                <button type="submit" className="clickable-transparent clickable-border w-a fl-bs-xs font-l">{submitButtonText}</button>
-            </form>
-        </>
+        <Form onSubmit={handleSubmit}>
+            <Fieldset.Root {...rest}>
+                <Fieldset.Legend><Heading size="sm">Enter your credentials</Heading></Fieldset.Legend>
+                <Fieldset.Content>
+                    <Field.Root>
+                        <Field.Label>Login</Field.Label>
+                        <Input name="login" value={login} onChange={e => setLogin(e.target.value)}/>
+                    </Field.Root>
+                    <Field.Root>
+                        <Field.Label>Password</Field.Label>
+                        <PasswordInput name="password" value={password} onChange={e => {setPassword(e.target.value)}}/>
+                    </Field.Root>
+                </Fieldset.Content>
+                <Button type="submit">{submitButtonText}</Button>
+            </Fieldset.Root>
+        </Form>
     )
+
+
 }
