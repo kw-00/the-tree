@@ -1,5 +1,5 @@
 import { authenticateUser } from "@/services/services"
-import CredentiaPage from "./CredentialPage"
+import CredentiaPage from "../components/auth/CredentialPage"
 
 
 export default function LoginPage() {

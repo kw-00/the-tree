@@ -1,4 +1,3 @@
-import Form from "@/components/Form"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Button, Field, Fieldset, Heading, Input, type FieldsetRootProps } from "@chakra-ui/react"
 import { useState } from "react"
@@ -26,7 +25,7 @@ export default function CredentialForm({callback, submitButtonText, ...rest}: Cr
     }
 
     return (
-        <Form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
             <Fieldset.Root {...rest}>
                 <Fieldset.Legend><Heading size="sm">Enter your credentials</Heading></Fieldset.Legend>
                 <Fieldset.Content>
@@ -41,7 +40,7 @@ export default function CredentialForm({callback, submitButtonText, ...rest}: Cr
                 </Fieldset.Content>
                 <Button type="submit">{submitButtonText}</Button>
             </Fieldset.Root>
-        </Form>
+        </form>
     )
 
 

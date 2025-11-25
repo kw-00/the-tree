@@ -1,8 +1,9 @@
+import { useChatContext } from "@/contexts/ChatContext"
 import { createMessage } from "@/services/services"
-import { useChatContext } from "../../../../contexts/ChatContext"
-import MessageInput from "./components/MessageInput"
-import { Heading, VStack, Wrap, type StackProps } from "@chakra-ui/react"
-import Conversation from "./components/Conversation"
+import { type StackProps, VStack, Heading } from "@chakra-ui/react"
+import Conversation from "./Conversation"
+import MessageInput from "./MessageInput"
+
 
 
 export default function Chat(props: StackProps) {

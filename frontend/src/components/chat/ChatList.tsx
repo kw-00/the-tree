@@ -1,5 +1,5 @@
-import { useChatContext } from "../../../../contexts/ChatContext"
-import ChatListElement from "./components/ChatListElement"
+import { useChatContext } from "../../contexts/ChatContext"
+import ChatListElement from "./ChatListElement"
 
 export default function ChatList({className}: {className?: string}) {
     const {currentRecipient, setCurrentRecipient, connectedUsers} = useChatContext()

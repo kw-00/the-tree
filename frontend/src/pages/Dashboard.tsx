@@ -1,10 +1,10 @@
-import { ChatProvider } from "../../contexts/ChatContext"
-import Chat from "./sections/chat/Chat"
-import ChatList from "./sections/chat-list/ChatList"
-import LogoutButton from "../../components/LogoutButton"
+import { ChatProvider } from "../contexts/ChatContext"
+import Chat from "@/components/chat/Chat"
+import ChatList from "../components/chat/ChatList"
+import LogoutButton from "../components/LogoutButton"
 import { Button, HStack, VStack } from "@chakra-ui/react"
 import { Provider } from "@/components/ui/provider"
-import Conversation from "./sections/chat/components/Conversation"
+import Conversation from "../components/chat/Conversation"
 
 export default function Dashboard() {
   let numbers: number[] = []
