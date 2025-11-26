@@ -456,7 +456,7 @@ CREATE OR REPLACE FUNCTION api.get_conversation(
 	p_user1_id INT,
 	p_user2_id INT
 )
-RETURNS JSONB --TABLE(sender_id INT, sender_login TEXT, content TEXT)
+RETURNS JSONB
 AS
 $function$
 DECLARE
