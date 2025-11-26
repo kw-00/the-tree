@@ -1,13 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS api;
 /*
-Functions meant to be called by server JSONB in the following format:
-	{
-		field_1: value_1,
-		field_2: value_2,
-		...
-		result: "RESULT_CODE"
-		message: "Some message."
-	}
+Functions meant to be called by server return tables or JSONB
+containing a "result" and "message" column/field.
 
 Result codes:
     SUCCESS — when everything goes right.
@@ -35,9 +29,15 @@ PARAMS:
 	p_password
 
 RETURNS:
-	* user_id — the ID of the newly registered user.
-	* result — LOGIN_IN_USE
-	
+	TABLE
+		* user_id INT — the ID of the newly registered user.
+		* result TEXT
+		* message TEXT
+		
+	Possible result values:
+		* SUCCESS
+		* NULL_PARAMETER
+		* LOGIN_IN_USE
 */
 CREATE OR REPLACE FUNCTION api.register_user(
 	p_login TEXT,
@@ -81,9 +81,15 @@ any user. Returns the ID of the user if authentication is successful.
 	* p_password
 	
 RETURNS:
-	* id — the ID of the user matching the given login and password.
-	* result — INVALID_CREDENTIALS
-
+	TABLE
+		* user_id INT — the ID of the newly registered user.
+		* result TEXT
+		* message TEXT
+		
+	Possible result values:
+		* SUCCESS
+		* NULL_PARAMETER
+		* INVALID_CREDENTIALS
 */
 CREATE OR REPLACE FUNCTION api.authenticate_user(
 	p_login TEXT,
@@ -124,8 +130,18 @@ PARAMS:
 	* p_refresh_token_uuid
 
 RETURNS:
-	* id — he ID of the user associated with the given token uuid.
-	* result — REFRESH_TOKEN_EXPIRED, REFRESH_TOKEN_REUSE, REFRESH_TOKEN_REVOKED, REFRESH_TOKEN_NOT_FOUND
+	TABLE
+		* user_id INT — the ID of the user associated with the given token.
+		* result TEXT
+		* message TEXT
+		
+	Possible result values:
+		* SUCCESS
+		* NULL_PARAMETER
+		* REFRESH_TOKEN_NOT_FOUND
+		* REFRESH_TOKEN_EXPIRED
+		* REFRESH_TOKEN_REUSE
+		* REFRESH_TOKEN_REVOKED
 */
 CREATE OR REPLACE FUNCTION api.verify_refresh_token(
 	p_refresh_token_uuid UUID
@@ -189,8 +205,15 @@ PARAMS:
 		the refresh token to be created, in seconds
 
 RETURNS:
-	* refresh_token_uuid — the UUID of the newly created refresh token.
-	* result — PK_IN_USE
+	TABLE
+		* refresh_token_uuid UUID — the UUID of the newly created token.
+		* result TEXT
+		* message TEXT)
+		
+	Possible result values:
+		* SUCCESS
+		* NULL_PARAMETER
+		* PK_IN_USE
 */
 CREATE OR REPLACE FUNCTION api.create_refresh_token(
 	p_user_id INT,
@@ -237,7 +260,14 @@ PARAMS:
 	* p_refresh_token_uuid — the refresh token to be revoked
 
 RETURNS:
-	* result — REFRESH_TOKEN_NOT_FOUND
+	TABLE
+		* result TEXT
+		* message TEXT)
+		
+	Possible result values:
+		* SUCCESS
+		* NULL_PARAMETER
+		* REFRESH_TOKEN_NOT_FOUND
 */
 
 CREATE OR REPLACE FUNCTION api.revoke_token(
@@ -296,8 +326,14 @@ PARAMS:
 	* p_content
 
 RETURNS:
-	result — USER_NOT_FOUND
+	TABLE
+		* result TEXT
+		* message TEXT
 
+	Possible result values:
+		* SUCCESS
+		* NULL_PARAMETER
+		* USER_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api.create_message(
 	p_sender_id INT,
@@ -345,33 +381,54 @@ PARAMS:
 		other users that messaged or received a message from them.
 
 RETURNS:
-	* The ID and login of every user that messaged or was messaged by the given one.
-
-RAISES:
-	* 4001 user_not_found — when there is no user with the given ID.
-	
+	JSONB {
+		connected_users: {id INT, login TEXT}[],
+		result TEXT,
+		message: TEXT
+	}
+	Possible result values:
+		* SUCCESS
+		* NULL_PARAMETER
+		* USER_NOT_FOUND
 */
+
+drop function api.find_connected_users;
 CREATE OR REPLACE FUNCTION api.find_connected_users(
 	p_user_id INT
 )
-RETURNS TABLE(id INT, login TEXT, result TEXT, message TEXT)
+RETURNS JSONB
 AS
 $function$
 DECLARE
+	v_result JSONB;
 BEGIN
-	PERFORM utils.null_check(p_user_id, 'p_user_id');
+	IF p_user_id IS NULL THEN
+		RETURN (SELECT format('{"result": "NULL_PARAMETER", "message": "Parameter %L cannot be NULL."}', 
+			'p_user_id')::JSONB);
+	END IF;
+		
 
 	IF NOT EXISTS(SELECT 1 FROM users u WHERE u.id = p_user_id) THEN
-		PERFORM utils.raise_custom_exception('4001', ARRAY[p_user_id]);
+		RETURN (SELECT format('{"result": "USER_NOT_FOUND", "message": "User with ID of %L does not exist."}', 
+			p_user_id)::JSONB);
 	END IF;
 
-	RETURN QUERY SELECT DISTINCT u.id, u.login
-	FROM users u
-	INNER JOIN messages m 
-	ON u.id IN (m.sender_id, m.recipient_id)
-		AND p_user_id IN (m.sender_id, m.recipient_id)
-	WHERE u.id != p_user_id
-	ORDER BY login ASC;
+	SELECT json_agg(row_to_json(connected_users)) 
+	FROM (
+		SELECT DISTINCT u.id, u.login
+		FROM users u
+		INNER JOIN messages m 
+		ON u.id IN (m.sender_id, m.recipient_id)
+			AND p_user_id IN (m.sender_id, m.recipient_id)
+		WHERE u.id != p_user_id
+		ORDER BY login ASC
+	) AS connected_users(id, login)
+	INTO v_result;
+	
+	SELECT json_build_object('connected_users', v_result, 'result', 'SUCCESS', 'message', 
+		'Successfully retrieved connected users.')
+	INTO v_result;
+	RETURN v_result;
 	
 END;
 $function$
@@ -385,35 +442,55 @@ PARAMS:
 	* p_user2_id
 
 RETURNS:
-	* A table containing the sender and content of each message
-		between the given users.
-
-RAISES:
-	* P4001 user_not_found — when one of the users does not exist.
+	JSONB {
+		conversation: {sender_id INT, sender_login TEXT, content TEXT}[],
+		result TEXT,
+		message: TEXT
+	}
+	Possible result values:
+		* SUCCESS
+		* NULL_PARAMETER
+		* USER_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api.get_conversation(
 	p_user1_id INT,
 	p_user2_id INT
 )
-RETURNS TABLE(sender_id INT, sender_login TEXT, content TEXT)
+RETURNS JSONB --TABLE(sender_id INT, sender_login TEXT, content TEXT)
 AS
 $function$
+DECLARE
+	v_result JSONB;
 BEGIN
-	PERFORM utils.null_check(p_user1_id, 'p_user1_id');
-	PERFORM utils.null_check(p_user2_id, 'p_user2_id');
+	IF p_user1_id IS NULL THEN
+		RETURN (SELECT format('{"result": "NULL_PARAMETER", 
+		"message": "Parameter %L cannot be NULL."}', 'p_user1_id'));
+	ELSEIF p_user2_id IS NULL THEN
+		RETURN (SELECT format('{"result": "NULL_PARAMETER", 
+		"message": "Parameter %L cannot be NULL."}', 'p_user2_id'));
+	END IF;
 		
 	IF NOT EXISTS (SELECT 1 FROM users u WHERE id = p_user1_id) THEN
-		PERFORM utils.raise_custom_exception('P4001', ARRAY[p_user1_id]);
+		RETURN (SELECT format('{"result": "USER_NOT_FOUND", 
+			"message": "User with ID of %L not found."}', p_user1_id));
 	ELSIF NOT EXISTS (SELECT 1 FROM USERS WHERE id = p_user2_id) THEN
-		PERFORM utils.raise_custom_exception('P4001', ARRAY[p_user2_id]);
+		RETURN (SELECT format('{"result": "USER_NOT_FOUND", 
+			"message": "User with ID of %L not found."}', p_user2_id));
 	END IF;
-	
-	RETURN QUERY SELECT m.sender_id, u.login, m.content
-	FROM messages m
-	INNER JOIN users u ON u.id = m.sender_id
-	WHERE m.sender_id IN (p_user1_id, p_user2_id)
-		AND m.recipient_id IN (p_user1_id, p_user2_id)
-	ORDER BY m.created_at ASC;
+
+	SELECT json_agg(row_to_json(messages)) FROM (
+		SELECT m.sender_id, u.login, m.content
+		FROM messages m
+		INNER JOIN users u ON u.id = m.sender_id
+		WHERE m.sender_id IN (p_user1_id, p_user2_id)
+			AND m.recipient_id IN (p_user1_id, p_user2_id)
+		ORDER BY m.created_at ASC
+	) AS messages(sender_id, sender_login, content)
+	INTO v_result;
+	SELECT json_build_object('conversation', v_result, 'result', 'SUCCESS', 
+		'message', 'Successfully retrieved conversation.')
+	INTO v_result;
+	RETURN v_result;
 END;
 $function$
 LANGUAGE plpgsql;
