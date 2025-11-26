@@ -110,6 +110,9 @@ DECLARE
 	v_user_id INT;
 	v_expires_at TIMESTAMPTZ;
 	v_status TEXT;
+	v_now TIMESTAMPTZ;
+
+	v_uuid UUID;
 BEGIN
 	PERFORM utils.null_check(p_refresh_token_uuid, 'p_refresh_token_uuid');
 
@@ -117,19 +120,23 @@ BEGIN
 	FROM refresh_tokens rt
 	WHERE rt.uuid = p_refresh_token_uuid;
 
+	SELECT now() INTO v_now;
 	IF v_user_id IS NULL THEN
 		PERFORM utils.raise_custom_exception('P3000');
-	ELSEIF v_expires_at < now() THEN
+	ELSEIF v_expires_at < v_now THEN
 		PERFORM utils.raise_custom_exception('P3001');
-	ELSIF v_status = 'used' THEN
-		PERFORM utils.raise_custom_exception('P3002');
 	ELSIF v_status = 'revoked' THEN
 		PERFORM utils.raise_custom_exception('P3003');
 	END IF;
 
 	UPDATE refresh_tokens
 	SET status = 'used'
-	WHERE uuid = p_refresh_token_uuid;
+	WHERE uuid = p_refresh_token_uuid AND expires_at >= v_now AND status = 'default'
+	RETURNING uuid INTO v_uuid;
+
+	IF v_user_id IS NULL THEN
+		PERFORM utils.raise_custom_exception('P3002');
+	END IF;
 	
 	RETURN v_user_id;
 END;
