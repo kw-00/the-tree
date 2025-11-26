@@ -1,9 +1,6 @@
-import { Box, Container, IconButton, ScrollArea, VStack, type ContainerProps, type StackProps } from "@chakra-ui/react";
-import { LuArrowDown } from "react-icons/lu";
-import { useStickToBottom } from "use-stick-to-bottom";
-import Message from "./Message";
 import type { MessageData } from "@/types/data-types";
-import { useEffect, useId, useState } from "react";
+import { VStack, type StackProps } from "@chakra-ui/react";
+import Message from "./Message";
 
 
 
@@ -20,7 +17,7 @@ export default function Conversation({messages, ...rest}: ConversationProps & St
 
 
     return (
-        <VStack {...rest}>
+        <VStack alignItems="stretch" {...rest}>
             {messages !== null ? 
             messages.map(({senderLogin, content}, n) => 
                 <Message senderLogin={senderLogin} content={content} alignItems="stretch" p="2"/>

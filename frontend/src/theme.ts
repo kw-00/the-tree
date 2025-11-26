@@ -1,6 +1,6 @@
 
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react"
-import buttonRecipe from './recipes/Button'
+import buttonRecipe from './recipes/components/Button'
 
 const config = defineConfig({
   preflight: true,

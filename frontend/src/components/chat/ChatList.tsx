@@ -1,12 +1,13 @@
+import { VStack, type StackProps } from "@chakra-ui/react"
 import { useChatContext } from "../../contexts/ChatContext"
 import ChatListElement from "./ChatListElement"
 
-export default function ChatList({className}: {className?: string}) {
+export default function ChatList(props: StackProps) {
     const {currentRecipient, setCurrentRecipient, connectedUsers} = useChatContext()
     return (
-        <div className={className}>
+        <VStack alignItems="stretch" {...props}>
             {connectedUsers.map((recipient, n) => 
-                    <ChatListElement 
+                    <ChatListElement
                         key={n}
                         recipient={recipient}
                         isSelected={currentRecipient?.id === recipient.id ? true : false} 
@@ -14,6 +15,6 @@ export default function ChatList({className}: {className?: string}) {
                     />
                 )
             }
-        </div>
+        </VStack>
     )
 }

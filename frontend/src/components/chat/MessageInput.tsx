@@ -1,5 +1,5 @@
-import { Button, HStack, Textarea, VStack, type BoxProps, type StackProps } from "@chakra-ui/react"
-import type { ComponentProps, FormEvent } from "react"
+import { Button, HStack, Textarea, VStack, type StackProps } from "@chakra-ui/react"
+import type { FormEvent } from "react"
 
 interface MessageInputProps {
     onSubmit: (message: string) => void

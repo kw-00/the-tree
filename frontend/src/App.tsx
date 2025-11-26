@@ -1,9 +1,8 @@
-import RegisterPage from '@/pages/RegisterPage'
-import LoginPage from '@/pages/LoginPage'
 import Dashboard from '@/pages/Dashboard'
+import LoginPage from '@/pages/LoginPage'
+import RegisterPage from '@/pages/RegisterPage'
 
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
-import { Button, VStack } from '@chakra-ui/react'
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { Provider } from './components/ui/provider'
 
 export default function App() {

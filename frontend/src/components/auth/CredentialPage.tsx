@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import CredentialForm from "./CredentialForm"
 import type { APICallResult } from "@/services/services"
-import { chakra, Heading, VStack } from "@chakra-ui/react"
+import { Heading, VStack } from "@chakra-ui/react"
 import NavigationButton from "@/components/NavigationButton"
 
 

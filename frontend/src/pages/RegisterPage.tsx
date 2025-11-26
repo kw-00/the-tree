@@ -1,4 +1,4 @@
-import { authenticateUser, registerAndLogIn } from "@/services/services"
+import { registerAndLogIn } from "@/services/services"
 import CredentiaPage from "../components/auth/CredentialPage"
 
 

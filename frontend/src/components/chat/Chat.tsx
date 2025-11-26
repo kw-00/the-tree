@@ -12,10 +12,10 @@ export default function Chat(props: StackProps) {
     return (
         <VStack alignItems="stretch" {...props}>
             <Heading size="xl" pb="2">{currentRecipient !== null ? currentRecipient.login : "Select chat or start a new one"}</Heading>
-            <Conversation messages={conversation ? conversation : []} alignItems="stretch"/>
+            <Conversation messages={conversation ? conversation : []} />
 
             <MessageInput onSubmit={currentRecipient !== null ? async (message) => await createMessage(currentRecipient.id, message as any) : () => {}}
-                position="sticky" bottom={0}/>
+                position="sticky" bottom={0} />
         </VStack>
     )
 }
