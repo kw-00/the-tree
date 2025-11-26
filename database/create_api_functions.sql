@@ -1,4 +1,5 @@
 CREATE SCHEMA IF NOT EXISTS api;
+
 /*
 Functions meant to be called by server return tables or JSONB
 containing a "result" and "message" column/field.
@@ -30,7 +31,7 @@ PARAMS:
 
 RETURNS:
 	TABLE
-		* user_id INT — the ID of the newly registered user.
+		* userId INT — the ID of the newly registered user.
 		* result TEXT
 		* message TEXT
 		
@@ -43,7 +44,7 @@ CREATE OR REPLACE FUNCTION api.register_user(
 	p_login TEXT,
 	p_password TEXT
 )
-RETURNS TABLE(user_id INT, result TEXT, message TEXT)
+RETURNS TABLE(userId INT, result TEXT, message TEXT)
 AS
 $function$
 DECLARE
@@ -82,7 +83,7 @@ any user. Returns the ID of the user if authentication is successful.
 	
 RETURNS:
 	TABLE
-		* user_id INT — the ID of the newly registered user.
+		* userId INT — the ID of the newly registered user.
 		* result TEXT
 		* message TEXT
 		
@@ -95,7 +96,7 @@ CREATE OR REPLACE FUNCTION api.authenticate_user(
 	p_login TEXT,
 	p_password TEXT
 )
-RETURNS TABLE(user_id INT, result TEXT, message TEXT)
+RETURNS TABLE(userId INT, result TEXT, message TEXT)
 AS
 $function$
 DECLARE
@@ -146,7 +147,7 @@ RETURNS:
 CREATE OR REPLACE FUNCTION api.verify_refresh_token(
 	p_refresh_token_uuid UUID
 )
-RETURNS TABLE(user_id INT, result TEXT, message TEXT)
+RETURNS TABLE(userId INT, result TEXT, message TEXT)
 AS
 $function$
 DECLARE
@@ -206,7 +207,7 @@ PARAMS:
 
 RETURNS:
 	TABLE
-		* refresh_token_uuid UUID — the UUID of the newly created token.
+		* refreshToken UUID — the UUID of the newly created token.
 		* result TEXT
 		* message TEXT)
 		
@@ -219,7 +220,7 @@ CREATE OR REPLACE FUNCTION api.create_refresh_token(
 	p_user_id INT,
 	p_validity_period_seconds INT
 )
-RETURNS TABLE(refresh_token_uuid UUID, result TEXT, message TEXT)
+RETURNS TABLE(refreshToken UUID, result TEXT, message TEXT)
 AS
 $function$
 DECLARE
@@ -382,7 +383,7 @@ PARAMS:
 
 RETURNS:
 	JSONB {
-		connected_users: {id INT, login TEXT}[],
+		connectedUsers: {id INT, login TEXT}[],
 		result TEXT,
 		message: TEXT
 	}
@@ -391,7 +392,6 @@ RETURNS:
 		* NULL_PARAMETER
 		* USER_NOT_FOUND
 */
-
 drop function api.find_connected_users;
 CREATE OR REPLACE FUNCTION api.find_connected_users(
 	p_user_id INT
@@ -425,7 +425,7 @@ BEGIN
 	) AS connected_users(id, login)
 	INTO v_result;
 	
-	SELECT json_build_object('connected_users', v_result, 'result', 'SUCCESS', 'message', 
+	SELECT json_build_object('connectedUsers', v_result, 'result', 'SUCCESS', 'message', 
 		'Successfully retrieved connected users.')
 	INTO v_result;
 	RETURN v_result;
@@ -443,7 +443,7 @@ PARAMS:
 
 RETURNS:
 	JSONB {
-		conversation: {sender_id INT, sender_login TEXT, content TEXT}[],
+		conversation: {senderId INT, senderLogin TEXT, content TEXT}[],
 		result TEXT,
 		message: TEXT
 	}
@@ -456,7 +456,7 @@ CREATE OR REPLACE FUNCTION api.get_conversation(
 	p_user1_id INT,
 	p_user2_id INT
 )
-RETURNS JSONB --TABLE(sender_id INT, sender_login TEXT, content TEXT)
+RETURNS JSONB --TABLE(senderId INT, senderLogin TEXT, content TEXT)
 AS
 $function$
 DECLARE
@@ -485,7 +485,7 @@ BEGIN
 		WHERE m.sender_id IN (p_user1_id, p_user2_id)
 			AND m.recipient_id IN (p_user1_id, p_user2_id)
 		ORDER BY m.created_at ASC
-	) AS messages(sender_id, sender_login, content)
+	) AS messages(senderId, senderLogin, content)
 	INTO v_result;
 	SELECT json_build_object('conversation', v_result, 'result', 'SUCCESS', 
 		'message', 'Successfully retrieved conversation.')
