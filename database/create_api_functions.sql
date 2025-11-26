@@ -1,5 +1,30 @@
 CREATE SCHEMA IF NOT EXISTS api;
+/*
+Functions meant to be called by server JSONB in the following format:
+	{
+		field_1: value_1,
+		field_2: value_2,
+		...
+		result: "RESULT_CODE"
+		message: "Some message."
+	}
 
+Result codes:
+    SUCCESS — when everything goes right.
+    PK_IN_USE — primary key is already in use.
+    LOGIN_IN_USE — login is already in use.
+    INVALID_CREDENTIALS — wrong username or password.
+    AUTHORIZATION_FAILED — authorization failed.
+    REFRESH_TOKEN_EXPIRED — refresh token has expired.
+    REFRESH_TOKEN_REUSE — refresh token has already been used.
+    REFRESH_TOKEN_REVOKED — refresh token has been revoked.
+    USER_NOT_FOUND — user does not exist.
+    REFRESH_TOKEN_NOT_FOUND — refresh token does not exist.
+    NULL_PARAMETER — parameter cannot be null.
+
+Functions starting with _ (e.g. api._function_name) are considered private and not for use by
+server. They may return various values.
+*/
 
 /*
 Registers a new user. Throws an error if login is already taken.
@@ -10,33 +35,36 @@ PARAMS:
 	p_password
 
 RETURNS:
-	* The ID of the newly registered user.
-
-RAISES:
-	* P1001 login_in_use
+	* user_id — the ID of the newly registered user.
+	* result — LOGIN_IN_USE
 	
 */
 CREATE OR REPLACE FUNCTION api.register_user(
 	p_login TEXT,
 	p_password TEXT
 )
-RETURNS INT
+RETURNS TABLE(user_id INT, result TEXT, message TEXT)
 AS
 $function$
 DECLARE
 v_user_id INT;
 BEGIN
-	PERFORM utils.null_check(p_login, 'p_login');
-	PERFORM utils.null_check(p_password, 'p_password');
+	IF p_login IS NULL THEN
+		RETURN QUERY SELECT -1, 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_login');
+		RETURN;
+	ELSEIF p_password IS NULL THEN
+		RETURN QUERY SELECT -1, 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_password');
+		RETURN;
+	END IF;
 	
 	INSERT INTO users (login, password) 
 	VALUES (p_login, p_password)
 	RETURNING id INTO v_user_id;
 	
-	RETURN v_user_id;
+	RETURN QUERY SELECT v_user_id, 'SUCCESS', 'Registration succeeded.';
 EXCEPTION
 	WHEN SQLSTATE '23505' THEN -- unique_violation
-		PERFORM utils.raise_custom_exception('P1001', ARRAY[p_login]);
+		RETURN QUERY SELECT -1, 'LOGIN_IN_USE', format('Login of %L is already in use.', p_login);
 END;
 $function$
 LANGUAGE plpgsql;
@@ -53,35 +81,39 @@ any user. Returns the ID of the user if authentication is successful.
 	* p_password
 	
 RETURNS:
-	* The ID of the user matching the given login and password.
+	* id — the ID of the user matching the given login and password.
+	* result — INVALID_CREDENTIALS
 
-RAISES:
-	* P2000 authentication_failed — if no match is found
-		for the given login and password.
 */
 CREATE OR REPLACE FUNCTION api.authenticate_user(
 	p_login TEXT,
 	p_password TEXT
 )
-RETURNS INT
+RETURNS TABLE(user_id INT, result TEXT, message TEXT)
 AS
 $function$
 DECLARE
 	v_user_id INT;
 BEGIN
-	PERFORM utils.null_check(p_login, 'p_login');
-	PERFORM utils.null_check(p_password, 'p_password');
+	IF p_login IS NULL THEN
+		RETURN QUERY SELECT -1, 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_login');
+		RETURN;
+	ELSEIF p_password IS NULL THEN
+		RETURN QUERY SELECT -1, 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_password');
+		RETURN;
+	END IF;
 	
 	SELECT id INTO v_user_id FROM users WHERE login = p_login AND password = p_password;
 	IF FOUND THEN
-		RETURN v_user_id;
+		RETURN QUERY SELECT v_user_id, 'SUCCESS', 'Authentication succeded.';
 	ELSE
-		PERFORM utils.raise_custom_exception('P2000');
+		RETURN QUERY SELECT -1, 'INVALID_CREDENTIALS', format('Login failed for %L.', p_login);
 	END IF;
 		
 END;
 $function$
 LANGUAGE plpgsql;
+
 
 /*
 Checks whether a refresh token is valid.
@@ -92,18 +124,13 @@ PARAMS:
 	* p_refresh_token_uuid
 
 RETURNS:
-	* The ID of the user associated with the given token uuid.
-
-RAISES:
-	* P3000 authorization_failed — if the given refresh token 
-		was not found in the database.
-	* P3001 refresh_token_expired — if the given refresh token
-		is expired.
+	* id — he ID of the user associated with the given token uuid.
+	* result — REFRESH_TOKEN_EXPIRED, REFRESH_TOKEN_REUSE, REFRESH_TOKEN_REVOKED, REFRESH_TOKEN_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api.verify_refresh_token(
 	p_refresh_token_uuid UUID
 )
-RETURNS INT
+RETURNS TABLE(user_id INT, result TEXT, message TEXT)
 AS
 $function$
 DECLARE
@@ -114,19 +141,25 @@ DECLARE
 
 	v_uuid UUID;
 BEGIN
-	PERFORM utils.null_check(p_refresh_token_uuid, 'p_refresh_token_uuid');
+	IF p_refresh_token_uuid IS NULL THEN
+		RETURN QUERY SELECT -1, 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_refresh_token_uuid');
+		RETURN;
+	END IF;
 
 	SELECT rt.user_id, rt.expires_at, rt.status INTO v_user_id, v_expires_at, v_status
 	FROM refresh_tokens rt
 	WHERE rt.uuid = p_refresh_token_uuid;
 
 	SELECT now() INTO v_now;
-	IF v_user_id IS NULL THEN
-		PERFORM utils.raise_custom_exception('P3000');
+	IF NOT FOUND THEN
+		RETURN QUERY SELECT -1, 'REFRESH_TOKEN_NOT_FOUND', 'Refresh token not found.';
+		RETURN;
 	ELSEIF v_expires_at < v_now THEN
-		PERFORM utils.raise_custom_exception('P3001');
+		RETURN QUERY SELECT -1, 'REFRESH_TOKEN_EXPIRED', 'Refresh token expired.';
+		RETURN;
 	ELSIF v_status = 'revoked' THEN
-		PERFORM utils.raise_custom_exception('P3003');
+		RETURN QUERY SELECT -1, 'REFRESH_TOKEN_REVOKED', 'Refresh token has been revoked.';
+		RETURN;
 	END IF;
 
 	UPDATE refresh_tokens
@@ -134,11 +167,14 @@ BEGIN
 	WHERE uuid = p_refresh_token_uuid AND expires_at >= v_now AND status = 'default'
 	RETURNING uuid INTO v_uuid;
 
-	IF v_user_id IS NULL THEN
-		PERFORM utils.raise_custom_exception('P3002');
+	IF NOT FOUND THEN
+		RETURN QUERY SELECT -1, 'REFRESH_TOKEN_REUSE', 'Refresh token has already been used. ' ||
+			'Revoking all related tokens.';
+		PERFORM api._revoke_tokens_for_user(v_user_id);
+		RETURN;
 	END IF;
 	
-	RETURN v_user_id;
+	RETURN QUERY SELECT v_user_id, 'SUCCESS', 'Refresh token valid.';
 END;
 $function$
 LANGUAGE plpgsql;
@@ -153,17 +189,14 @@ PARAMS:
 		the refresh token to be created, in seconds
 
 RETURNS:
-	* The UUID of the newly created refresh token.
-
-RAISES:
-	* P1000 pk_in_use — if the UUID of the newly created token 
-		happens to be in use.
+	* refresh_token_uuid — the UUID of the newly created refresh token.
+	* result — PK_IN_USE
 */
 CREATE OR REPLACE FUNCTION api.create_refresh_token(
 	p_user_id INT,
 	p_validity_period_seconds INT
 )
-RETURNS UUID
+RETURNS TABLE(refresh_token_uuid UUID, result TEXT, message TEXT)
 AS
 $function$
 DECLARE
@@ -171,8 +204,15 @@ DECLARE
 	v_validity_interval INTERVAL;
 	v_expires_at TIMESTAMPTZ;
 BEGIN
-	PERFORM utils.null_check(p_user_id, 'p_user_id');
-	PERFORM utils.null_check(p_validity_period_seconds, 'p_validity_period_seconds');
+	IF p_user_id IS NULL THEN
+		RETURN QUERY SELECT '00000000-0000-0000-0000-000000000000'::UUID, 
+			'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_user_id');
+		RETURN;
+	ELSEIF p_validity_period_seconds IS NULL THEN
+		RETURN QUERY SELECT '00000000-0000-0000-0000-000000000000'::UUID, 
+			'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_validity_period_seconds');
+		RETURN;	
+	END IF;
 
 	v_validity_interval := (p_validity_period_seconds || ' seconds')::INTERVAL;
 	v_expires_at := now() + v_validity_interval;
@@ -181,10 +221,11 @@ BEGIN
 	RETURNING uuid 
 	INTO v_token_uuid;
 
-	RETURN v_token_uuid;
+	RETURN QUERY SELECT v_token_uuid, 'SUCCESS', 'Refresh token created.';
 EXCEPTION
 	WHEN SQLSTATE '23505' THEN -- unique_violation
-		PERFORM utils.raise_custom_exception('P1000', ARRAY[v_token_uuid]);
+		RETURN QUERY SELECT '00000000-0000-0000-0000-000000000000'::UUID, 
+			'PK_IN_USE', 'Primary key already in use.';
 END;
 $function$
 LANGUAGE plpgsql;
@@ -195,44 +236,40 @@ Revokes the given refresh token.
 PARAMS:
 	* p_refresh_token_uuid — the refresh token to be revoked
 
-RETURNS VOID
-
-RAISES:
-
+RETURNS:
+	* result — REFRESH_TOKEN_NOT_FOUND
 */
 
 CREATE OR REPLACE FUNCTION api.revoke_token(
 	p_refresh_token_uuid UUID
 )
-RETURNS VOID
+RETURNS TABLE(result TEXT, message TEXT)
 AS
 $function$
 BEGIN
 	IF NOT EXISTS(SELECT 1 FROM refresh_tokens WHERE uuid = p_refresh_token_uuid) THEN
-		PERFORM utils.raise_custom_exception('P4002', ARRAY[p_refresh_token_uuid]);
+		RETURN QUERY SELECT 'REFRESH_TOKEN_NOT_FOUND', 'Refresh token not found.';
 	END IF;
 	
 	UPDATE refresh_tokens
 	SET status = 'revoked'
 	WHERE uuid = p_refresh_token_uuid;
-END
+	RETURN QUERY SELECT 'SUCCESS', 'Refresh token revoked.';
+END;
 $function$
 LANGUAGE plpgsql;
 
+
 /*
-Revokes all tokens that share a user with the given
-refresh token.
+Revokes all tokens for the given user.
 
 PARAMS:
-	* p_refresh_token_uuid — the refresh token in question
+	* p_user_id — the user in question
 
 RETURNS VOID
-
-RAISES:
-	* P4002 'refresh_token_not_found' — when the refresh token does not exist.
 */
-CREATE OR REPLACE FUNCTION api.revoke_related_tokens(
-	p_refresh_token_uuid UUID
+CREATE OR REPLACE FUNCTION api._revoke_tokens_for_user(
+	p_user_id INT
 )
 RETURNS VOID
 AS
@@ -240,10 +277,7 @@ $function$
 DECLARE
 	v_user_id INT;
 BEGIN
-	SELECT user_id INTO v_user_id FROM refresh_tokens WHERE uuid = p_refresh_token_uuid;
-	IF v_user_id IS NULL THEN
-		PERFORM utils.raise_custom_exception('P4002', ARRAY[p_refresh_token_uuid]);
-	END IF;
+	
 	UPDATE refresh_tokens
 	SET status = 'revoked'
 	WHERE user_id = v_user_id;
@@ -261,11 +295,8 @@ PARAMS:
 	* p_recipient_id
 	* p_content
 
-RETURNS VOID
-
-RAISES:
-	* P4001 user_not_found — if there is no user matching
-		the given sender or recipient IDs.
+RETURNS:
+	result — USER_NOT_FOUND
 
 */
 CREATE OR REPLACE FUNCTION api.create_message(
@@ -273,24 +304,31 @@ CREATE OR REPLACE FUNCTION api.create_message(
 	p_recipient_id INT,
 	p_content TEXT
 )
-RETURNS VOID
+RETURNS TABLE(result TEXT, message TEXT)
 AS
 $function$
-DECLARE
-	v_unused_id INT;
 BEGIN
-	PERFORM utils.null_check(p_sender_id, 'p_sender_id');
-	PERFORM utils.null_check(p_recipient_id, 'p_recipient_id');
-	PERFORM utils.null_check(p_content, 'p_content');
+	IF p_sender_id IS NULL THEN
+		RETURN QUERY SELECT 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_sender_id');
+		RETURN;
+	ELSEIF p_recipient_id IS NULL THEN
+		RETURN QUERY SELECT 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_recipient_id');
+		RETURN;	
+	ELSEIF p_content IS NULL THEN
+		RETURN QUERY SELECT 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_content');
+		RETURN;
+	END IF;
 	
 	INSERT INTO messages (sender_id, recipient_id, content)
 	VALUES (p_sender_id, p_recipient_id, p_content);
 EXCEPTION
 	WHEN SQLSTATE '23503' THEN -- foreign_key_violation
 		IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_sender_id) THEN
-			PERFORM utils.raise_custom_exception('P4001', ARRAY[p_sender_id]);
+			RETURN QUERY SELECT 'USER_NOT_FOUND', format('User with ID of %L (sender) does not exist.', p_sender_id);
+			RETURN;
 		ELSE
-			PERFORM utils.raise_custom_exception('P4001', ARRAY[p_recipient_id]);
+			RETURN QUERY SELECT 'USER_NOT_FOUND', format('User with ID of %L (recipient) does not exist.', p_recipient_id);
+			RETURN;
 		END IF;
 END;
 $function$
@@ -316,7 +354,7 @@ RAISES:
 CREATE OR REPLACE FUNCTION api.find_connected_users(
 	p_user_id INT
 )
-RETURNS TABLE(id INT, login TEXT)
+RETURNS TABLE(id INT, login TEXT, result TEXT, message TEXT)
 AS
 $function$
 DECLARE
