@@ -10,11 +10,6 @@ interface ConversationProps {
 }
 
 export default function Conversation({messages, ...rest}: ConversationProps & StackProps) {
-    for (let i = 0; i < 6; i++) {
-        messages = messages.concat(messages)
-    }
-
-
 
     return (
         <VStack alignItems="stretch" {...rest}>
