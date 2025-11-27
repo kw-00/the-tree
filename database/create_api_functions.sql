@@ -60,14 +60,12 @@ v_user_id INT;
 BEGIN
 	IF p_login IS NULL THEN
 		RETURN json_build_object(
-			'userId', -1,
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', 'p_login')
 		);
 	ELSEIF p_password IS NULL THEN
 		RETURN json_build_object(
-			'userId', -1,
 			'status', 400,
 			'errorCode', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', 'p_password')
@@ -87,7 +85,6 @@ BEGIN
 EXCEPTION
 	WHEN SQLSTATE '23505' THEN -- unique_violation
 		RETURN json_build_object(
-			'userId', -1, 
 			'httpStatus', 409,
 			'status', 'LOGIN_IN_USE',
 			'message', format('Login of %L is already in use.', p_login)
@@ -123,14 +120,12 @@ DECLARE
 BEGIN
 	IF p_login IS NULL THEN
 		RETURN json_build_object(
-			'userId', -1,
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', 'p_login')
 		);
 	ELSEIF p_password IS NULL THEN
 		RETURN json_build_object(
-			'userId', -1,
 			'status', 400,
 			'errorCode', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', 'p_password')
@@ -147,7 +142,6 @@ BEGIN
 		);
 	ELSE
 		RETURN json_build_object(
-			'userId', -1,
 			'httpStatus', 401,
 			'status', 'INVALID_CREDENTIALS', 
 			'message', format('Login failed for %L.', p_login)
@@ -191,7 +185,6 @@ DECLARE
 BEGIN
 	IF p_refresh_token_uuid IS NULL THEN
 		RETURN json_build_object(
-			'userId', -1, 
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER', 
 			'massage', format('Parameter %L cannot be NULL.', 'p_refresh_token_uuid')
@@ -205,21 +198,18 @@ BEGIN
 	SELECT now() INTO v_now;
 	IF NOT FOUND THEN
 		RETURN json_build_object(
-			'userId', -1,
 			'httpStatus', 401,
 			'status', 'REFRESH_TOKEN_NOT_FOUND',
 			'message', 'Refresh token not found.'
 		);
 	ELSEIF v_expires_at < v_now THEN
 		RETURN json_build_object(
-			'userId', -1,
 			'httpStatus', 401,
 			'status', 'REFRESH_TOKEN_EXPIRED',
 			'message', 'Refresh token expired.'
 		);
 	ELSIF v_status = 'revoked' THEN
 		RETURN json_build_object(
-			'userId', -1,
 			'httpStatus', 401,
 			'status', 'REFRESH_TOKEN_REVOKED',
 			'message', 'Refresh token has been revoked.'
@@ -234,7 +224,6 @@ BEGIN
 	IF NOT FOUND THEN
 		PERFORM api._revoke_tokens_for_user(v_user_id);
 		RETURN json_build_object(
-			'userId', -1,
 			'httpStatus', 401,
 			'status', 'REFRESH_TOKEN_REUSE',
 			'message', 'Refresh token has already been used. Revoked all tokens for user.'
@@ -280,14 +269,12 @@ DECLARE
 BEGIN
 	IF p_user_id IS NULL THEN
 		RETURN json_build_object(
-			'refreshToken', '00000000-0000-0000-0000-000000000000'::UUID, 
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER',
 			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
 		);
 	ELSEIF p_validity_period_seconds IS NULL THEN
 		RETURN json_build_object(
-			'refreshToken', '00000000-0000-0000-0000-000000000000'::UUID, 
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER',
 			'message', format('Parameter %L cannot be NULL.', 'p_validity_period_seconds')
@@ -310,7 +297,6 @@ BEGIN
 EXCEPTION
 	WHEN SQLSTATE '23505' THEN -- unique_violation
 		RETURN json_build_object(
-			'refreshToken', '00000000-0000-0000-0000-000000000000'::UUID, 
 			'httpStatus', 409,
 			'status', 'PK_IN_USE',
 			'message', 'Primary key already in use.'
