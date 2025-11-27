@@ -20,11 +20,11 @@ As for httpStatus and status, here are the possible values:
     401/REFRESH_TOKEN_EXPIRED — refresh token has expired.
     401/REFRESH_TOKEN_REUSE — refresh token has already been used.
     401/REFRESH_TOKEN_REVOKED — refresh token has been revoked.
+	401/REFRESH_TOKEN_NOT_FOUND — refresh token does not exist.
     400/USER_NOT_FOUND — user does not exist.
-    404/REFRESH_TOKEN_NOT_FOUND — refresh token does not exist.
     400/NULL_PARAMETER — parameter cannot be null.
 
-Each function's documentation will feature the following:
+Each function's documentation will feature the following in RETURNS:
 	* returnField1 SOMETYPE1 — ...
 	* returnField2 SOMETYPE2 — ...
 	* ...
@@ -35,23 +35,18 @@ server. They may return various values.
 */
 
 /*
-Registers a new user. Throws an error if login is already taken.
-Returns the ID of the newly registered user.
+Registers a new user. Returns the ID of the newly registered user.
 
 PARAMS:
 	p_login
 	p_password
 
 RETURNS:
-	TABLE
-		* userId INT — the ID of the newly registered user.
-		* result TEXT
-		* message TEXT
-		
-	Possible result values:
-		* SUCCESS
-		* NULL_PARAMETER
-		* LOGIN_IN_USE
+	* userId INT — the ID of the newly registered user.
+	* httpStatus/status:
+		* 200/SUCCESS
+		* 400/NULL_PARAMETER
+		* 409/LOGIN_IN_USE
 */
 CREATE OR REPLACE FUNCTION api.register_user(
 	p_login TEXT,
@@ -67,13 +62,13 @@ BEGIN
 		RETURN json_build_object(
 			'userId', -1,
 			'httpStatus', 400,
-			'errorCode', 'NULL_PARAMETER', 
+			'status', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', 'p_login')
 		);
 	ELSEIF p_password IS NULL THEN
 		RETURN json_build_object(
 			'userId', -1,
-			'httpStatus', 400,
+			'status', 400,
 			'errorCode', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', 'p_password')
 		);
@@ -85,7 +80,7 @@ BEGIN
 	
 	RETURN json_build_object(
 		'userId', v_user_id, 
-		'httpStatus', 200,
+		'status', 200,
 		'status', 'SUCCESS',
 		'message', 'Registration succeeded.'
 	); 
@@ -102,50 +97,61 @@ $function$
 LANGUAGE plpgsql;
 
 
-
-
 /*
 PARAMS:
-Authenticates a user. Throws an error when login and password do not match
-any user. Returns the ID of the user if authentication is successful.
+Authenticates a user. Returns the ID of the user if authentication is successful.
 
 	* p_login
 	* p_password
 	
 RETURNS:
-	TABLE
-		* userId INT — the ID of the newly registered user.
-		* result TEXT
-		* message TEXT
-		
-	Possible result values:
-		* SUCCESS
-		* NULL_PARAMETER
-		* INVALID_CREDENTIALS
+	* userId INT — the ID of the user.
+	* httpStatus/status:
+		* 200/SUCCESS
+		* 400/NULL_PARAMETER
+		* 409/INVALID_CREDENTIALS
 */
 CREATE OR REPLACE FUNCTION api.authenticate_user(
 	p_login TEXT,
 	p_password TEXT
 )
-RETURNS TABLE(userId INT, result TEXT, message TEXT)
+RETURNS JSONB
 AS
 $function$
 DECLARE
 	v_user_id INT;
 BEGIN
 	IF p_login IS NULL THEN
-		RETURN QUERY SELECT -1, 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_login');
-		RETURN;
+		RETURN json_build_object(
+			'userId', -1,
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', 'p_login')
+		);
 	ELSEIF p_password IS NULL THEN
-		RETURN QUERY SELECT -1, 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_password');
-		RETURN;
+		RETURN json_build_object(
+			'userId', -1,
+			'status', 400,
+			'errorCode', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', 'p_password')
+		);
 	END IF;
 	
 	SELECT id INTO v_user_id FROM users WHERE login = p_login AND password = p_password;
 	IF FOUND THEN
-		RETURN QUERY SELECT v_user_id, 'SUCCESS', 'Authentication succeded.';
+		RETURN json_build_object(
+			'userId', v_user_id,
+			'httpStatus', 200,
+			'status', 'SUCCESS',
+			'message', 'Authentication succeeded.'
+		);
 	ELSE
-		RETURN QUERY SELECT -1, 'INVALID_CREDENTIALS', format('Login failed for %L.', p_login);
+		RETURN json_build_object(
+			'userId', -1,
+			'httpStatus', 401,
+			'status', 'INVALID_CREDENTIALS', 
+			'message', format('Login failed for %L.', p_login)
+		);
 	END IF;
 		
 END;
@@ -155,30 +161,24 @@ LANGUAGE plpgsql;
 
 /*
 Checks whether a refresh token is valid.
-Expired, used or revoked refresh tokens cause
-an error to be thrown.
 
 PARAMS:
 	* p_refresh_token_uuid
 
 RETURNS:
-	TABLE
-		* user_id INT — the ID of the user associated with the given token.
-		* result TEXT
-		* message TEXT
-		
-	Possible result values:
-		* SUCCESS
-		* NULL_PARAMETER
-		* REFRESH_TOKEN_NOT_FOUND
-		* REFRESH_TOKEN_EXPIRED
-		* REFRESH_TOKEN_REUSE
-		* REFRESH_TOKEN_REVOKED
+	* userId INT — the ID of the user associated with the given token.
+	* httpStatus/status:
+		* 200/SUCCESS
+		* 400/NULL_PARAMETER
+		* 401/REFRESH_TOKEN_NOT_FOUND
+		* 401/REFRESH_TOKEN_EXPIRED
+		* 401/REFRESH_TOKEN_REUSE
+		* 401/REFRESH_TOKEN_REVOKED
 */
 CREATE OR REPLACE FUNCTION api.verify_refresh_token(
 	p_refresh_token_uuid UUID
 )
-RETURNS TABLE(userId INT, result TEXT, message TEXT)
+RETURNS JSONB --TABLE(userId INT, result TEXT, message TEXT)
 AS
 $function$
 DECLARE
@@ -190,8 +190,12 @@ DECLARE
 	v_uuid UUID;
 BEGIN
 	IF p_refresh_token_uuid IS NULL THEN
-		RETURN QUERY SELECT -1, 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_refresh_token_uuid');
-		RETURN;
+		RETURN json_build_object(
+			'userId', -1, 
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'massage', format('Parameter %L cannot be NULL.', 'p_refresh_token_uuid')
+		);
 	END IF;
 
 	SELECT rt.user_id, rt.expires_at, rt.status INTO v_user_id, v_expires_at, v_status
@@ -200,14 +204,26 @@ BEGIN
 
 	SELECT now() INTO v_now;
 	IF NOT FOUND THEN
-		RETURN QUERY SELECT -1, 'REFRESH_TOKEN_NOT_FOUND', 'Refresh token not found.';
-		RETURN;
+		RETURN json_build_object(
+			'userId', -1,
+			'httpStatus', 401,
+			'status', 'REFRESH_TOKEN_NOT_FOUND',
+			'message', 'Refresh token not found.'
+		);
 	ELSEIF v_expires_at < v_now THEN
-		RETURN QUERY SELECT -1, 'REFRESH_TOKEN_EXPIRED', 'Refresh token expired.';
-		RETURN;
+		RETURN json_build_object(
+			'userId', -1,
+			'httpStatus', 401,
+			'status', 'REFRESH_TOKEN_EXPIRED',
+			'message', 'Refresh token expired.'
+		);
 	ELSIF v_status = 'revoked' THEN
-		RETURN QUERY SELECT -1, 'REFRESH_TOKEN_REVOKED', 'Refresh token has been revoked.';
-		RETURN;
+		RETURN json_build_object(
+			'userId', -1,
+			'httpStatus', 401,
+			'status', 'REFRESH_TOKEN_REVOKED',
+			'message', 'Refresh token has been revoked.'
+		);
 	END IF;
 
 	UPDATE refresh_tokens
@@ -216,13 +232,21 @@ BEGIN
 	RETURNING uuid INTO v_uuid;
 
 	IF NOT FOUND THEN
-		RETURN QUERY SELECT -1, 'REFRESH_TOKEN_REUSE', 'Refresh token has already been used. ' ||
-			'Revoking all related tokens.';
 		PERFORM api._revoke_tokens_for_user(v_user_id);
-		RETURN;
+		RETURN json_build_object(
+			'userId', -1,
+			'httpStatus', 401,
+			'status', 'REFRESH_TOKEN_REUSE',
+			'message', 'Refresh token has already been used. Revoked all tokens for user.'
+		);
 	END IF;
-	
-	RETURN QUERY SELECT v_user_id, 'SUCCESS', 'Refresh token valid.';
+
+	RETURN json_build_object(
+		'userId', v_user_id,
+		'httpStatus', 200,
+		'status', 'SUCCESS',
+		'message', 'Refresh token valid.'
+	);
 END;
 $function$
 LANGUAGE plpgsql;
@@ -237,21 +261,16 @@ PARAMS:
 		the refresh token to be created, in seconds
 
 RETURNS:
-	TABLE
-		* refreshToken UUID — the UUID of the newly created token.
-		* result TEXT
-		* message TEXT)
-		
-	Possible result values:
-		* SUCCESS
-		* NULL_PARAMETER
-		* PK_IN_USE
+	* refreshToken UUID — the UUID of the newly created token.
+	* httpStatus/status:
+		* 200/SUCCESS
+		* 400/NULL_PARAMETER
 */
 CREATE OR REPLACE FUNCTION api.create_refresh_token(
 	p_user_id INT,
 	p_validity_period_seconds INT
 )
-RETURNS TABLE(refreshToken UUID, result TEXT, message TEXT)
+RETURNS JSONB
 AS
 $function$
 DECLARE
@@ -260,13 +279,19 @@ DECLARE
 	v_expires_at TIMESTAMPTZ;
 BEGIN
 	IF p_user_id IS NULL THEN
-		RETURN QUERY SELECT '00000000-0000-0000-0000-000000000000'::UUID, 
-			'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_user_id');
-		RETURN;
+		RETURN json_build_object(
+			'refreshToken', '00000000-0000-0000-0000-000000000000'::UUID, 
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER',
+			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
+		);
 	ELSEIF p_validity_period_seconds IS NULL THEN
-		RETURN QUERY SELECT '00000000-0000-0000-0000-000000000000'::UUID, 
-			'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_validity_period_seconds');
-		RETURN;	
+		RETURN json_build_object(
+			'refreshToken', '00000000-0000-0000-0000-000000000000'::UUID, 
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER',
+			'message', format('Parameter %L cannot be NULL.', 'p_validity_period_seconds')
+		);
 	END IF;
 
 	v_validity_interval := (p_validity_period_seconds || ' seconds')::INTERVAL;
@@ -275,48 +300,68 @@ BEGIN
 	VALUES (p_user_id, v_expires_at)
 	RETURNING uuid 
 	INTO v_token_uuid;
-
-	RETURN QUERY SELECT v_token_uuid, 'SUCCESS', 'Refresh token created.';
+	
+	RETURN json_build_object(
+		'refreshToken', v_token_uuid, 
+		'httpStatus', 200,
+		'status', 'SUCCESS',
+		'message', 'Refresh token created.'
+	);
 EXCEPTION
 	WHEN SQLSTATE '23505' THEN -- unique_violation
-		RETURN QUERY SELECT '00000000-0000-0000-0000-000000000000'::UUID, 
-			'PK_IN_USE', 'Primary key already in use.';
+		RETURN json_build_object(
+			'refreshToken', '00000000-0000-0000-0000-000000000000'::UUID, 
+			'httpStatus', 409,
+			'status', 'PK_IN_USE',
+			'message', 'Primary key already in use.'
+		);
 END;
 $function$
 LANGUAGE plpgsql;
+
 
 /*
 Revokes the given refresh token.
 
 PARAMS:
 	* p_refresh_token_uuid — the refresh token to be revoked
-
-RETURNS:
-	TABLE
-		* result TEXT
-		* message TEXT)
 		
-	Possible result values:
-		* SUCCESS
-		* NULL_PARAMETER
-		* REFRESH_TOKEN_NOT_FOUND
+RETURNS:
+	* httpStatus/status:
+		* 200/SUCCESS
+		* 400/NULL_PARAMETER
 */
-
 CREATE OR REPLACE FUNCTION api.revoke_token(
 	p_refresh_token_uuid UUID
 )
-RETURNS TABLE(result TEXT, message TEXT)
+RETURNS JSONB
 AS
 $function$
 BEGIN
+	IF p_refresh_token_uuid IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER',
+			'message', format('Parameter %L cannot be NULL.', 'p_refresh_token_uuid')
+		);
+	END IF;
+	
 	IF NOT EXISTS(SELECT 1 FROM refresh_tokens WHERE uuid = p_refresh_token_uuid) THEN
-		RETURN QUERY SELECT 'REFRESH_TOKEN_NOT_FOUND', 'Refresh token not found.';
+		RETURN json_build_object(
+			'httpStatus', 200, 
+			'status', 'SUCCESS', 
+			'message', 'Refresh token already revoked.'
+		);
 	END IF;
 	
 	UPDATE refresh_tokens
 	SET status = 'revoked'
 	WHERE uuid = p_refresh_token_uuid;
-	RETURN QUERY SELECT 'SUCCESS', 'Refresh token revoked.';
+	RETURN json_build_object(
+		'httpStatus', 200, 
+		'status', 'SUCCESS', 
+		'message', 'Refresh token revoked.'
+	);
 END;
 $function$
 LANGUAGE plpgsql;
@@ -356,52 +401,69 @@ PARAMS:
 	* p_sender_id
 	* p_recipient_id
 	* p_content
-
+	
 RETURNS:
-	TABLE
-		* result TEXT
-		* message TEXT
-
-	Possible result values:
-		* SUCCESS
-		* NULL_PARAMETER
-		* USER_NOT_FOUND
+	* httpStatus/status:
+		* 200/SUCCESS
+		* 400/NULL_PARAMETER
+		* 404/USER_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api.create_message(
 	p_sender_id INT,
 	p_recipient_id INT,
 	p_content TEXT
 )
-RETURNS TABLE(result TEXT, message TEXT)
+RETURNS JSONB
 AS
 $function$
 BEGIN
 	IF p_sender_id IS NULL THEN
-		RETURN QUERY SELECT 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_sender_id');
-		RETURN;
+		RETURN json_build_object(
+			'httpStatus', 400, 
+			'status', 'NULL_PARAMETER',
+			'message', format('Parameter %L cannot be NULL.', 'p_sender_id')
+		);
 	ELSEIF p_recipient_id IS NULL THEN
-		RETURN QUERY SELECT 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_recipient_id');
-		RETURN;	
+		RETURN json_build_object(
+			'httpStatus', 400, 
+			'status', 'NULL_PARAMETER',
+			'message', format('Parameter %L cannot be NULL.', 'p_recipient_id')
+		);	
 	ELSEIF p_content IS NULL THEN
-		RETURN QUERY SELECT 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_content');
-		RETURN;
+		RETURN json_build_object(
+			'httpStatus', 400, 
+			'status', 'NULL_PARAMETER',
+			'message', format('Parameter %L cannot be NULL.', 'p_content')
+		);
 	END IF;
 	
 	INSERT INTO messages (sender_id, recipient_id, content)
 	VALUES (p_sender_id, p_recipient_id, p_content);
+	RETURN json_build_object(
+		'httpStatus', 200, 
+		'status', 'SUCCESS',
+		'message', 'Successfully created message.'
+	);
 EXCEPTION
 	WHEN SQLSTATE '23503' THEN -- foreign_key_violation
 		IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_sender_id) THEN
-			RETURN QUERY SELECT 'USER_NOT_FOUND', format('User with ID of %L (sender) does not exist.', p_sender_id);
-			RETURN;
+			RETURN json_build_object(
+				'httpStatus', 404, 
+				'status', 'USER_NOT_FOUND',
+				'message', format('User with ID of %L (sender) does not exist.', p_sender_id)
+			);
+
 		ELSE
-			RETURN QUERY SELECT 'USER_NOT_FOUND', format('User with ID of %L (recipient) does not exist.', p_recipient_id);
-			RETURN;
+			RETURN json_build_object(
+				'httpStatus', 404, 
+				'status', 'USER_NOT_FOUND',
+				'message', format('User with ID of %L (recipient) does not exist.', p_recipient_id)
+			);
+
 		END IF;
 END;
 $function$
 LANGUAGE plpgsql;
-
 
 
 /*
@@ -413,17 +475,12 @@ PARAMS:
 		other users that messaged or received a message from them.
 
 RETURNS:
-	JSONB {
-		connectedUsers: {id INT, login TEXT}[],
-		result TEXT,
-		message: TEXT
-	}
-	Possible result values:
-		* SUCCESS
-		* NULL_PARAMETER
-		* USER_NOT_FOUND
+	* connectedUsers {id INT, login TEXT}[]
+	* httpStatus/status:
+		* 200/SUCCESS
+		* 400/NULL_PARAMETER
+		* 404/USER_NOT_FOUND
 */
-drop function api.find_connected_users;
 CREATE OR REPLACE FUNCTION api.find_connected_users(
 	p_user_id INT
 )
@@ -465,6 +522,7 @@ END;
 $function$
 LANGUAGE plpgsql;
 
+
 /*
 Returns all messages between two users.
 
@@ -473,15 +531,11 @@ PARAMS:
 	* p_user2_id
 
 RETURNS:
-	JSONB {
-		conversation: {senderId INT, senderLogin TEXT, content TEXT}[],
-		result TEXT,
-		message: TEXT
-	}
-	Possible result values:
-		* SUCCESS
-		* NULL_PARAMETER
-		* USER_NOT_FOUND
+	* conversation: {senderId INT, senderLogin TEXT, content TEXT}[]
+	* httpStatus/status:
+		* 200/SUCCESS
+		* 400/NULL_PARAMETER
+		* 404/USER_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api.get_conversation(
 	p_user1_id INT,
