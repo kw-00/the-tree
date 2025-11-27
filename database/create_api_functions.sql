@@ -1,21 +1,34 @@
 CREATE SCHEMA IF NOT EXISTS api;
 
 /*
-Functions meant to be called by server return tables or JSONB
-containing a "result" and "message" column/field.
+Functions meant to be called by server return JSONB
+in the following format:
+	{
+		returnField1: SOMETYPE1,
+		returnField2: SOMETYPE2,
+		...
+		httpStatus INT,
+		status TEXT,
+		message TEXT
+	}
 
-Result codes:
-    SUCCESS — when everything goes right.
-    PK_IN_USE — primary key is already in use.
-    LOGIN_IN_USE — login is already in use.
-    INVALID_CREDENTIALS — wrong username or password.
-    AUTHORIZATION_FAILED — authorization failed.
-    REFRESH_TOKEN_EXPIRED — refresh token has expired.
-    REFRESH_TOKEN_REUSE — refresh token has already been used.
-    REFRESH_TOKEN_REVOKED — refresh token has been revoked.
-    USER_NOT_FOUND — user does not exist.
-    REFRESH_TOKEN_NOT_FOUND — refresh token does not exist.
-    NULL_PARAMETER — parameter cannot be null.
+As for httpStatus and status, here are the possible values:
+    200/SUCCESS — when everything goes right.
+    409/PK_IN_USE — primary key is already in use.
+    409/LOGIN_IN_USE — login is already in use.
+    401/INVALID_CREDENTIALS — wrong username or password.
+    401/REFRESH_TOKEN_EXPIRED — refresh token has expired.
+    401/REFRESH_TOKEN_REUSE — refresh token has already been used.
+    401/REFRESH_TOKEN_REVOKED — refresh token has been revoked.
+    400/USER_NOT_FOUND — user does not exist.
+    404/REFRESH_TOKEN_NOT_FOUND — refresh token does not exist.
+    400/NULL_PARAMETER — parameter cannot be null.
+
+Each function's documentation will feature the following:
+	* returnField1 SOMETYPE1 — ...
+	* returnField2 SOMETYPE2 — ...
+	* ...
+	* httpStatus/status — possible values
 
 Functions starting with _ (e.g. api._function_name) are considered private and not for use by
 server. They may return various values.
@@ -44,28 +57,46 @@ CREATE OR REPLACE FUNCTION api.register_user(
 	p_login TEXT,
 	p_password TEXT
 )
-RETURNS TABLE(userId INT, result TEXT, message TEXT)
+RETURNS JSONB
 AS
 $function$
 DECLARE
 v_user_id INT;
 BEGIN
 	IF p_login IS NULL THEN
-		RETURN QUERY SELECT -1, 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_login');
-		RETURN;
+		RETURN json_build_object(
+			'userId', -1,
+			'httpStatus', 400,
+			'errorCode', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', 'p_login')
+		);
 	ELSEIF p_password IS NULL THEN
-		RETURN QUERY SELECT -1, 'NULL_PARAMETER', format('Parameter %L cannot be NULL.', 'p_password');
-		RETURN;
+		RETURN json_build_object(
+			'userId', -1,
+			'httpStatus', 400,
+			'errorCode', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', 'p_password')
+		);
 	END IF;
 	
 	INSERT INTO users (login, password) 
 	VALUES (p_login, p_password)
 	RETURNING id INTO v_user_id;
 	
-	RETURN QUERY SELECT v_user_id, 'SUCCESS', 'Registration succeeded.';
+	RETURN json_build_object(
+		'userId', v_user_id, 
+		'httpStatus', 200,
+		'status', 'SUCCESS',
+		'message', 'Registration succeeded.'
+	); 
 EXCEPTION
 	WHEN SQLSTATE '23505' THEN -- unique_violation
-		RETURN QUERY SELECT -1, 'LOGIN_IN_USE', format('Login of %L is already in use.', p_login);
+		RETURN json_build_object(
+			'userId', -1, 
+			'httpStatus', 409,
+			'status', 'LOGIN_IN_USE',
+			'message', format('Login of %L is already in use.', p_login)
+		); 
 END;
 $function$
 LANGUAGE plpgsql;
