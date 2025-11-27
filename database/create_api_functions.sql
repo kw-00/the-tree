@@ -65,7 +65,7 @@ BEGIN
 			'status', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', 'p_login')
 		);
-	ELSEIF p_password IS NULL THEN
+	ELSIF p_password IS NULL THEN
 		RETURN json_build_object(
 			'status', 400,
 			'errorCode', 'NULL_PARAMETER', 
@@ -128,7 +128,7 @@ BEGIN
 			'status', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', 'p_login')
 		);
-	ELSEIF p_password IS NULL THEN
+	ELSIF p_password IS NULL THEN
 		RETURN json_build_object(
 			'status', 400,
 			'errorCode', 'NULL_PARAMETER', 
@@ -213,7 +213,7 @@ BEGIN
 			'message', 'Refresh token not found.'
 		);
 	-- If the token has expired, error
-	ELSEIF v_expires_at < v_now THEN
+	ELSIF v_expires_at < v_now THEN
 		RETURN json_build_object(
 			'httpStatus', 401,
 			'status', 'REFRESH_TOKEN_EXPIRED',
@@ -291,7 +291,7 @@ BEGIN
 			'status', 'NULL_PARAMETER',
 			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
 		);
-	ELSEIF p_validity_period_seconds IS NULL THEN
+	ELSIF p_validity_period_seconds IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER',
@@ -436,13 +436,13 @@ BEGIN
 			'status', 'NULL_PARAMETER',
 			'message', format('Parameter %L cannot be NULL.', 'p_sender_id')
 		);
-	ELSEIF p_recipient_id IS NULL THEN
+	ELSIF p_recipient_id IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400, 
 			'status', 'NULL_PARAMETER',
 			'message', format('Parameter %L cannot be NULL.', 'p_recipient_id')
 		);	
-	ELSEIF p_content IS NULL THEN
+	ELSIF p_content IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400, 
 			'status', 'NULL_PARAMETER',
@@ -580,7 +580,7 @@ BEGIN
 			'status', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', p_user1_id)
 		);
-	ELSEIF p_user2_id IS NULL THEN
+	ELSIF p_user2_id IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER', 
@@ -595,7 +595,7 @@ BEGIN
 			'status', 'USER_NOT_FOUND', 
 			'message', format('User with ID of %L does not exist.', p_user1_id)
 		);
-	ELSEIF NOT EXISTS(SELECT 1 FROM users u WHERE u.id = p_user2_id) THEN
+	ELSIF NOT EXISTS(SELECT 1 FROM users u WHERE u.id = p_user2_id) THEN
 		RETURN json_build_object(
 			'httpStatus', 404,
 			'status', 'USER_NOT_FOUND', 
