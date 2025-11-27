@@ -58,6 +58,7 @@ $function$
 DECLARE
 v_user_id INT;
 BEGIN
+	-- Return error if any parameter is null
 	IF p_login IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400,
@@ -71,11 +72,12 @@ BEGIN
 			'message', format('Parameter %L cannot be NULL.', 'p_password')
 		);
 	END IF;
-	
+
+	-- Add a new user to the database
 	INSERT INTO users (login, password) 
 	VALUES (p_login, p_password)
 	RETURNING id INTO v_user_id;
-	
+
 	RETURN json_build_object(
 		'userId', v_user_id, 
 		'status', 200,
@@ -83,6 +85,7 @@ BEGIN
 		'message', 'Registration succeeded.'
 	); 
 EXCEPTION
+	-- If login is already in use, error
 	WHEN SQLSTATE '23505' THEN -- unique_violation
 		RETURN json_build_object(
 			'httpStatus', 409,
@@ -118,6 +121,7 @@ $function$
 DECLARE
 	v_user_id INT;
 BEGIN
+	-- Return error if any parameter is null
 	IF p_login IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400,
@@ -131,8 +135,10 @@ BEGIN
 			'message', format('Parameter %L cannot be NULL.', 'p_password')
 		);
 	END IF;
-	
+
+	-- Fetch id from user that matches the given credentials
 	SELECT id INTO v_user_id FROM users WHERE login = p_login AND password = p_password;
+	-- If a match is found, success
 	IF FOUND THEN
 		RETURN json_build_object(
 			'userId', v_user_id,
@@ -140,6 +146,7 @@ BEGIN
 			'status', 'SUCCESS',
 			'message', 'Authentication succeeded.'
 		);
+	-- If no match is found, error
 	ELSE
 		RETURN json_build_object(
 			'httpStatus', 401,
@@ -183,6 +190,7 @@ DECLARE
 
 	v_uuid UUID;
 BEGIN
+	-- Check whether p_refresh_token_uuid is not null
 	IF p_refresh_token_uuid IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400,
@@ -191,23 +199,27 @@ BEGIN
 		);
 	END IF;
 
+	-- Fetch id, expiry and status info for given token
 	SELECT rt.user_id, rt.expires_at, rt.status INTO v_user_id, v_expires_at, v_status
 	FROM refresh_tokens rt
 	WHERE rt.uuid = p_refresh_token_uuid;
 
 	SELECT now() INTO v_now;
+	-- If there is no token matching the given UUID, error
 	IF NOT FOUND THEN
 		RETURN json_build_object(
 			'httpStatus', 401,
 			'status', 'REFRESH_TOKEN_NOT_FOUND',
 			'message', 'Refresh token not found.'
 		);
+	-- If the token has expired, error
 	ELSEIF v_expires_at < v_now THEN
 		RETURN json_build_object(
 			'httpStatus', 401,
 			'status', 'REFRESH_TOKEN_EXPIRED',
 			'message', 'Refresh token expired.'
 		);
+	-- If it has been revoked, error
 	ELSIF v_status = 'revoked' THEN
 		RETURN json_build_object(
 			'httpStatus', 401,
@@ -216,11 +228,15 @@ BEGIN
 		);
 	END IF;
 
+	-- Token exists, has not expired nor been revoked. But it may have been used.
+	-- If it has not been used, set its status to 'used' while fetching its uuid
 	UPDATE refresh_tokens
 	SET status = 'used'
 	WHERE uuid = p_refresh_token_uuid AND expires_at >= v_now AND status = 'default'
 	RETURNING uuid INTO v_uuid;
 
+	-- If token has been used before, revoke all tokens for user — the token may have been stolen.
+	-- Then return error
 	IF NOT FOUND THEN
 		PERFORM api._revoke_tokens_for_user(v_user_id);
 		RETURN json_build_object(
@@ -230,6 +246,7 @@ BEGIN
 		);
 	END IF;
 
+	-- If the token has not been used, token is valid — success
 	RETURN json_build_object(
 		'userId', v_user_id,
 		'httpStatus', 200,
@@ -267,6 +284,7 @@ DECLARE
 	v_validity_interval INTERVAL;
 	v_expires_at TIMESTAMPTZ;
 BEGIN
+	-- If any parameter is null, error
 	IF p_user_id IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400,
@@ -281,13 +299,17 @@ BEGIN
 		);
 	END IF;
 
+	-- Set token expiry time
 	v_validity_interval := (p_validity_period_seconds || ' seconds')::INTERVAL;
 	v_expires_at := now() + v_validity_interval;
+
+	-- Create the token
 	INSERT INTO refresh_tokens (user_id, expires_at) 
 	VALUES (p_user_id, v_expires_at)
 	RETURNING uuid 
 	INTO v_token_uuid;
-	
+
+	-- If no exception occurs, success
 	RETURN json_build_object(
 		'refreshToken', v_token_uuid, 
 		'httpStatus', 200,
@@ -295,6 +317,7 @@ BEGIN
 		'message', 'Refresh token created.'
 	);
 EXCEPTION
+	-- If token UUID happens to conflict with another, error
 	WHEN SQLSTATE '23505' THEN -- unique_violation
 		RETURN json_build_object(
 			'httpStatus', 409,
@@ -324,6 +347,7 @@ RETURNS JSONB
 AS
 $function$
 BEGIN
+	-- Check whether p_refresh_token_uuid is not null
 	IF p_refresh_token_uuid IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400,
@@ -331,7 +355,8 @@ BEGIN
 			'message', format('Parameter %L cannot be NULL.', 'p_refresh_token_uuid')
 		);
 	END IF;
-	
+
+	-- If token does not exist, success! No need to revoke it. Just return success response
 	IF NOT EXISTS(SELECT 1 FROM refresh_tokens WHERE uuid = p_refresh_token_uuid) THEN
 		RETURN json_build_object(
 			'httpStatus', 200, 
@@ -339,7 +364,8 @@ BEGIN
 			'message', 'Refresh token already revoked.'
 		);
 	END IF;
-	
+
+	-- Otherwise, revoke the token and return success response
 	UPDATE refresh_tokens
 	SET status = 'revoked'
 	WHERE uuid = p_refresh_token_uuid;
@@ -403,6 +429,7 @@ RETURNS JSONB
 AS
 $function$
 BEGIN
+	-- If any parameter is null, error
 	IF p_sender_id IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400, 
@@ -422,7 +449,8 @@ BEGIN
 			'message', format('Parameter %L cannot be NULL.', 'p_content')
 		);
 	END IF;
-	
+
+	-- Create message
 	INSERT INTO messages (sender_id, recipient_id, content)
 	VALUES (p_sender_id, p_recipient_id, p_content);
 	RETURN json_build_object(
@@ -431,6 +459,7 @@ BEGIN
 		'message', 'Successfully created message.'
 	);
 EXCEPTION
+	-- If sender or recipient with given ID does not exist, error
 	WHEN SQLSTATE '23503' THEN -- foreign_key_violation
 		IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_sender_id) THEN
 			RETURN json_build_object(
@@ -476,6 +505,7 @@ $function$
 DECLARE
 	v_connected_users JSONB;
 BEGIN
+	-- If p_user_id is null, error
 	IF p_user_id IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400,
@@ -484,7 +514,7 @@ BEGIN
 		);
 	END IF;
 		
-
+	-- If user does not exist, error
 	IF NOT EXISTS(SELECT 1 FROM users u WHERE u.id = p_user_id) THEN
 		RETURN json_build_object(
 			'httpStatus', 404,
@@ -493,6 +523,7 @@ BEGIN
 		);
 	END IF;
 
+	-- Gather users connected to the given user
 	SELECT json_agg(row_to_json(connected_users)) 
 	FROM (
 		SELECT DISTINCT u.id, u.login
@@ -504,7 +535,8 @@ BEGIN
 		ORDER BY login ASC
 	) AS connected_users(id, login)
 	INTO v_connected_users;
-	
+
+	-- Create and return json — success
 	RETURN json_build_object(
 			'connectedUsers', v_connected_users, 
 			'httpStatus', 200,
@@ -541,6 +573,7 @@ $function$
 DECLARE
 	v_conversation JSONB;
 BEGIN
+	-- If either user id is null, error
 	IF p_user1_id IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400,
@@ -554,7 +587,8 @@ BEGIN
 			'message', format('Parameter %L cannot be NULL.', p_user2_id)
 		);
 	END IF;
-		
+
+	-- If either user does not exist, error
 	IF NOT EXISTS(SELECT 1 FROM users u WHERE u.id = p_user1_id) THEN
 		RETURN json_build_object(
 			'httpStatus', 404,
@@ -569,6 +603,7 @@ BEGIN
 		);
 	END IF;
 
+	-- Return json — success
 	SELECT json_agg(row_to_json(messages)) FROM (
 		SELECT m.sender_id, u.login, m.content
 		FROM messages m
