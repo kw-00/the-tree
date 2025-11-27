@@ -488,17 +488,23 @@ RETURNS JSONB
 AS
 $function$
 DECLARE
-	v_result JSONB;
+	v_connected_users JSONB;
 BEGIN
 	IF p_user_id IS NULL THEN
-		RETURN (SELECT format('{"result": "NULL_PARAMETER", "message": "Parameter %L cannot be NULL."}', 
-			'p_user_id')::JSONB);
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', p_user_id)
+		);
 	END IF;
 		
 
 	IF NOT EXISTS(SELECT 1 FROM users u WHERE u.id = p_user_id) THEN
-		RETURN (SELECT format('{"result": "USER_NOT_FOUND", "message": "User with ID of %L does not exist."}', 
-			p_user_id)::JSONB);
+		RETURN json_build_object(
+			'httpStatus', 404,
+			'status', 'USER_NOT_FOUND', 
+			'message', format('User with ID of %L does not exist.', p_user_id)
+		);
 	END IF;
 
 	SELECT json_agg(row_to_json(connected_users)) 
@@ -511,12 +517,14 @@ BEGIN
 		WHERE u.id != p_user_id
 		ORDER BY login ASC
 	) AS connected_users(id, login)
-	INTO v_result;
+	INTO v_connected_users;
 	
-	SELECT json_build_object('connectedUsers', v_result, 'result', 'SUCCESS', 'message', 
-		'Successfully retrieved connected users.')
-	INTO v_result;
-	RETURN v_result;
+	RETURN json_build_object(
+			'connectedUsers', v_connected_users, 
+			'httpStatus', 200,
+			'result', 'SUCCESS', 
+			'message', 'Successfully retrieved connected users.'
+		);
 	
 END;
 $function$
@@ -545,22 +553,34 @@ RETURNS JSONB --TABLE(senderId INT, senderLogin TEXT, content TEXT)
 AS
 $function$
 DECLARE
-	v_result JSONB;
+	v_conversation JSONB;
 BEGIN
 	IF p_user1_id IS NULL THEN
-		RETURN (SELECT format('{"result": "NULL_PARAMETER", 
-		"message": "Parameter %L cannot be NULL."}', 'p_user1_id'));
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', p_user1_id)
+		);
 	ELSEIF p_user2_id IS NULL THEN
-		RETURN (SELECT format('{"result": "NULL_PARAMETER", 
-		"message": "Parameter %L cannot be NULL."}', 'p_user2_id'));
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', p_user2_id)
+		);
 	END IF;
 		
-	IF NOT EXISTS (SELECT 1 FROM users u WHERE id = p_user1_id) THEN
-		RETURN (SELECT format('{"result": "USER_NOT_FOUND", 
-			"message": "User with ID of %L not found."}', p_user1_id));
-	ELSIF NOT EXISTS (SELECT 1 FROM USERS WHERE id = p_user2_id) THEN
-		RETURN (SELECT format('{"result": "USER_NOT_FOUND", 
-			"message": "User with ID of %L not found."}', p_user2_id));
+	IF NOT EXISTS(SELECT 1 FROM users u WHERE u.id = p_user1_id) THEN
+		RETURN json_build_object(
+			'httpStatus', 404,
+			'status', 'USER_NOT_FOUND', 
+			'message', format('User with ID of %L does not exist.', p_user1_id)
+		);
+	ELSEIF NOT EXISTS(SELECT 1 FROM users u WHERE u.id = p_user2_id) THEN
+		RETURN json_build_object(
+			'httpStatus', 404,
+			'status', 'USER_NOT_FOUND', 
+			'message', format('User with ID of %L does not exist.', p_user2_id)
+		);
 	END IF;
 
 	SELECT json_agg(row_to_json(messages)) FROM (
@@ -571,11 +591,13 @@ BEGIN
 			AND m.recipient_id IN (p_user1_id, p_user2_id)
 		ORDER BY m.created_at ASC
 	) AS messages(senderId, senderLogin, content)
-	INTO v_result;
-	SELECT json_build_object('conversation', v_result, 'result', 'SUCCESS', 
-		'message', 'Successfully retrieved conversation.')
-	INTO v_result;
-	RETURN v_result;
+	INTO v_conversation;
+	RETURN json_build_object(
+		'conversation', v_conversation,
+		'httpStatus', 200,
+		'status', 'SUCCESS', 
+		'message', 'Successfully retrieved conversation.'
+	);
 END;
 $function$
 LANGUAGE plpgsql;
