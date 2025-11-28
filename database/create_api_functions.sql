@@ -740,12 +740,18 @@ RETURNS:
 		* 404/CHATROOM_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api.get_conversation(
-	p_chatroom_id INT
+	p_chatroom_id INT,
+	p_before TIMESTAMPTZ,
+	p_after TIMESTAMPTZ,
+	p_n_rows INT,
+	p_descending BOOL
 )
 RETURNS JSONB --TABLE(senderId INT, senderLogin TEXT, content TEXT)
 AS
 $function$
 DECLARE
+	v_before TIMESTAMPTZ;
+	v_after TIMESTAMPTZ;
 	v_conversation JSONB;
 BEGIN
 	-- If p_chatroom_id is null, error
@@ -755,6 +761,38 @@ BEGIN
 			'status', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', p_chatroom_id)
 		);
+	END IF;
+
+	-- If p_n_rows is null, error
+	IF p_n_rows IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', p_n_rows)
+		);
+	END IF;
+
+	-- If p_descending is null, error
+	IF p_descending IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', p_descending)
+		);
+	END IF;
+
+	-- Initialize v_after with p_after or with an old timestamp if null
+	IF p_after IS NULL THEN
+		SELECT '2000-01-01 00:00:00+00'::TIMESTAMPTZ INTO v_after;
+	ELSE
+		SELECT p_after INTO v_after;
+	END IF;
+
+	-- Initialize v_before with p_before or with CURRENT_TIMESTAMP if null
+	IF p_before IS NULL THEN
+		SELECT CURRENT_TIMESTAMP INTO v_before;
+	ELSE
+		SELECT p_before INTO v_before;
 	END IF;
 
 	-- If chatroom does not exist, error
@@ -772,6 +810,12 @@ BEGIN
 		FROM messages m
 		INNER JOIN users u ON u.id = m.user_id
 		WHERE m.chatroom_id = p_chatroom_id
+			AND m.created_at <= v_before 
+			AND m.created_at >= v_after
+		ORDER BY
+			CASE WHEN p_descending THEN created_at END DESC,
+			CASE WHEN NOT p_descending THEN created_at END ASC
+		FETCH FIRST p_n_rows ROWS ONLY
 	) AS messages(userId, userLogin, content)
 	INTO v_conversation;
 	RETURN json_build_object(
