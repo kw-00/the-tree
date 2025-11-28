@@ -16,6 +16,7 @@ CREATE TABLE messages (
 -- Table: chatrooms
 CREATE TABLE chatrooms (
 	id SERIAL NOT NULL,
+	name TEXT DEFAULT NULL,
 	created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 	CONSTRAINT chatrooms_pk PRIMARY KEY (id)
 );
