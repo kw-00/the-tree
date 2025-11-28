@@ -769,7 +769,7 @@ BEGIN
 		RETURN json_build_object(
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', p_chatroom_id)
+			'message', format('Parameter %L cannot be NULL.', 'p_chatroom_id')
 		);
 	END IF;
 
@@ -778,7 +778,7 @@ BEGIN
 		RETURN json_build_object(
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', p_n_rows)
+			'message', format('Parameter %L cannot be NULL.', 'p_n_rows')
 		);
 	END IF;
 
@@ -787,7 +787,7 @@ BEGIN
 		RETURN json_build_object(
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', p_descending)
+			'message', format('Parameter %L cannot be NULL.', 'p_descending')
 		);
 	END IF;
 
