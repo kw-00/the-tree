@@ -580,6 +580,7 @@ Finds all chatrooms the given user is in.
 
 PARAMS:
 	* p_user_id
+	* p_exclude_ids INT
 
 RETURNS:
 	* connectedChatrooms {id INT, name TEXT}[]
@@ -589,7 +590,8 @@ RETURNS:
 		* 404/USER_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api.find_connected_chatrooms(
-	p_user_id INT
+	p_user_id INT,
+	p_exclude_ids INT[]
 )
 RETURNS JSONB
 AS
@@ -602,7 +604,16 @@ BEGIN
 		RETURN json_build_object(
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', p_user_id)
+			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
+		);
+	END IF;
+
+	-- If p_exclude_ids is null, error
+	IF p_exclude_ids IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', 'p_exclude_ids')
 		);
 	END IF;
 		
@@ -618,12 +629,11 @@ BEGIN
 	-- Gather chatrooms connected to the given user
 	SELECT json_agg(row_to_json(connected_chatrooms)) 
 	FROM (
-		SELECT DISTINCT c.id, c.name
+		SELECT c.id, c.name
 		FROM chatrooms c
-		INNER JOIN chatrooms_users cu 
-		ON cu.chatroom_id = c.id
-		INNER JOIN users u
-		ON u.id = cu.user_id
+		INNER JOIN chatrooms_users cu ON cu.chatroom_id = c.id
+		INNER JOIN users u ON u.id = cu.user_id
+		WHERE c.id NOT IN (SELECT UNNEST(p_excluded_ids))
 	) AS connected_chatrooms(id, name)
 	INTO v_connected_chatrooms;
 
@@ -633,7 +643,7 @@ BEGIN
 			'httpStatus', 200,
 			'result', 'SUCCESS', 
 			'message', 'Successfully retrieved connected chatrooms.'
-		);
+	);
 	
 END;
 $function$
