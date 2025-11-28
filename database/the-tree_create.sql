@@ -5,12 +5,29 @@ ALTER DATABASE thetreedb SET search_path TO 'core';
 -- Table: messages
 CREATE TABLE messages (
     id SERIAL  NOT NULL,
-    sender_id INT  NOT NULL,
-    recipient_id INT NOT NULL,
+    user_id INT  NOT NULL,
+    chatroom_id INT NOT NULL,
     content TEXT  NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT posts_pk PRIMARY KEY (id)
 );
+
+
+-- Table: chatrooms
+CREATE TABLE chatrooms (
+	id SERIAL NOT NULL,
+	created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT chatrooms_pk PRIMARY KEY (id)
+);
+
+-- Table: chatrooms_users
+CREATE TABLE chatrooms_users (
+	chatroom_id INT NOT NULL,
+	user_id INT NOT NULL,
+	created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT messages_chatrooms_pk PRIMARY KEY (chatroom_id, user_id)
+);
+
 
 -- Table: users
 CREATE TABLE users (
@@ -33,22 +50,37 @@ CREATE TABLE refresh_tokens (
 
 -- foreign keys
 
--- Reference: sender_id_to_messages (table: messages)
-ALTER TABLE messages ADD CONSTRAINT sender_id_to_messages
-    FOREIGN KEY (sender_id)
+-- Reference: user_id_to_messages (table: messages)
+ALTER TABLE messages ADD CONSTRAINT user_id_to_messages
+    FOREIGN KEY (user_id)
     REFERENCES users (id)  
     NOT DEFERRABLE 
     INITIALLY IMMEDIATE
 ;
 
--- Reference: recipient_id_to_messages (table: messages)
-ALTER TABLE messages ADD CONSTRAINT recipient_id_to_messages
-    FOREIGN KEY (recipient_id)
-    REFERENCES users (id)
+-- Reference: chatroom_id_to_messages (table: messages)
+ALTER TABLE messages ADD CONSTRAINT chatroom_id_to_messages
+    FOREIGN KEY (chatroom_id)
+    REFERENCES chatrooms (id)
     NOT DEFERRABLE
     INITIALLY IMMEDIATE
 ;
 
+-- Reference: chatroom_id_to_chatrooms_users
+ALTER TABLE chatrooms_users ADD CONSTRAINT chatroom_id_to_chatrooms_users
+	FOREIGN KEY (chatroom_id)
+	REFERENCES chatrooms (id)
+	NOT DEFERRABLE
+	INITIALLY IMMEDIATE
+;
+
+-- Reference: user_id_to_chatrooms_users
+ALTER TABLE chatrooms_users ADD CONSTRAINT user_id_to_chatrooms_users
+	FOREIGN KEY (user_id)
+	REFERENCES users (id)
+	NOT DEFERRABLE
+	INITIALLY IMMEDIATE
+;
 
 -- Reference: user_id_to_refresh_tokens (table: refresh_tokens)
 ALTER TABLE refresh_tokens ADD CONSTRAINT user_id_to_refresh_tokens
@@ -58,4 +90,3 @@ ALTER TABLE refresh_tokens ADD CONSTRAINT user_id_to_refresh_tokens
     INITIALLY IMMEDIATE
 ;
 
--- End of file.
