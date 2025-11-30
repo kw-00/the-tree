@@ -582,7 +582,7 @@ LANGUAGE plpgsql;
 Retrieves all friends of a user.
 
 PARAMS:
-	* p_user_id
+	* p_user_login TEXT
 	
 RETURNS:
 	* httpStatus/status:
@@ -591,22 +591,25 @@ RETURNS:
 		* 404/USER_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api.get_friends(
-	p_user_id INT
+	p_user_login TEXT
 )
 RETURNS JSONB
 AS
 $function$
 DECLARE 
+	v_user_id INT;
 	v_friends JSONB;
 BEGIN
 	-- If user_id is NULL or user does not exist, error
-	IF p_user_id IS NULL THEN
+	IF p_user_login IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
+			'message', format('Parameter %L cannot be NULL.', 'p_user_login')
 		);	
-	ELSIF NOT EXISTS (SELECT 1 FROM users WHERE id = p_user_id) THEN
+	END IF;
+	SELECT id INTO v_user_id FROM users WHERE login = p_user_login;
+	IF NOT FOUND THEN
 		RETURN json_build_object(
 			'httpStatus', 404,
 			'status', 'USER_NOT_FOUND', 
@@ -614,7 +617,11 @@ BEGIN
 		);	
 	END IF;
 
-	SELECT json_agg(to_json(u)) FROM (SELECT id, login FROM users) AS u(id, login)
+	SELECT json_agg(to_json(fl)) FROM (
+		SELECT login FROM users u
+		INNER JOIN friends f ON u.id IN (f.user1_id, f.user2_id)
+		WHERE login != p_user_login AND v_user_id IN (F.user1_id, f.user2_id)
+	) AS fl(login)
 	INTO v_friends;
 
 	RETURN json_build_object(
