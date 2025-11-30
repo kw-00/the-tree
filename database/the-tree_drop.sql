@@ -20,6 +20,9 @@ ALTER TABLE friends
 ALTER TABLE friends 
 	DROP CONSTRAINT user1_id_user2_id_unique;
 
+ALTER TABLE friends
+	DROP CONSTRAINT friends_id_order;
+
 ALTER TABLE friendship_codes 
 	DROP CONSTRAINT user_id_to_friendship_codes;
 

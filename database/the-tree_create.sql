@@ -118,9 +118,16 @@ ALTER TABLE friends ADD CONSTRAINT user_id_to_friends_2
 	INITIALLY IMMEDIATE
 ;
 
--- Reference: user1_id_user2_id_unique
+-- Reference: friends_user1_id_user2_id_unique
 ALTER TABLE friends ADD CONSTRAINT user1_id_user2_id_unique
 	UNIQUE(user1_id, user2_id)
+	NOT DEFERRABLE
+	INITIALLY IMMEDIATE
+;
+
+-- Reference: friends_id_order
+ALTER TABLE friends ADD CONSTRAINT friends_id_order
+	CHECK (user1_id < user2_id)
 	NOT DEFERRABLE
 	INITIALLY IMMEDIATE
 ;
