@@ -4,6 +4,40 @@ import Service from "./service"
 import * as appErrors from "../app-errors/errors"
 import { AccessTokenManagement, AccessTokenPayload } from "../utilities/access-token-management"
 
+type DatabaseQueryResponse = {
+    httpStatus: number
+    status: string
+    message: string
+}
+
+type RefreshTokenFields = {
+    refreshToken?: string
+}
+
+type GetFriendsFields = {
+    friends?: {login: string}[]
+}
+
+type CreateChatroomFields = {
+    chatroomId?: number
+}
+
+type GetConnectedChatroomsFields = {
+    connectedChatrooms?: {id: number, name: string}[]
+}
+
+type GetConversationFields = {
+    conversation?: {userId: number, userLogin: string, content: string}
+}
+
+const getGenericErrorResponse = () => {
+    return {
+        httpStatus: 500,
+        status: "GENERIC_ERROR",
+        message: "An error occured."
+    }
+}
+
 const databaseCredentials = {
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -15,17 +49,12 @@ const databaseCredentials = {
 const pool = new Pool(databaseCredentials)
 
 export default class DatabaseService implements Service {
-    async registerUser(login: string, password: string): Promise<void> {
+    async registerUser(login: string, password: string): Promise<DatabaseQueryResponse> {
         try {
-            await pool.query("SELECT api.register_user($1, $2);", [login, password])
-        } catch (error) {
-            if (error instanceof DatabaseError) {
-                if (error.code === "P1001") {
-                    throw new appErrors.LoginInUseError(error.message)
-                }
-            }
-            throw new appErrors.GenericError("An error occurred.", error as Error)
+            const result = await pool.query("SELECT api.register_user($1, $2);", [login, password])
 
+        } catch (error) {
+            return getGenericErrorResponse()
         }
     }
 
