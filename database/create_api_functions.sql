@@ -1116,7 +1116,7 @@ BEGIN
 
 	-- Return json — success
 	SELECT json_agg(row_to_json(messages)) FROM (
-		SELECT m.user_id, u.login, m.content
+		SELECT u.login, m.content
 		FROM messages m
 		INNER JOIN users u ON u.id = m.user_id
 		WHERE m.chatroom_id = p_chatroom_id
@@ -1126,7 +1126,7 @@ BEGIN
 			CASE WHEN p_descending THEN created_at END DESC,
 			CASE WHEN NOT p_descending THEN created_at END ASC
 		FETCH FIRST p_n_rows ROWS ONLY
-	) AS messages(userId, userLogin, content)
+	) AS messages(userLogin, content)
 	INTO v_conversation;
 	RETURN json_build_object(
 		'conversation', v_conversation,
