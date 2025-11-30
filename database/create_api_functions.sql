@@ -580,7 +580,7 @@ Finds all chatrooms the given user is in.
 
 PARAMS:
 	* p_user_id
-	* p_exclude_ids INT
+	* p_after INT — may be NULL, in that case an old date is used.
 
 RETURNS:
 	* connectedChatrooms {id INT, name TEXT}[]
@@ -591,12 +591,13 @@ RETURNS:
 */
 CREATE OR REPLACE FUNCTION api.find_connected_chatrooms(
 	p_user_id INT,
-	p_exclude_ids INT[]
+	p_after TIMESTAMPTZ
 )
 RETURNS JSONB
 AS
 $function$
 DECLARE
+	v_after TIMESTAMPTZ;
 	v_connected_chatrooms JSONB;
 BEGIN
 	-- If p_user_id is null, error
@@ -608,13 +609,12 @@ BEGIN
 		);
 	END IF;
 
-	-- If p_exclude_ids is null, error
-	IF p_exclude_ids IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_exclude_ids')
-		);
+	-- If p_after is null, initialize v_after with old date.
+	-- Otherwise, initialize it with p_after
+	IF p_after IS NULL THEN
+		SELECT '2000-01-01 00:00:00+00' INTO v_after;
+	ELSE
+		SELECT p_after INTO v_after;
 	END IF;
 		
 	-- If user does not exist, error
@@ -633,7 +633,7 @@ BEGIN
 		FROM chatrooms c
 		INNER JOIN chatrooms_users cu ON cu.chatroom_id = c.id
 		INNER JOIN users u ON u.id = cu.user_id
-		WHERE c.id NOT IN (SELECT UNNEST(p_excluded_ids))
+		WHERE c.created_at >= v_after
 	) AS connected_chatrooms(id, name)
 	INTO v_connected_chatrooms;
 
@@ -741,6 +741,10 @@ Returns all messages from a chatroom.
 
 PARAMS:
 	* p_chatroom_id
+	* p_before TIMESTAMPTZ — may be NULL, in that case an old date is used.
+	* p_after TIMESTAMPTZ — may be NULL — then CURRENT_TIMESTAMP is used.
+	* p_n_rows INT
+	* p_descending BOOL — if NULL, this is initialized to FALSE.
 
 RETURNS:
 	* conversation: {userId INT, userLogin, content TEXT}[]
