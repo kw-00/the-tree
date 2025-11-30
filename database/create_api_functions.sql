@@ -53,8 +53,8 @@ Section names:
 Registers a new user. Returns the ID of the newly registered user.
 
 PARAMS:
-	p_login
-	p_password
+	p_login TEXT
+	p_password TEXT
 
 RETURNS:
 	* httpStatus/status:
@@ -111,8 +111,8 @@ LANGUAGE plpgsql;
 PARAMS:
 Authenticates a user. Returns the ID of the user if authentication is successful.
 
-	* p_login
-	* p_password
+	* p_login TEXT
+	* p_password TEXT
 	
 RETURNS:
 	* httpStatus/status:
@@ -171,9 +171,10 @@ LANGUAGE plpgsql;
 Checks whether a refresh token is valid.
 
 PARAMS:
-	* p_refresh_token_uuid
+	* p_refresh_token_uuid UUID
 
 RETURNS:
+	* refreshToken UUID
 	* httpStatus/status:
 		* 200/SUCCESS
 		* 400/NULL_PARAMETER
@@ -271,8 +272,8 @@ LANGUAGE plpgsql;
 Creates and returns a new refresh token for a user.
 
 PARAMS:
-	* p_user_login
-	* p_validity_period_seconds — the validity period of 
+	* p_user_login TEXT
+	* p_validity_period_seconds INT — the validity period of 
 		the refresh token to be created, in seconds
 
 RETURNS:
@@ -329,8 +330,8 @@ LANGUAGE plpgsql;
 Creates and returns a new refresh token for a user.
 
 PARAMS:
-	* p_user_id
-	* p_validity_period_seconds — the validity period of 
+	* p_user_id INT
+	* p_validity_period_seconds INT — the validity period of 
 		the refresh token to be created, in seconds
 
 RETURNS:
@@ -491,7 +492,7 @@ RETURNS:
 		* 404/USER_NOT_FOUND
 		* 409/BEFRIENDING_SELF
 */
-CREATE OR REPLACE FUNCTION api._add_friend(
+CREATE OR REPLACE FUNCTION api.add_friend(
 	p_user_login TEXT,
 	p_login_to_befriend TEXT,
 	p_friendship_code TEXT
@@ -650,9 +651,9 @@ Adds users to a chatroom. Meant to be called on behalf of one user, who has to b
 in the chat in order to add others.
 
 PARAMS:
-	* p_user_login — the login of the user who will be added to the chatroom
-	* p_user_logins — the logins of the users who will be added
-	* p_chatroom_id — the ID of the chatroom
+	* p_user_login TEXT — the login of the user who will be added to the chatroom
+	* p_user_logins TEXT[] — the logins of the users who will be added
+	* p_chatroom_id INT — the ID of the chatroom
 
 RETURNS:
 	* httpStatus/status:
@@ -777,11 +778,11 @@ $function$
 LANGUAGE plpgsql;
 
 /*
-Creates a chatroom and places users inside.
+Creates a chatroom on behalf of a user and places that user inside.
 
 PARAMS:
-	* p_user_login — the login of the user creating the chat
-	* p_name — the name of the chatroom.
+	* p_user_login TEXT— the login of the user creating the chat
+	* p_name TEXT — the name of the chatroom.
 
 RETURNS:
 	* chatroomId — ID of the added chatroom
@@ -851,8 +852,8 @@ LANGUAGE plpgsql;
 Finds all chatrooms the given user is in.
 
 PARAMS:
-	* p_user_id
-	* p_after INT — may be NULL, in that case an old date is used.
+	* p_user_login TEXTT
+	* p_after TIMESTAMPTZ — may be NULL, in that case an old date is used.
 
 RETURNS:
 	* connectedChatrooms {id INT, name TEXT}[]
@@ -925,9 +926,9 @@ LANGUAGE plpgsql;
 Creates a message from a user in a chatroom.
 
 PARAMS:
-	* p_user_id
-	* p_chatroom_id
-	* p_content
+	* p_user_login TEXT
+	* p_chatroom_id INT
+	* p_content TEXT
 	
 RETURNS:
 	* httpStatus/status:
@@ -938,20 +939,22 @@ RETURNS:
 		* 404/CHATROOM_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api.create_message(
-	p_user_id INT,
+	p_user_login TEXT,
 	p_chatroom_id INT,
 	p_content TEXT
 )
 RETURNS JSONB
 AS
 $function$
+DECLARE
+	v_user_id INT;
 BEGIN
 	-- If any parameter is null, error
-	IF p_user_id IS NULL THEN
+	IF p_user_login IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400, 
 			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
+			'message', format('Parameter %L cannot be NULL.', 'p_user_login')
 		);
 	ELSIF p_chatroom_id IS NULL THEN
 		RETURN json_build_object(
@@ -968,13 +971,13 @@ BEGIN
 	END IF;
 	
 	-- If user or chatroom does not exist, error
-	IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_user_id) THEN
+	SELECT id INTO v_user_id FROM users WHERE login = p_user_login;
+	IF NOT FOUND THEN
 		RETURN json_build_object(
 			'httpStatus', 404, 
 			'status', 'USER_NOT_FOUND',
-			'message', format('User with ID of %L does not exist.', p_user_id)
+			'message', format('User with login of $L does not exist.', v_user_id)
 		);
-
 	ELSIF NOT EXISTS (SELECT 1 FROM chatrooms WHERE id = p_chatroom_id) THEN
 		RETURN json_build_object(
 			'httpStatus', 404, 
@@ -991,13 +994,13 @@ BEGIN
 		RETURN json_build_object(
 			'httpStatus', 403, 
 			'status', 'NOT_IN_CHATROOM',
-			'message', format('User with ID of %L is not in the chatroom..', p_user_id)
+			'message', format('User with login of %L is not in the chatroom.', v_user_id)
 		);
 	END IF;
 
 	-- Create message
 	INSERT INTO messages (user_id, chatroom_id, content)
-	VALUES (p_user_id, p_chatroom_id, p_content);
+	VALUES (v_user_id, p_chatroom_id, p_content);
 	RETURN json_build_object(
 		'httpStatus', 200, 
 		'status', 'SUCCESS',
@@ -1012,8 +1015,8 @@ LANGUAGE plpgsql;
 Returns all messages from a chatroom, on behalf of a given user.
 
 PARAMS:
-	* p_user_login
-	* p_chatroom_id
+	* p_user_login TEXT
+	* p_chatroom_id INT
 	* p_before TIMESTAMPTZ — may be NULL, in that case an old date is used.
 	* p_after TIMESTAMPTZ — may be NULL — then CURRENT_TIMESTAMP is used.
 	* p_n_rows INT
@@ -1034,7 +1037,7 @@ CREATE OR REPLACE FUNCTION api.get_conversation(
 	p_n_rows INT,
 	p_descending BOOL
 )
-RETURNS JSONB --TABLE(senderId INT, senderLogin TEXT, content TEXT)
+RETURNS JSONB
 AS
 $function$
 DECLARE
