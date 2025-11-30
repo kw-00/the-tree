@@ -16,13 +16,14 @@ As for httpStatus and status, here are the possible values:
     200/SUCCESS — when everything goes right.
     409/PK_IN_USE — primary key is already in use.
     409/LOGIN_IN_USE — login is already in use.
-	409/USER_IN_CHAT
+	409/BEFRIENDING_SELF — when user tries to befriend self.
     401/INVALID_CREDENTIALS — wrong username or password.
     401/REFRESH_TOKEN_EXPIRED — refresh token has expired.
     401/REFRESH_TOKEN_REUSE — refresh token has already been used.
     401/REFRESH_TOKEN_REVOKED — refresh token has been revoked.
 	401/REFRESH_TOKEN_NOT_FOUND — refresh token does not exist.
 	403/NOT_IN_CHATROOM — user is not part of chatroom.
+	403/INVALID_FRIENDSHIP_CODE — friendship code is not valid.
     404/USER_NOT_FOUND — user does not exist.
 	404/CHATROOM_NOT_FOUND — chatroom does not exist.
     400/NULL_PARAMETER — parameter cannot be null.
@@ -35,8 +36,19 @@ Each function's documentation will feature the following in RETURNS:
 
 Functions starting with _ (e.g. api._function_name) are considered private and not for use by
 server. They may return various values.
+
+
+Various secions are defined. To find a section, simply navigate to "==section_name"
+
+Section names:
+	* Users
+	* Refresh_tokens
+	* Friends
+	* Chatrooms
+
 */
 
+-- ==Users
 /*
 Registers a new user. Returns the ID of the newly registered user.
 
@@ -45,7 +57,6 @@ PARAMS:
 	p_password
 
 RETURNS:
-	* userId INT — the ID of the newly registered user
 	* httpStatus/status:
 		* 200/SUCCESS
 		* 400/NULL_PARAMETER
@@ -58,8 +69,6 @@ CREATE OR REPLACE FUNCTION api.register_user(
 RETURNS JSONB
 AS
 $function$
-DECLARE
-v_user_id INT;
 BEGIN
 	-- Return error if any parameter is null
 	IF p_login IS NULL THEN
@@ -78,11 +87,9 @@ BEGIN
 
 	-- Add a new user to the database
 	INSERT INTO users (login, password) 
-	VALUES (p_login, p_password)
-	RETURNING id INTO v_user_id;
+	VALUES (p_login, p_password);
 
 	RETURN json_build_object(
-		'userId', v_user_id, 
 		'status', 200,
 		'status', 'SUCCESS',
 		'message', 'Registration succeeded.'
@@ -108,7 +115,6 @@ Authenticates a user. Returns the ID of the user if authentication is successful
 	* p_password
 	
 RETURNS:
-	* userId INT — the ID of the user
 	* httpStatus/status:
 		* 200/SUCCESS
 		* 400/NULL_PARAMETER
@@ -121,8 +127,6 @@ CREATE OR REPLACE FUNCTION api.authenticate_user(
 RETURNS JSONB
 AS
 $function$
-DECLARE
-	v_user_id INT;
 BEGIN
 	-- Return error if any parameter is null
 	IF p_login IS NULL THEN
@@ -139,8 +143,8 @@ BEGIN
 		);
 	END IF;
 
-	-- Fetch id from user that matches the given credentials
-	SELECT id INTO v_user_id FROM users WHERE login = p_login AND password = p_password;
+	-- Look for user that matches the given credentials
+	SELECT 1 FROM users WHERE login = p_login AND password = p_password;
 	-- If a match is found, success
 	IF FOUND THEN
 		RETURN json_build_object(
@@ -163,6 +167,7 @@ $function$
 LANGUAGE plpgsql;
 
 
+-- ==Refresh_tokens
 /*
 Checks whether a refresh token is valid.
 
@@ -170,7 +175,6 @@ PARAMS:
 	* p_refresh_token_uuid
 
 RETURNS:
-	* userId INT — the ID of the user associated with the given token
 	* httpStatus/status:
 		* 200/SUCCESS
 		* 400/NULL_PARAMETER
@@ -179,10 +183,11 @@ RETURNS:
 		* 401/REFRESH_TOKEN_REUSE
 		* 401/REFRESH_TOKEN_REVOKED
 */
-CREATE OR REPLACE FUNCTION api.verify_refresh_token(
-	p_refresh_token_uuid UUID
+CREATE OR REPLACE FUNCTION api.refresh_token(
+	p_refresh_token_uuid UUID,
+	p_validity_period_seconds INT
 )
-RETURNS JSONB --TABLE(userId INT, result TEXT, message TEXT)
+RETURNS JSONB
 AS
 $function$
 DECLARE
@@ -193,14 +198,21 @@ DECLARE
 
 	v_uuid UUID;
 BEGIN
-	-- Check whether p_refresh_token_uuid is not null
+	-- If any parameter is null, error
 	IF p_refresh_token_uuid IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER', 
 			'massage', format('Parameter %L cannot be NULL.', 'p_refresh_token_uuid')
 		);
+	ELSIF p_validity_period_seconds IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER',
+			'message', format('Parameter %L cannot be NULL.', 'p_validity_period_seconds')
+		);
 	END IF;
+	
 
 	-- Fetch id, expiry and status info for given token
 	SELECT rt.user_id, rt.expires_at, rt.status INTO v_user_id, v_expires_at, v_status
@@ -250,15 +262,66 @@ BEGIN
 	END IF;
 
 	-- If the token has not been used, token is valid — success
-	RETURN json_build_object(
-		'userId', v_user_id,
-		'httpStatus', 200,
-		'status', 'SUCCESS',
-		'message', 'Refresh token valid.'
-	);
+	RETURN api._create_refresh_token_by_id(v_user_id);
 END;
 $function$
 LANGUAGE plpgsql;
+
+
+/*
+Creates and returns a new refresh token for a user.
+
+PARAMS:
+	* p_user_login
+	* p_validity_period_seconds — the validity period of 
+		the refresh token to be created, in seconds
+
+RETURNS:
+	* refreshToken UUID — the UUID of the newly created token
+	* httpStatus/status:
+		* 200/SUCCESS
+		* 400/NULL_PARAMETER
+*/
+CREATE OR REPLACE FUNCTION api.create_refresh_token_by_login(
+	p_user_login TEXT,
+	p_validity_period_seconds INT
+)
+RETURNS JSONB
+AS
+$function$
+DECLARE
+	v_user_id INT;
+BEGIN
+	-- If any parameter is null, error
+	IF p_user_login IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER',
+			'message', format('Parameter %L cannot be NULL.', 'p_user_login')
+		);
+	ELSIF p_validity_period_seconds IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER',
+			'message', format('Parameter %L cannot be NULL.', 'p_validity_period_seconds')
+		);
+	END IF;
+
+	SELECT id INTO v_user_id FROM users WHERE login = p_user_login;
+	-- If there is no user with the given login, error
+	IF NOT FOUND THEN
+		RETURN json_build_object(
+			'httpStatus', 404,
+			'status', 'USER_NOT_FOUND',
+			'message', format('User with login of "%L" does not exist.', p_login)
+		);
+	END IF;
+
+	RETURN api._create_refresh_token_by_id(v_user_id);
+END;
+$function$
+LANGUAGE plpgsql;
+
 
 
 /*
@@ -275,7 +338,7 @@ RETURNS:
 		* 200/SUCCESS
 		* 400/NULL_PARAMETER
 */
-CREATE OR REPLACE FUNCTION api.create_refresh_token(
+CREATE OR REPLACE FUNCTION api._create_refresh_token_by_id(
 	p_user_id INT,
 	p_validity_period_seconds INT
 )
@@ -391,22 +454,181 @@ PARAMS:
 RETURNS VOID
 */
 CREATE OR REPLACE FUNCTION api._revoke_tokens_for_user(
-	p_user_id INT
+	p_user_id TEXT
 )
 RETURNS VOID
 AS
 $function$
-DECLARE
-	v_user_id INT;
 BEGIN
 	
 	UPDATE refresh_tokens
 	SET status = 'revoked'
+	FROM users u
 	WHERE user_id = v_user_id;
 END;
 $function$
 LANGUAGE plpgsql;
 
+
+-- ==Friends
+
+/*
+Connects a user with another as friends.
+
+PARAMS:
+	* p_user_login TEXT — the login of the ACTIONuser using a friendship code.
+	* p_login_to_befriend TEXT — the login of the user whose friendship code is being used.
+	* p_friendship_code TEXT
+	
+RETURNS:
+	* httpStatus/status:
+		* 200/SUCCESS
+		* 400/NULL_PARAMETER
+		* 404/USER_NOT_FOUND
+		* 409/BEFRIENDING_SELF
+*/
+CREATE OR REPLACE FUNCTION api._add_friend(
+	p_user_login TEXT,
+	p_login_to_befriend TEXT,
+	p_friendship_code TEXT
+)
+RETURNS JSONB
+AS
+$function$
+DECLARE
+	v_user_id INT;
+	v_user_to_befriend_id INT;
+BEGIN
+	-- If either user ID is null, error
+	IF p_user_login IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', 'p_user_login')
+		);
+	ELSIF p_login_to_befriend IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', 'p_login_to_befriend')
+		);
+	ELSIF p_friendship_code IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', 'p_friendship_code')
+		);
+	END IF;
+	
+	-- If either user does not exist, error
+	SELECT id INTO v_user_id FROM users WHERE login = p_user_login;
+	IF NOT FOUND THEN
+		RETURN json_build_object(
+			'httpStatus', 404,
+			'status', 'USER_NOT_FOUND', 
+			'message', 'User does not exist.'
+		);	
+	END IF;
+	SELECT id INTO v_user_to_befriend_id FROM users WHERE login = p_user_to_befriend;
+	IF NOT FOUND THEN
+		RETURN json_build_object(
+			'httpStatus', 404,
+			'status', 'USER_NOT_FOUND', 
+			'message', 'User does not exist.'
+		);	
+	END IF;
+
+	IF p_user_id = p_login_to_befriend_id THEN
+		RETURN json_build_object(
+			'httpStatus', 409,
+			'status', 'BEFRIENDING_SELF', 
+			'message', 'User cannot befriend self.'
+		);	
+	END IF;
+	
+	SELECT 1 FROM friendship_codes
+	WHERE user_id = v_user_to_befriend_id AND expires_at > CURRENT_TIMESTAMP AND NOT revoked;
+	IF NOT FOUND THEN
+		RETURN json_build_object(
+			'httpStatus', 403,
+			'status', 'INVALID_FRIENDSHIP_CODE',
+			'message', format('Frienship code of "%L" is invalid.', p_friendship_code)
+		);
+	END IF;
+
+	INSERT INTO friends (user1_id, user2_id)
+	VALUES (MIN(v_user_id, v_user_to_befriend_id), MAX(v_user_id, v_user_to_befriend_id))
+	ON CONFLICT (user1_id, user2_id) DO NOTHING;
+	IF NOT FOUND THEN
+		RETURN json_build_object(
+			'httpStatus', 200,
+			'status', 'SUCCESS',
+			'message', 'Users are already friends.'
+		);
+	ELSE
+		RETURN json_build_object(
+			'httpStatus', 200,
+			'status', 'SUCCESS',
+			'message', 'Friendship established.'
+		);
+	END IF;
+
+END;
+$function$
+LANGUAGE plpgsql;
+
+
+/*
+Retrieves all friends of a user.
+
+PARAMS:
+	* p_user_id
+	
+RETURNS:
+	* httpStatus/status:
+		* 200/SUCCESS
+		* 400/NULL_PARAMETER
+		* 404/USER_NOT_FOUND
+*/
+CREATE OR REPLACE FUNCTION api.get_friends(
+	p_user_id INT
+)
+RETURNS JSONB
+AS
+$function$
+DECLARE 
+	v_friends JSONB;
+BEGIN
+	-- If user_id is NULL or user does not exist, error
+	IF p_user_id IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
+			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
+		);	
+	ELSIF NOT EXISTS (SELECT 1 FROM users WHERE id = p_user_id) THEN
+		RETURN json_build_object(
+			'httpStatus', 404,
+			'status', 'USER_NOT_FOUND', 
+			'message', 'User does not exist.'
+		);	
+	END IF;
+
+	SELECT json_agg(to_json(u)) FROM (SELECT id, login FROM users) AS u(id, login)
+	INTO v_friends;
+
+	RETURN json_build_object(
+		'friends', v_friends,
+		'httpStatus', 200,
+		'status', 'SUCCESS',
+		'message', 'Successfully retrieved friends.'
+	);
+END;
+$function$
+LANGUAGE plpgsql;
+
+
+-- ==Chatrooms
 /*
 Adds users to a chatroom. Meant to be called on behalf of one user, who has to be
 in the chat in order to add others.
@@ -445,6 +667,7 @@ BEGIN
 END;
 $function$
 LANGUAGE plpgsql;
+
 
 /*
 Adds users in a chatroom.
@@ -703,7 +926,7 @@ BEGIN
 			'message', format('User with ID of %L does not exist.', p_user_id)
 		);
 
-	ELSE
+	ELSIF NOT EXISTS (SELECT 1 FROM chatrooms WHERE id = p_chatroom_id) THEN
 		RETURN json_build_object(
 			'httpStatus', 404, 
 			'status', 'CHATROOM_NOT_FOUND',
