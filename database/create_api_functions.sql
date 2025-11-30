@@ -148,7 +148,6 @@ BEGIN
 	-- If a match is found, success
 	IF FOUND THEN
 		RETURN json_build_object(
-			'userId', v_user_id,
 			'httpStatus', 200,
 			'status', 'SUCCESS',
 			'message', 'Authentication succeeded.'
