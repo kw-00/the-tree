@@ -281,6 +281,8 @@ RETURNS:
 	* httpStatus/status:
 		* 200/SUCCESS
 		* 400/NULL_PARAMETER
+		* 404/USER_NOT_FOUND
+		* 409/PK_IN_USE
 */
 CREATE OR REPLACE FUNCTION api.create_refresh_token_by_login(
 	p_user_login TEXT,
@@ -337,6 +339,8 @@ RETURNS:
 	* httpStatus/status:
 		* 200/SUCCESS
 		* 400/NULL_PARAMETER
+		* 404/USER_NOT_FOUND
+		* 409/PK_IN_USE
 */
 CREATE OR REPLACE FUNCTION api._create_refresh_token_by_id(
 	p_user_id INT,
@@ -484,6 +488,7 @@ RETURNS:
 	* httpStatus/status:
 		* 200/SUCCESS
 		* 400/NULL_PARAMETER
+		* 403/INVALID_FRIENDSHIP_CODE
 		* 404/USER_NOT_FOUND
 		* 409/BEFRIENDING_SELF
 */
@@ -666,8 +671,13 @@ CREATE OR REPLACE FUNCTION api.add_users_to_chatroom(
 RETURNS JSONB
 AS
 $function$
+DECLARE
+	v_user_id INT;
+	v_added TEXT[];
+	v_skipped TEXT[];
+	v_not_found TEXT[];
 BEGIN
-	-- If -_login is null, error
+	-- If p_user_login is null, error
 	IF p_user_login IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400, 
@@ -676,40 +686,6 @@ BEGIN
 		);
 	END IF;
 
-	RETURN api._add_users_to_chatroom(p_user_logins, p_chatroom_id);
-END;
-$function$
-LANGUAGE plpgsql;
-
-
-/*
-Adds users in a chatroom.
-
-PARAMS:
-	* p_user_logins — the ids of the users who will be added to the chatroom
-	* p_chatroom_id — the id of the chatroom
-
-RETURNS:
-	* added — list of users who were added
-	* skipped — list of users who were found but skipped for whatever reason
-	* notFound — list of user IDs which were found not to exist
-	* httpStatus/status:
-		* 200/SUCCESS
-		* 400/NULL_PARAMETER
-		* 404/USER_NOT_FOUND
-*/
-CREATE OR REPLACE FUNCTION api._add_users_to_chatroom(
-	p_user_logins TEXT[],
-	p_chatroom_id INT
-)
-RETURNS JSONB
-AS
-$function$
-DECLARE
-	v_added TEXT[];
-	v_skipped TEXT[];
-	v_not_found TEXT[];
-BEGIN
 	-- If p_chatroom is null, error
 	IF p_chatroom_id IS NULL THEN
 		RETURN json_build_object(
@@ -717,6 +693,17 @@ BEGIN
 			'status', 'NULL_PARAMETER',
 			'message', format('Parameter %L cannot be NULL.', 'p_chatroom_id')
 		);	
+	END IF;
+
+	-- If login does not exist, error
+	-- If it does, fetch the ID of the user to v_user_id
+	SELECT id INTO v_user_id FROM users WHERE login = p_user_login;
+	IF NOT FOUND THEN
+		RETURN json_build_object(
+			'httpStatus', 404, 
+			'status', 'USER_NOT_FOUND',
+			'message', format('User with login of %L does not exist.', p_user_login)
+		);
 	END IF;
 
 	-- If chatroom does not exist, error
@@ -728,19 +715,36 @@ BEGIN
 		);
 	END IF;
 
+	-- If user is not in chatroom, error
+	SELECT 1 FROM users u 
+	INNER JOIN chatrooms_users cu ON cu.user_id = u.id
+	WHERE cu.chatroom_id = p_chatroom_id AND u.login = p_user_login;
+	IF NOT FOUND THEN
+		RETURN json_build_object(
+			'httpStatus', 403, 
+			'status', 'NOT_IN_CHATROOM',
+			'message', 'User does not belong to the chatroom'
+		);	
+	END IF;
+
+
 	-- Gather the user IDs among those to be added that actually exist
 	-- and put them in a CTE
 	WITH valid AS (
 		SELECT login
 		FROM UNNEST(p_user_logins) as logins_to_add(login)
-		INNER JOIN users ON users.login = logins_to_add.login
+		INNER JOIN users u ON u.login = logins_to_add.login
+		INNER JOIN friends f ON u.id IN (f.user1_id, f.user2_id) 
+			AND v_user_id IN (f.user1_id, f.user2_id)
 	),
 	-- Try to add those users to the chatroom
 	-- and put those who were successfully added in a CTE
 	inserted AS (
 		INSERT INTO chatrooms_users (chatroom_id, user_id)
-		SELECT p_chatroom_id, id FROM 
-			(SELECT id, login FROM valid v INNER JOIN users u ON u.login = v.login)
+		SELECT p_chatroom_id, id FROM (
+			SELECT id, login FROM valid v 
+			INNER JOIN users u ON u.login = v.login
+		)
 		ON CONFLICT DO NOTHING
 		RETURNING login
 	)
@@ -777,7 +781,7 @@ LANGUAGE plpgsql;
 Creates a chatroom and places users inside.
 
 PARAMS:
-	* p_user_ids — the users who will be added immediately after creation
+	* p_user_login — the login of the user creating the chat
 	* name — the name of the chatroom.
 
 RETURNS:
@@ -791,8 +795,8 @@ RETURNS:
 		* 404/USER_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api.create_chatroom(
-	p_name TEXT,
-	p_user_logins TEXT[]
+	p_user_login TEXT,
+	p_name TEXT
 )
 RETURNS JSONB
 AS
@@ -800,14 +804,49 @@ $function$
 DECLARE
 	v_chatroom_id INT;
 	v_chatroom_name TEXT;
-	v_addition_result JSONB;
+	v_user_id INT;
 BEGIN
+	-- If p_user_login is null, error
+	IF p_user_login IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400, 
+			'status', 'NULL_PARAMETER',
+			'message', format('Parameter %L cannot be NULL.', 'p_user_login')
+		);
+	END IF;
+
+	-- If p_name is null, error
+	IF p_name IS NULL THEN
+		RETURN json_build_object(
+			'httpStatus', 400, 
+			'status', 'NULL_PARAMETER',
+			'message', format('Parameter %L cannot be NULL.', 'p_name')
+		);	
+	END IF;
+
+	-- If login does not exist, error
+	-- If it does, fetch the ID of the user to v_user_id
+	SELECT id INTO v_user_id FROM users WHERE login = p_user_login;
+	IF NOT FOUND THEN
+		RETURN json_build_object(
+			'httpStatus', 404, 
+			'status', 'USER_NOT_FOUND',
+			'message', format('User with login of %L does not exist.', p_user_login)
+		);
+	END IF;
+	
 	-- Create chatroom
 	INSERT INTO chatrooms (name) VALUES (p_name)
 	RETURNING id, name INTO v_chatroom_id, v_chatroom_name;
-	-- Add users
-	SELECT api._add_users_to_chatroom(p_user_logins, v_chatroom_id) INTO v_addition_result;
-	RETURN json_build_object('id', v_chatroom_id, 'name', v_chatroom_name) || v_addition_result; 
+	-- Add user to chatroom
+	INSERT INTO chatrooms_users (chatroom_id, user_id) VALUES (v_chatroom_id, v_user_id);
+	-- Return result
+	RETURN json_build_object(
+		'chatroomId', v_chatroom_id,
+		'httpStatus', 200,
+		'status', 'SUCCESS',
+		'message', 'chatroom created'
+	);
 END;
 $function$
 LANGUAGE plpgsql;
