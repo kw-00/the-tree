@@ -39,6 +39,21 @@ CREATE TABLE users (
     CONSTRAINT users_pk PRIMARY KEY (id)
 );
 
+-- Table: friends
+CREATE TABLE friends (
+	user1_id INT NOT NULL,
+	user2_id INT NOT NULL,
+	CONSTRAINT friends_pk PRIMARY KEY (user1_id, user2_id)
+);
+
+-- Table: friendship codes
+CREATE TABLE friendship_codes (
+	id INT NOT NULL,
+	user_id INT NOT NULL,
+	code TEXT NOT NULL,
+	CONSTRAINT friendship_codes_pk PRIMARY KEY (id)
+);
+
 -- Table: refresh_tokens
 CREATE TABLE refresh_tokens (
     uuid UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -77,6 +92,37 @@ ALTER TABLE chatrooms_users ADD CONSTRAINT chatroom_id_to_chatrooms_users
 
 -- Reference: user_id_to_chatrooms_users
 ALTER TABLE chatrooms_users ADD CONSTRAINT user_id_to_chatrooms_users
+	FOREIGN KEY (user_id)
+	REFERENCES users (id)
+	NOT DEFERRABLE
+	INITIALLY IMMEDIATE
+;
+
+-- Reference: user_id_to_friends_1
+ALTER TABLE friends ADD CONSTRAINT user_id_to_friends_1
+	FOREIGN KEY (user1_id) 
+	REFERENCES users (id)
+	NOT DEFERRABLE
+	INITIALLY IMMEDIATE
+;
+
+-- Reference: user_id_to_friends_2
+ALTER TABLE friends ADD CONSTRAINT user_id_to_friends_2
+	FOREIGN KEY (user2_id)
+	REFERENCES users (id)
+	NOT DEFERRABLE
+	INITIALLY IMMEDIATE
+;
+
+-- Reference: user1_id_user2_id_unique
+ALTER TABLE friends ADD CONSTRAINT user1_id_user2_id_unique
+	UNIQUE(user1_id, user2_id)
+	NOT DEFERRABLE
+	INITIALLY IMMEDIATE
+;
+
+-- Reference: user_id_to_friendship_codes
+ALTER TABLE friendship_codes ADD CONSTRAINT user_id_to_friendship_codes
 	FOREIGN KEY (user_id)
 	REFERENCES users (id)
 	NOT DEFERRABLE
