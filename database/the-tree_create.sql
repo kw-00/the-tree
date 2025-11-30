@@ -43,6 +43,7 @@ CREATE TABLE users (
 CREATE TABLE friends (
 	user1_id INT NOT NULL,
 	user2_id INT NOT NULL,
+	created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 	CONSTRAINT friends_pk PRIMARY KEY (user1_id, user2_id)
 );
 
@@ -51,6 +52,9 @@ CREATE TABLE friendship_codes (
 	id INT NOT NULL,
 	user_id INT NOT NULL,
 	code TEXT NOT NULL,
+	revoked BOOL,
+	expires_at TIMESTAMPTZ,
+	created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 	CONSTRAINT friendship_codes_pk PRIMARY KEY (id)
 );
 
