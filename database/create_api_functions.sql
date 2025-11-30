@@ -782,13 +782,10 @@ Creates a chatroom and places users inside.
 
 PARAMS:
 	* p_user_login — the login of the user creating the chat
-	* name — the name of the chatroom.
+	* p_name — the name of the chatroom.
 
 RETURNS:
 	* chatroomId — ID of the added chatroom
-	* added — list of users who were added
-	* skipped — list of users who were found but skipped for whatever reason
-	* notFound — list of user IDs which were found not to exist
 	* httpStatus/status:
 		* 200/SUCCESS
 		* 400/NULL_PARAMETER
