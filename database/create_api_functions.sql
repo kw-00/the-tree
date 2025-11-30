@@ -589,7 +589,7 @@ RETURNS:
 		* 400/NULL_PARAMETER
 		* 404/USER_NOT_FOUND
 */
-CREATE OR REPLACE FUNCTION api.find_connected_chatrooms(
+CREATE OR REPLACE FUNCTION api.get_connected_chatrooms(
 	p_user_id INT,
 	p_after TIMESTAMPTZ
 )
