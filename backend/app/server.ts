@@ -2,7 +2,6 @@ import "dotenv/config"
 
 import express from "express"
 import DatabaseService from "./services/database-service"
-import * as appErrors from "./app-errors/errors"
 
 import cookieParser from "cookie-parser"
 import cors from "cors"
@@ -52,203 +51,196 @@ app.post("/api/register_user",
             }
 
             const { login, password } = req.body
-            await databaseService.registerUser(login, password)
-            res.status(200).send({
-                "status": "success",
-                "message": "Registration successful!"
-            })
+            const result = await databaseService.registerUser(login, password)
+            res.status(200).send(result)
         } catch (error) {
-            if (error instanceof appErrors.AppError) {
-                res.status(error.httpStatusCode).json(error.errorPayload)
-            } else {
-                respondWithUnknownError(res)
-            }
+            respondWithUnknownError(res)
         }
 
     }
 )
 
 
-app.post("/api/authenticate_user",
-    loginAndPasswordValidators,
-    async (req: express.Request, res: express.Response) => {
-        try {
-            const validationErrors = validator.validationResult(req)
-            if (!validationErrors.isEmpty()) {
-                res.status(400).json({ validationErrors: validationErrors.array() })
-                return
-            }
+// app.post("/api/authenticate_user",
+//     loginAndPasswordValidators,
+//     async (req: express.Request, res: express.Response) => {
+//         try {
+//             const validationErrors = validator.validationResult(req)
+//             if (!validationErrors.isEmpty()) {
+//                 res.status(400).json({ validationErrors: validationErrors.array() })
+//                 return
+//             }
 
-            const { login, password } = req.body
-            const { accessToken, refreshToken } = await databaseService.authenticateUser(login, password)
-            res.status(200)
-                .cookie("accessToken", accessToken, { httpOnly: true, sameSite: "strict", secure: true })
-                .cookie("refreshToken", refreshToken, { httpOnly: true, sameSite: "strict", secure: true })
-                .json({
-                    status: "success",
-                    message: "Authentication successful!"
-                })
-        } catch (error) {
-            if (error instanceof appErrors.AppError) {
-                res.status(error.httpStatusCode).json(error.errorPayload)
-            } else {
-                respondWithUnknownError(res)
-            }
-        }
-    })
-
-
-app.post("/api/refresh_token",
-    refreshTokenValidator,
-    async (req: express.Request, res: express.Response) => {
-        try {
-            const validationErrors = validator.validationResult(req)
-            if (!validationErrors.isEmpty()) {
-                res.status(400).json({ validationErrors: validationErrors.array() })
-                return
-            }
-
-            const currentRefreshToken = req.cookies.refreshToken as string
-            const { accessToken, refreshToken } = await databaseService.refreshToken(currentRefreshToken)
-            res.status(200)
-                .cookie("accessToken", accessToken, { httpOnly: true, sameSite: "strict", secure: true })
-                .cookie("refreshToken", refreshToken, { httpOnly: true, sameSite: "strict", secure: true })
-                .json({
-                    status: "success",
-                    message: "Token refreshed successfully!"
-                })
-        } catch (error) {
-            if (error instanceof appErrors.AppError) {
-                res.status(error.httpStatusCode).json(error.errorPayload)
-            } else {
-                respondWithUnknownError(res)
-            }
-        }
-    }
-)
+//             const { login, password } = req.body
+//             const { accessToken, refreshToken } = await databaseService.authenticateUser(login, password)
+//             res.status(200)
+//                 .cookie("accessToken", accessToken, { httpOnly: true, sameSite: "strict", secure: true })
+//                 .cookie("refreshToken", refreshToken, { httpOnly: true, sameSite: "strict", secure: true })
+//                 .json({
+//                     status: "success",
+//                     message: "Authentication successful!"
+//                 })
+//         } catch (error) {
+//             if (error instanceof appErrors.AppError) {
+//                 res.status(error.httpStatusCode).json(error.errorPayload)
+//             } else {
+//                 respondWithUnknownError(res)
+//             }
+//         }
+//     })
 
 
-app.post("/api/log_out_user",
-    refreshTokenValidator,
-    async (req: express.Request, res: express.Response) => {
-        try {
-            const validationErrors = validator.validationResult(req)
-            if (!validationErrors.isEmpty()) {
-                res.status(400).json({validationErrors: validationErrors.array()})
-                return
-            }
+// app.post("/api/refresh_token",
+//     refreshTokenValidator,
+//     async (req: express.Request, res: express.Response) => {
+//         try {
+//             const validationErrors = validator.validationResult(req)
+//             if (!validationErrors.isEmpty()) {
+//                 res.status(400).json({ validationErrors: validationErrors.array() })
+//                 return
+//             }
 
-            const refreshToken = req.cookies.refreshToken
-            await databaseService.logOutUser(refreshToken)
-
-            res.status(200).json({
-                status: "success",
-                message: "Logged out successfully!"
-            })
-        } catch (error) {
-            if (error instanceof appErrors.AppError) {
-                res.status(error.httpStatusCode).json(error.errorPayload)
-            } else {
-                respondWithUnknownError(res)
-            }
-        }
-    }
-)
-
-
-app.post("/api/create_message",
-    [
-        accessTokenValidator,
-        validator.body("recipientId").isInt(),
-        validator.body("content").isString()
-    ],
-    async (req: express.Request, res: express.Response) => {
-        try {
-            const validationErrors = validator.validationResult(req)
-            if (!validationErrors.isEmpty()) {
-                res.status(400).json(validationErrors.array())
-                return
-            }
-
-            const accessToken = req.cookies.accessToken
-            const recipientId = req.body.recipientId
-            const content = req.body.content
-
-            await databaseService.createMessage(accessToken, recipientId, content)
-            res.status(200).json({
-                status: "success",
-                message: "Message successfully sent!"
-            })
-        } catch (error) {
-            if (error instanceof appErrors.AppError) {
-                res.status(error.httpStatusCode).json(error.errorPayload)
-            } else {
-                respondWithUnknownError(res)
-            }
-        }
-    }
-)
+//             const currentRefreshToken = req.cookies.refreshToken as string
+//             const { accessToken, refreshToken } = await databaseService.refreshToken(currentRefreshToken)
+//             res.status(200)
+//                 .cookie("accessToken", accessToken, { httpOnly: true, sameSite: "strict", secure: true })
+//                 .cookie("refreshToken", refreshToken, { httpOnly: true, sameSite: "strict", secure: true })
+//                 .json({
+//                     status: "success",
+//                     message: "Token refreshed successfully!"
+//                 })
+//         } catch (error) {
+//             if (error instanceof appErrors.AppError) {
+//                 res.status(error.httpStatusCode).json(error.errorPayload)
+//             } else {
+//                 respondWithUnknownError(res)
+//             }
+//         }
+//     }
+// )
 
 
-app.post("/api/find_connected_users",
-    accessTokenValidator,
-    async (req: express.Request, res: express.Response) => {
-        try {
-            const validationErrors = validator.validationResult(req)
-            if (!validationErrors.isEmpty()) {
-                res.status(400).json(validationErrors.array())
-                return
-            }
+// app.post("/api/log_out_user",
+//     refreshTokenValidator,
+//     async (req: express.Request, res: express.Response) => {
+//         try {
+//             const validationErrors = validator.validationResult(req)
+//             if (!validationErrors.isEmpty()) {
+//                 res.status(400).json({validationErrors: validationErrors.array()})
+//                 return
+//             }
 
-            const accessToken = req.cookies.accessToken
-            const connectedUsers = await databaseService.findConnectedUsers(accessToken)
-            res.status(200).json({
-                status: "success",
-                message: "Connected users successfully determined!",
-                connectedUsers: connectedUsers
-            })
+//             const refreshToken = req.cookies.refreshToken
+//             await databaseService.logOutUser(refreshToken)
 
-        } catch (error) {
-            if (error instanceof appErrors.AppError) {
-                res.status(error.httpStatusCode).json(error.errorPayload)
-            } else {
-                respondWithUnknownError(res)
-            }
-        }
-    }
-)
+//             res.status(200).json({
+//                 status: "success",
+//                 message: "Logged out successfully!"
+//             })
+//         } catch (error) {
+//             if (error instanceof appErrors.AppError) {
+//                 res.status(error.httpStatusCode).json(error.errorPayload)
+//             } else {
+//                 respondWithUnknownError(res)
+//             }
+//         }
+//     }
+// )
 
 
-app.post("/api/get_conversation",
-    [
-        accessTokenValidator,
-        validator.body("otherUserId").isInt()
-    ],
-    async (req: express.Request, res: express.Response) => {
-        try {
-            const validationErrors = validator.validationResult(req)
-            if (!validationErrors.isEmpty()) {
-                res.status(400).json(validationErrors.array())
-                return
-            }
+// app.post("/api/create_message",
+//     [
+//         accessTokenValidator,
+//         validator.body("recipientId").isInt(),
+//         validator.body("content").isString()
+//     ],
+//     async (req: express.Request, res: express.Response) => {
+//         try {
+//             const validationErrors = validator.validationResult(req)
+//             if (!validationErrors.isEmpty()) {
+//                 res.status(400).json(validationErrors.array())
+//                 return
+//             }
 
-            const accessToken = req.cookies.accessToken
-            const otherUserId = req.body.otherUserId
+//             const accessToken = req.cookies.accessToken
+//             const recipientId = req.body.recipientId
+//             const content = req.body.content
 
-            const conversation = await databaseService.getConversation(accessToken, otherUserId)
-            res.status(200).json({
-                conversation: conversation
-            })
+//             await databaseService.createMessage(accessToken, recipientId, content)
+//             res.status(200).json({
+//                 status: "success",
+//                 message: "Message successfully sent!"
+//             })
+//         } catch (error) {
+//             if (error instanceof appErrors.AppError) {
+//                 res.status(error.httpStatusCode).json(error.errorPayload)
+//             } else {
+//                 respondWithUnknownError(res)
+//             }
+//         }
+//     }
+// )
 
-        } catch (error) {
-            if (error instanceof appErrors.AppError) {
-                res.status(error.httpStatusCode).json(error.errorPayload)
-            } else {
-                respondWithUnknownError(res)
-            }
-        }
-    }
-)
+
+// app.post("/api/find_connected_users",
+//     accessTokenValidator,
+//     async (req: express.Request, res: express.Response) => {
+//         try {
+//             const validationErrors = validator.validationResult(req)
+//             if (!validationErrors.isEmpty()) {
+//                 res.status(400).json(validationErrors.array())
+//                 return
+//             }
+
+//             const accessToken = req.cookies.accessToken
+//             const connectedUsers = await databaseService.findConnectedUsers(accessToken)
+//             res.status(200).json({
+//                 status: "success",
+//                 message: "Connected users successfully determined!",
+//                 connectedUsers: connectedUsers
+//             })
+
+//         } catch (error) {
+//             if (error instanceof appErrors.AppError) {
+//                 res.status(error.httpStatusCode).json(error.errorPayload)
+//             } else {
+//                 respondWithUnknownError(res)
+//             }
+//         }
+//     }
+// )
+
+
+// app.post("/api/get_conversation",
+//     [
+//         accessTokenValidator,
+//         validator.body("otherUserId").isInt()
+//     ],
+//     async (req: express.Request, res: express.Response) => {
+//         try {
+//             const validationErrors = validator.validationResult(req)
+//             if (!validationErrors.isEmpty()) {
+//                 res.status(400).json(validationErrors.array())
+//                 return
+//             }
+
+//             const accessToken = req.cookies.accessToken
+//             const otherUserId = req.body.otherUserId
+
+//             const conversation = await databaseService.getConversation(accessToken, otherUserId)
+//             res.status(200).json({
+//                 conversation: conversation
+//             })
+
+//         } catch (error) {
+//             if (error instanceof appErrors.AppError) {
+//                 res.status(error.httpStatusCode).json(error.errorPayload)
+//             } else {
+//                 respondWithUnknownError(res)
+//             }
+//         }
+//     }
+// )
 
 
 const options = {
