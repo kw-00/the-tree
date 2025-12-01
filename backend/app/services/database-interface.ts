@@ -50,14 +50,12 @@ export default class DatabaseInterface {
         this.pool = pool
     }
 
-
-
     async callAPI(functionName: string, ...parameters: any[]): Promise<StandardResponse & any[]> {
         const placeholders = Array.from(parameters.keys())
             .map(v => v + 1)
             .map(v => `$${v}`)
             .join(", ")
-        const query = await this.pool.query(`SELECT api.${functionName}(${placeholders}) AS result;`, [parameters])
+        const query = await this.pool.query(`SELECT api.${functionName}(${placeholders}) AS result;`, parameters)
         return query.rows[0].result
     }
     async registerUser(login: string, password: string): Promise<RegisterUserResponse> {

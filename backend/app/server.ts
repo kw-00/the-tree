@@ -10,6 +10,7 @@ import * as validator from "express-validator"
 import https from "https"
 import fs from "fs"
 import { Pool } from "pg"
+import DatabaseService from "./services/database-service"
 
 const app = express()
 app.use(express.json())
@@ -28,9 +29,10 @@ const databaseCredentials = {
 }
 
 const pool = new Pool(databaseCredentials)
+pool.connect()
 
 
-const databaseService = new DatabaseInterface(pool)
+const databaseService = new DatabaseService(pool)
 
 const loginAndPasswordValidators = [
     validator.body("login").isString().notEmpty()
@@ -42,11 +44,17 @@ const loginAndPasswordValidators = [
 const accessTokenValidator = validator.check("accessToken").isJWT()
 const refreshTokenValidator = validator.check("refreshToken").isUUID("4")
 
-const respondWithUnknownError = (res: express.Response) => {
+const respondWithUnknownError = (res: express.Response, error: Error) => {
     res.status(500).json({
         status: "error",
-        code: "UNKNOWN_ERROR",
-        message: "An error occurred."
+        code: `UNKNOWN_ERROR`,
+        message: "An error occurred.",
+        error: {
+            name: error.name,
+            message: error.message,
+            cause: error.cause,
+            stack: error.stack,
+        }
     })
 }
 
@@ -66,7 +74,7 @@ app.post("/api/register_user",
             const result = await databaseService.registerUser(login, password)
             res.status(200).send(result)
         } catch (error) {
-            respondWithUnknownError(res)
+            respondWithUnknownError(res, error as Error)
         }
 
     }
