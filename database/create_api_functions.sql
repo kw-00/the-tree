@@ -192,7 +192,7 @@ RETURNS:
 		* 401/REFRESH_TOKEN_REUSE
 		* 401/REFRESH_TOKEN_REVOKED
 */
-CREATE OR REPLACE FUNCTION api.refresh_token(
+CREATE OR REPLACE FUNCTION api.verify_refresh_token(
 	p_refresh_token_uuid UUID,
 	p_validity_period_seconds INT
 )
@@ -271,7 +271,11 @@ BEGIN
 	END IF;
 
 	-- If the token has not been used, token is valid — success
-	RETURN api.create_refresh_token(v_user_id);
+	RETURN json_build_object(
+		'httpStatus', 200,
+		'status', 'SUCCESS',
+		'message', 'Refresh token is valid.'
+	);
 END;
 $function$
 LANGUAGE plpgsql;
@@ -293,7 +297,7 @@ RETURNS:
 		* 404/USER_NOT_FOUND
 		* 409/PK_IN_USE
 */
-CREATE OR REPLACE FUNCTION api_create_refresh_token(
+CREATE OR REPLACE FUNCTION api.create_refresh_token(
 	p_user_id INT,
 	p_validity_period_seconds INT
 )
