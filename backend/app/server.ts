@@ -1,7 +1,7 @@
 import "dotenv/config"
 
 import express from "express"
-import DatabaseService from "./services/database-service"
+import DatabaseInterface from "./services/database-interface"
 
 import cookieParser from "cookie-parser"
 import cors from "cors"
@@ -9,6 +9,7 @@ import * as validator from "express-validator"
 
 import https from "https"
 import fs from "fs"
+import { Pool } from "pg"
 
 const app = express()
 app.use(express.json())
@@ -18,7 +19,18 @@ app.use(cors({
     credentials: true
 }))
 
-const databaseService = new DatabaseService()
+const databaseCredentials = {
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: Number(process.env.DB_PORT)
+}
+
+const pool = new Pool(databaseCredentials)
+
+
+const databaseService = new DatabaseInterface()
 
 const loginAndPasswordValidators = [
     validator.body("login").isString().notEmpty()

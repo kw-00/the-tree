@@ -183,7 +183,7 @@ PARAMS:
 	* p_refresh_token_uuid UUID
 
 RETURNS:
-	* refreshToken UUID
+	* userId INT
 	* httpStatus/status:
 		* 200/SUCCESS
 		* 400/NULL_PARAMETER
@@ -193,8 +193,7 @@ RETURNS:
 		* 401/REFRESH_TOKEN_REVOKED
 */
 CREATE OR REPLACE FUNCTION api.verify_refresh_token(
-	p_refresh_token_uuid UUID,
-	p_validity_period_seconds INT
+	p_refresh_token_uuid UUID
 )
 RETURNS JSONB
 AS
@@ -213,12 +212,6 @@ BEGIN
 			'httpStatus', 400,
 			'status', 'NULL_PARAMETER', 
 			'massage', format('Parameter %L cannot be NULL.', 'p_refresh_token_uuid')
-		);
-	ELSIF p_validity_period_seconds IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_validity_period_seconds')
 		);
 	END IF;
 	
@@ -272,6 +265,7 @@ BEGIN
 
 	-- If the token has not been used, token is valid — success
 	RETURN json_build_object(
+		'userId', v_user_id,
 		'httpStatus', 200,
 		'status', 'SUCCESS',
 		'message', 'Refresh token is valid.'
@@ -365,7 +359,7 @@ RETURNS:
 		* 200/SUCCESS
 		* 400/NULL_PARAMETER
 */
-CREATE OR REPLACE FUNCTION api.revoke_token(
+CREATE OR REPLACE FUNCTION api.revoke_refresh_token(
 	p_refresh_token_uuid UUID
 )
 RETURNS JSONB
@@ -626,9 +620,9 @@ RETURNS JSONB
 AS
 $function$
 DECLARE
-	v_added TEXT[];
-	v_skipped TEXT[];
-	v_not_found TEXT[];
+	v_added INT[];
+	v_skipped INT[];
+	v_not_found INT[];
 BEGIN
 	-- If p_user_id is null, error
 	IF p_user_id IS NULL THEN
@@ -740,7 +734,7 @@ RETURNS:
 		* 404/USER_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api.create_chatroom(
-	p_user_login TEXT,
+	p_user_id TEXT,
 	p_name TEXT
 )
 RETURNS JSONB
@@ -749,14 +743,13 @@ $function$
 DECLARE
 	v_chatroom_id INT;
 	v_chatroom_name TEXT;
-	v_user_id INT;
 BEGIN
-	-- If p_user_login is null, error
-	IF p_user_login IS NULL THEN
+	-- If p_user_id is null, error
+	IF p_user_id IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400, 
 			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_user_login')
+			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
 		);
 	END IF;
 
@@ -769,14 +762,12 @@ BEGIN
 		);	
 	END IF;
 
-	-- If login does not exist, error
-	-- If it does, fetch the ID of the user to v_user_id
-	SELECT id INTO v_user_id FROM users WHERE login = p_user_login;
-	IF NOT FOUND THEN
+	-- If ID does not exist, error
+	IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_user_id) THEN
 		RETURN json_build_object(
 			'httpStatus', 404, 
 			'status', 'USER_NOT_FOUND',
-			'message', format('User with login of %L does not exist.', p_user_login)
+			'message', format('User with ID of %L does not exist.', p_user_id)
 		);
 	END IF;
 	
@@ -784,7 +775,7 @@ BEGIN
 	INSERT INTO chatrooms (name) VALUES (p_name)
 	RETURNING id, name INTO v_chatroom_id, v_chatroom_name;
 	-- Add user to chatroom
-	INSERT INTO chatrooms_users (chatroom_id, user_id) VALUES (v_chatroom_id, v_user_id);
+	INSERT INTO chatrooms_users (chatroom_id, user_id) VALUES (v_chatroom_id, p_user_id);
 	-- Return result
 	RETURN json_build_object(
 		'chatroomId', v_chatroom_id,
