@@ -17,8 +17,7 @@ export default class DatabaseService {
     }
 
     async registerUser(login: string, password: string): Promise<DatabaseServiceResponse> {
-        const registrationResult = await this.dbi.registerUser(login, password)
-        return registrationResult
+        return this.dbi.registerUser(login, password)
     }
 
     async authenticateUser(login: string, password: string): Promise<DatabaseServiceResponse> {
@@ -37,5 +36,28 @@ export default class DatabaseService {
         } else {
             return authenticationResult
         }
+    }
+
+    async refreshToken(refreshToken: string): Promise<DatabaseServiceResponse> {
+        const verificationResult = await this.dbi.verifyRefreshToken(refreshToken)
+        if (verificationResult.httpStatus === 200) {
+            const userId = verificationResult.userId!
+            const creationResult = await this.dbi.createRefreshToken(userId, Number(process.env.REFRESH_TOKEN_VALIDITY_PERIOD))
+            if (creationResult.httpStatus === 200) {
+                return {
+                    ...creationResult,
+                    accessToken: AccessTokenManagement.getToken(userId)
+                }
+            } else {
+                return creationResult
+            }
+
+        } else {
+            return verificationResult
+        }
+    }
+
+    async logOut(refreshToken: string): Promise<DatabaseServiceResponse> {
+        return await this.dbi.revokeRefreshToken(refreshToken)
     }
 }
