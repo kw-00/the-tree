@@ -30,7 +30,7 @@ const databaseCredentials = {
 const pool = new Pool(databaseCredentials)
 
 
-const databaseService = new DatabaseInterface()
+const databaseService = new DatabaseInterface(pool)
 
 const loginAndPasswordValidators = [
     validator.body("login").isString().notEmpty()
