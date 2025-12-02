@@ -2,11 +2,16 @@ import { Pool } from "pg";
 import DatabaseInterface from "./database-interface";
 import { AccessTokenManagement, AccessTokenPayload } from "../utilities/access-token-management";
 
-type DatabaseServiceResponse = {
-    httpStatus: number,
-    status: string,
+export type DatabaseServiceResponse = {
+    httpStatus: number
+    status: string
     message: string
-} & any
+    auth?: {
+        accessToken: string
+        refreshToken: string
+    }
+    [key: string]: any
+}
 
 
 export default class DatabaseService {
@@ -26,9 +31,13 @@ export default class DatabaseService {
             const userId = authenticationResult.userId!
             const refreshTokenCreationResult = await this.dbi.createRefreshToken(userId, Number(process.env.REFRESH_TOKEN_VALIDITY_PERIOD))
             if (refreshTokenCreationResult.httpStatus === 200) {
+                const {refreshToken, ...rest} = refreshTokenCreationResult
                 return {
-                    ...refreshTokenCreationResult,
-                    accessToken: AccessTokenManagement.getToken(userId)
+                    ...rest,
+                    auth: {
+                        accessToken: AccessTokenManagement.getToken(userId),
+                        refreshToken: refreshToken!
+                    }
                 }
             } else {
                 return refreshTokenCreationResult
@@ -44,9 +53,13 @@ export default class DatabaseService {
             const userId = verificationResult.userId!
             const creationResult = await this.dbi.createRefreshToken(userId, Number(process.env.REFRESH_TOKEN_VALIDITY_PERIOD))
             if (creationResult.httpStatus === 200) {
+                const {refreshToken, ...rest} = creationResult
                 return {
-                    ...creationResult,
-                    accessToken: AccessTokenManagement.getToken(userId)
+                    ...rest,
+                    auth: {
+                        accessToken: AccessTokenManagement.getToken(userId),
+                        refreshToken: refreshToken!
+                    }
                 }
             } else {
                 return creationResult
