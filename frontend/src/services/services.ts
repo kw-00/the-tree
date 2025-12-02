@@ -2,86 +2,128 @@ import {API} from "./api"
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL
 
-export type APICallResult<T> = {
-    status: number,
-    body: T
-}
 
-
-export type StandardBody = {
-    status: string,
+export type StandardResponseBody = {
+    httpStatus: number
+    status: string
     message: string
+    [key: string]: any
 }
 
-export type FindConnectedUsersFields = {
-    connectedUsers?: {id: string, login: string}[]
-}
+export type RegisterUserResponseBody = {
+    userId?: number
+} & StandardResponseBody
 
-export type GetConversationFields = {
-    conversation: {senderId: number, senderLogin: string, content: string}[]
-}
+export type AuthenticateUserResponseBody = RegisterUserResponseBody
+
+export type AddFriendsToChatroomResponseBody = {
+    added?: number[]
+    skipped?: number[]
+    notFound?: number[]
+} & StandardResponseBody
+
+export type GetFriendsResponseBody = {
+    friends?: {id: number, login: string}[]
+} & StandardResponseBody
+
+export type CreateChatroomResponseBody = {
+    chatroomId?: number
+} & StandardResponseBody
+
+export type GetConnectedChatroomsResponseBody = {
+    connectedChatrooms?: {id: number, name: string}[]
+} & StandardResponseBody
 
 
-async function registerUser(login: string, password: string): Promise<APICallResult<StandardBody>> {
-    return await makeRequest(API.REGISTER_USER, {
+export type GetConversationResponseBody = {
+    conversation?: {userId: number, userLogin: string, content: string}[]
+} & StandardResponseBody
+
+async function registerUser(login: string, password: string): Promise<RegisterUserResponseBody> {
+    return _makeRequest(API.REGISTER_USER, {
         login: login,
         password: password
     })
 }
 
 
-export async function authenticateUser(login: string, password: string): Promise<APICallResult<StandardBody>> {
-    return await makeRequest(API.AUTHENTICATE_USER, {
+export async function authenticateUser(login: string, password: string): Promise<AuthenticateUserResponseBody> {
+    return _makeRequest(API.AUTHENTICATE_USER, {
         login: login,
         password: password
     }) 
 }
 
-export async function registerAndLogIn(login: string, password: string): Promise<APICallResult<StandardBody>> {
+export async function registerAndLogIn(login: string, password: string): Promise<RegisterUserResponseBody & AuthenticateUserResponseBody> {
     const registrationResult = await registerUser(login, password)
-    if (registrationResult.status !== 200) {
+    if (registrationResult.httpStatus !== 200) {
         return registrationResult
     }
-    const authenticationResult = await authenticateUser(login, password)
-    return authenticationResult
+    return authenticateUser(login, password)
 }
 
-export async function logOutUser(): Promise<APICallResult<StandardBody>> {
-    return await makeRequest(API.LOG_OUT_USER)
+export async function logOut(): Promise<StandardResponseBody> {
+    return _makeRequest(API.LOG_OUT)
 }
 
-
-export async function findConnectedUsers(): Promise<APICallResult<StandardBody & FindConnectedUsersFields>> {
-    return await attemptAndRefreshToken(API.FIND_CONNECTED_USERS)
+export async function addFriend(userToBefriendLogin: string, friendshipCode: string): Promise<StandardResponseBody> {
+    return _attemptAndRefreshToken(API.ADD_FRIEND, {
+        userToBefriendLogin: userToBefriendLogin,
+        friendshipCode: friendshipCode
+    })
 }
 
-export async function getConversation(otherUserId: number): Promise<APICallResult<StandardBody & GetConversationFields>> {
-    return await attemptAndRefreshToken(API.GET_CONVERSATION, {otherUserId: otherUserId})
+export async function getFriends(): Promise<GetFriendsResponseBody> {
+    return _attemptAndRefreshToken(API.GET_FRIENDS)
 }
 
-export async function createMessage(recipientId: number, content: string): Promise<APICallResult<StandardBody>> {
-    return await attemptAndRefreshToken(API.CREATE_MESSAGE, {
-        recipientId: recipientId,
+export async function addFriendsToChatroom(friendIds: number[], chatroomId: number): Promise<AddFriendsToChatroomResponseBody> {
+    return _attemptAndRefreshToken(API.ADD_FRIENDS_TO_CHATROOM, {
+        friendIds: friendIds,
+        chatroomId: chatroomId
+    })
+}
+
+export async function createChatroom(chatroomName: string): Promise<CreateChatroomResponseBody> {
+    return _attemptAndRefreshToken(API.CREATE_CHATROOM, {
+        chatroomName: chatroomName
+    })
+}
+
+export async function getConnectedChatrooms(after: Date): Promise<GetConnectedChatroomsResponseBody> {
+    return _attemptAndRefreshToken(API.GET_CONNECTED_CHATROOMS, {
+        after: after
+    })
+}
+
+export async function createMessage(chatroomId: string, content: string): Promise<StandardResponseBody> {
+    return _attemptAndRefreshToken(API.CREATE_MESSAGE, {
+        chatroomId: chatroomId,
         content: content
     })
 }
 
-async function refreshToken(): Promise<APICallResult<StandardBody>> {
-    return await makeRequest(API.REFRESH_TOKEN)
+export async function getConversation(chatroomId: number): Promise<GetConversationResponseBody> {
+    return await _attemptAndRefreshToken(API.GET_CONVERSATION, {chatroomId: chatroomId})
 }
 
-async function attemptAndRefreshToken(endpointUrl: string, body?: object): Promise<APICallResult<StandardBody & any>> {
-    let response = await makeRequest(endpointUrl, body)
-    if (response.status === 401) {
-        const refreshAttemptResult = await refreshToken()
-        if (refreshAttemptResult.status === 200) {
-            response = await makeRequest(endpointUrl, body)
+
+async function _attemptAndRefreshToken(endpointUrl: string, body?: object): Promise<StandardResponseBody> {
+    let response = await _makeRequest(endpointUrl, body)
+    if (response.httpStatus === 401) {
+        const refreshAttemptResult = await _refreshToken()
+        if (refreshAttemptResult.httpStatus === 200) {
+            response = await _makeRequest(endpointUrl, body)
         }
     }
     return response
 }
 
-async function makeRequest(endpointUrl: string, requestBody?: object): Promise<APICallResult<StandardBody & any>> {
+async function _refreshToken(): Promise<StandardResponseBody> {
+    return await _makeRequest(API.REFRESH_TOKEN)
+}
+
+async function _makeRequest(endpointUrl: string, requestBody?: object): Promise<StandardResponseBody> {
     const response = await fetch(
         `${baseUrl}${endpointUrl}`, {
             method: "POST",
@@ -90,12 +132,7 @@ async function makeRequest(endpointUrl: string, requestBody?: object): Promise<A
             body: requestBody !== undefined ? JSON.stringify(requestBody) : undefined
         }
     )
-    const {status} = response
     const body = await response.json()
-
-    return {
-        status: status,
-        body: body
-    }
+    return body
 }
 

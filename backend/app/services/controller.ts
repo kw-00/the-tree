@@ -82,7 +82,7 @@ export async function createChatroom(accessToken: string, chatroomName: string):
     return _checkAccessTokenAndPerform(accessToken, (payload) => dbi.createChatroom(payload.sub, chatroomName))
 }
 
-export async function getConnectedRooms(accessToken: string, after: Date): Promise<DatabaseServiceResponse> {
+export async function getConnectedChatrooms(accessToken: string, after: Date): Promise<DatabaseServiceResponse> {
     return _checkAccessTokenAndPerform(accessToken, (payload) => dbi.getConnectedChatrooms(payload.sub, after))
 }
 

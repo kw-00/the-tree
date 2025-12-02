@@ -157,6 +157,16 @@ app.post(`${API_PATH}/add_friend`,
     }
 )
 
+app.post(`${API_PATH}/get_friends`,
+    [myValidators("accessToken", "accessToken", false)],
+    async (req: Request, res: Response) => {
+        handleRequest(req, res, async (validatedData) => {
+            const {accessToken} = validatedData
+            return controller.getFriends(accessToken)
+        })
+    }
+)
+
 app.post(`${API_PATH}/add_friends_to_chatroom`,
     [
         myValidators("accessToken", "accessToken", false),
@@ -185,7 +195,7 @@ app.post(`${API_PATH}/create_chatroom`,
     }
 )
 
-app.post(`${API_PATH}/get_connected_rooms`,
+app.post(`${API_PATH}/get_connected_chatrooms`,
     [
         myValidators("accessToken", "accessToken", false),
         validator.body("after").isDate(),
@@ -193,7 +203,7 @@ app.post(`${API_PATH}/get_connected_rooms`,
     async (req: Request, res: Response) => {
         handleRequest(req, res, async (validatedData) => {
             const {accessToken, after} = validatedData
-            return controller.getConnectedRooms(accessToken, after)
+            return controller.getConnectedChatrooms(accessToken, after)
         })
     }
 )

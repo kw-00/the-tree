@@ -20,14 +20,14 @@ type CreateRefreshTokenResponse = {
     refreshToken?: string
 } & StandardResponse
 
-type GetFriendsResponse = {
-    friends?: {id: number, login: string}[]
-} & StandardResponse
-
 type AddFriendsToChatroomResponse = {
     added?: number[],
     skipped?: number[],
     notFound?: number[]
+} & StandardResponse
+
+type GetFriendsResponse = {
+    friends?: {id: number, login: string}[]
 } & StandardResponse
 
 type CreateChatroomResponse = {
