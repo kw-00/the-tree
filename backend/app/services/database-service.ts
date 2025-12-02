@@ -86,8 +86,8 @@ export default class DatabaseService {
         return this._checkAccessTokenAndPerform(accessToken, (payload) => this.dbi.addUsersToChatroom(payload.sub, friendIds, chatroomId))
     }
 
-    async createChatroom(accessToken: string, name: string): Promise<DatabaseServiceResponse> {
-        return this._checkAccessTokenAndPerform(accessToken, (payload) => this.dbi.createChatroom(payload.sub, name))
+    async createChatroom(accessToken: string, chatroomName: string): Promise<DatabaseServiceResponse> {
+        return this._checkAccessTokenAndPerform(accessToken, (payload) => this.dbi.createChatroom(payload.sub, chatroomName))
     }
 
     async getConnectedRooms(accessToken: string, after: Date): Promise<DatabaseServiceResponse> {

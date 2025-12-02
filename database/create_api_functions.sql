@@ -724,7 +724,7 @@ Creates a chatroom on behalf of a user and places that user inside.
 
 PARAMS:
 	* p_user_login TEXT— the login of the user creating the chat
-	* p_name TEXT — the name of the chatroom.
+	* p_chatroom_name TEXT — the name of the chatroom.
 
 RETURNS:
 	* chatroomId — ID of the added chatroom
@@ -735,7 +735,7 @@ RETURNS:
 */
 CREATE OR REPLACE FUNCTION api.create_chatroom(
 	p_user_id TEXT,
-	p_name TEXT
+	p_chatroom_name TEXT
 )
 RETURNS JSONB
 AS
@@ -753,12 +753,12 @@ BEGIN
 		);
 	END IF;
 
-	-- If p_name is null, error
-	IF p_name IS NULL THEN
+	-- If p_chatroom_name is null, error
+	IF p_chatroom_name IS NULL THEN
 		RETURN json_build_object(
 			'httpStatus', 400, 
 			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_name')
+			'message', format('Parameter %L cannot be NULL.', 'p_chatroom_name')
 		);	
 	END IF;
 
@@ -772,7 +772,7 @@ BEGIN
 	END IF;
 	
 	-- Create chatroom
-	INSERT INTO chatrooms (name) VALUES (p_name)
+	INSERT INTO chatrooms (name) VALUES (p_chatroom_name)
 	RETURNING id, name INTO v_chatroom_id, v_chatroom_name;
 	-- Add user to chatroom
 	INSERT INTO chatrooms_users (chatroom_id, user_id) VALUES (v_chatroom_id, p_user_id);

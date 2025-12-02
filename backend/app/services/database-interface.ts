@@ -90,8 +90,8 @@ export default class DatabaseInterface {
         return this.callAPI("add_users_to_chatroom", userId, friendIds, chatroomId)
     }
 
-    async createChatroom(userId: number, name: string): Promise<CreateChatroomResponse> {
-        return this.callAPI("create_chatroom", userId, name)
+    async createChatroom(userId: number, chatroomName: string): Promise<CreateChatroomResponse> {
+        return this.callAPI("create_chatroom", userId, chatroomName)
     }
 
     async getConnectedChatrooms(userId: number, after: Date): Promise<GetConnectedChatroomsResponse> {
