@@ -24,7 +24,7 @@ type GetFriendsResponse = {
     friends?: {id: number, login: string}[]
 } & StandardResponse
 
-type AddUsersToChatroomResponse = {
+type AddFriendsToChatroomResponse = {
     added?: number[],
     skipped?: number[],
     notFound?: number[]
@@ -88,8 +88,8 @@ export async function getFriends(userId: number): Promise<GetFriendsResponse> {
     return callAPI("get_friends", userId)
 }
 
-export async function addUsersToChatroom(userId: number, friendIds: number[], chatroomId: number): Promise<AddUsersToChatroomResponse> {
-    return callAPI("add_users_to_chatroom", userId, friendIds, chatroomId)
+export async function addFriendsToChatroom(userId: number, friendIds: number[], chatroomId: number): Promise<AddFriendsToChatroomResponse> {
+    return callAPI("add_friends_to_chatroom", userId, friendIds, chatroomId)
 }
 
 export async function createChatroom(userId: number, chatroomName: string): Promise<CreateChatroomResponse> {

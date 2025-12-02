@@ -610,7 +610,7 @@ RETURNS:
 		* 403/NOT_IN_CHATROOM
 		* 404/USER_NOT_FOUND
 */
-CREATE OR REPLACE FUNCTION api.add_users_to_chatroom(
+CREATE OR REPLACE FUNCTION api.add_friends_to_chatroom(
 	p_user_id INT,
 	p_friend_ids INT[],
 	p_chatroom_id INT

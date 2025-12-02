@@ -74,8 +74,8 @@ export async function getFriends(accessToken: string): Promise<DatabaseServiceRe
     return _checkAccessTokenAndPerform(accessToken, (payload) => dbi.getFriends(payload.sub))
 }
 
-export async function addUsersToChatroom(accessToken: string, friendIds: number[], chatroomId: number): Promise<DatabaseServiceResponse> {
-    return _checkAccessTokenAndPerform(accessToken, (payload) => dbi.addUsersToChatroom(payload.sub, friendIds, chatroomId))
+export async function addFriendsToChatroom(accessToken: string, friendIds: number[], chatroomId: number): Promise<DatabaseServiceResponse> {
+    return _checkAccessTokenAndPerform(accessToken, (payload) => dbi.addFriendsToChatroom(payload.sub, friendIds, chatroomId))
 }
 
 export async function createChatroom(accessToken: string, chatroomName: string): Promise<DatabaseServiceResponse> {

@@ -157,7 +157,7 @@ app.post(`${API_PATH}/add_friend`,
     }
 )
 
-app.post(`${API_PATH}/add_users_to_chatroom`,
+app.post(`${API_PATH}/add_friends_to_chatroom`,
     [
         myValidators("accessToken", "accessToken", false),
         validator.body("friendIds").isArray().notEmpty(),
@@ -167,7 +167,7 @@ app.post(`${API_PATH}/add_users_to_chatroom`,
     async (req: Request, res: Response) => {
         handleRequest(req, res, async (validatedData) => {
             const {accessToken, friendIds, chatroomId} = validatedData
-            return controller.addUsersToChatroom(accessToken, friendIds, chatroomId)
+            return controller.addFriendsToChatroom(accessToken, friendIds, chatroomId)
         })
     }
 )
