@@ -8,7 +8,6 @@ import * as validator from "express-validator"
 
 import https from "https"
 import fs from "fs"
-import { Pool } from "pg"
 import * as controller from "./services/controller"
 import type { DatabaseServiceResponse } from "./services/controller"
 
