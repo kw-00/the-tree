@@ -1,7 +1,6 @@
 import "dotenv/config"
 
 import express, {Request, Response} from "express"
-import DatabaseInterface from "./services/database-interface"
 
 import cookieParser from "cookie-parser"
 import cors from "cors"
@@ -10,7 +9,8 @@ import * as validator from "express-validator"
 import https from "https"
 import fs from "fs"
 import { Pool } from "pg"
-import DatabaseService, { type DatabaseServiceResponse } from "./services/database-service"
+import * as controller from "./services/controller"
+import type { DatabaseServiceResponse } from "./services/controller"
 
 const app = express()
 app.use(express.json())
@@ -20,21 +20,7 @@ app.use(cors({
     credentials: true
 }))
 
-const databaseCredentials = {
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASSWORD,
-    port: Number(process.env.DB_PORT)
-}
-
-const pool = new Pool(databaseCredentials)
-pool.connect()
-
 const API_PATH = "api"
-
-
-const databaseService = new DatabaseService(pool)
 
 type ValidatorType = "login" | "password" | "accessToken" | "refreshToken" | "id" | "uuid" | "chatroomName" | "friendshipCode"
 
@@ -121,7 +107,7 @@ app.post(`${API_PATH}/register_user`,
     async (req: Request, res: Response) => {
         handleRequest(req, res, async (req) => {
             const {login, password} = req.body
-            return databaseService.registerUser(login, password)
+            return controller.registerUser(login, password)
         })
     }
 )
@@ -132,7 +118,7 @@ app.post(`${API_PATH}/authenticate_user`,
     async (req: Request, res: Response) => {
         handleRequest(req, res, async (validatedData) => {
             const {login, password} = validatedData
-            return databaseService.authenticateUser(login, password)
+            return controller.authenticateUser(login, password)
         })
     }
 )
@@ -142,7 +128,7 @@ app.post(`${API_PATH}/refresh_token`,
     async (req: express.Request, res: express.Response) => {
         handleRequest(req, res, async (validatedData) => {
             const {refreshToken} = validatedData
-            return databaseService.refreshToken(refreshToken)
+            return controller.refreshToken(refreshToken)
         })
     }
 )
@@ -152,7 +138,7 @@ app.post(`${API_PATH}/log_out`,
     async (req: Request, res: Response) => {
         handleRequest(req, res, async (validatedData) => {
             const {refreshToken} = validatedData
-            return databaseService.logOut(refreshToken)
+            return controller.logOut(refreshToken)
         })
     }
 )
@@ -166,7 +152,7 @@ app.post(`${API_PATH}/add_friend`,
     async (req: Request, res: Response) => {
         handleRequest(req, res, async (validatedData) => {
             const {accessToken, userToBefriend, frienshipCode} = validatedData
-            return databaseService.addFriend(accessToken, userToBefriend, frienshipCode)
+            return controller.addFriend(accessToken, userToBefriend, frienshipCode)
         })
     }
 )
@@ -181,7 +167,7 @@ app.post(`${API_PATH}/add_users_to_chatroom`,
     async (req: Request, res: Response) => {
         handleRequest(req, res, async (validatedData) => {
             const {accessToken, friendIds, chatroomId} = validatedData
-            return databaseService.addUsersToChatroom(accessToken, friendIds, chatroomId)
+            return controller.addUsersToChatroom(accessToken, friendIds, chatroomId)
         })
     }
 )
@@ -194,7 +180,7 @@ app.post(`${API_PATH}/create_chatroom`,
     async (req: Request, res: Response) => {
         handleRequest(req, res, async (validatedData) => {
             const {accessToken, chatroomName} = validatedData
-            return databaseService.createChatroom(accessToken, chatroomName)
+            return controller.createChatroom(accessToken, chatroomName)
         })
     }
 )
@@ -207,7 +193,7 @@ app.post(`${API_PATH}/get_connected_rooms`,
     async (req: Request, res: Response) => {
         handleRequest(req, res, async (validatedData) => {
             const {accessToken, after} = validatedData
-            return databaseService.getConnectedRooms(accessToken, after)
+            return controller.getConnectedRooms(accessToken, after)
         })
     }
 )
@@ -222,7 +208,7 @@ app.post(`${API_PATH}/create_message`,
     async (req: Request, res: Response) => {
         handleRequest(req, res, async (validatedData) => {
             const {accessToken, chatroomId, content} = validatedData
-            return databaseService.createMessage(accessToken, chatroomId, content)
+            return controller.createMessage(accessToken, chatroomId, content)
         })
     }
 )
@@ -245,7 +231,7 @@ app.post(`${API_PATH}/get_conversation`,
                 nRows,
                 descending
             } = validatedData
-            return databaseService.getConversation(
+            return controller.getConversation(
                 accessToken,
                 chatroomId,
                 before,
