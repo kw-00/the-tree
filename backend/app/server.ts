@@ -197,7 +197,7 @@ app.post(`${API_PATH}/create_chatroom`,
 app.post(`${API_PATH}/get_connected_chatrooms`,
     [
         myValidators("accessToken", "accessToken", false),
-        validator.body("after").isDate(),
+        validator.body("after").isDate().optional({values: "null"}),
     ],
     async (req: Request, res: Response) => {
         handleRequest(req, res, async (validatedData) => {

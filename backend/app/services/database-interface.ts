@@ -96,7 +96,7 @@ export async function createChatroom(userId: number, chatroomName: string): Prom
     return _callAPI("create_chatroom", userId, chatroomName)
 }
 
-export async function getConnectedChatrooms(userId: number, after: Date): Promise<GetConnectedChatroomsResponse> {
+export async function getConnectedChatrooms(userId: number, after: Date | null): Promise<GetConnectedChatroomsResponse> {
     return _callAPI("get_connected_chatrooms", userId, after)
 }
 
