@@ -39,23 +39,17 @@ export type GetConversationResponseBody = {
     conversation?: {userId: number, userLogin: string, content: string}[]
 } & StandardResponseBody
 
-async function registerUser(login: string, password: string): Promise<RegisterUserResponseBody> {
-    return _makeRequest(API.REGISTER_USER, {
-        login: login,
-        password: password
-    })
+async function _registerUser(login: string, password: string): Promise<RegisterUserResponseBody> {
+    return _makeRequest(API.REGISTER_USER, {login, password})
 }
 
 
 export async function authenticateUser(login: string, password: string): Promise<AuthenticateUserResponseBody> {
-    return _makeRequest(API.AUTHENTICATE_USER, {
-        login: login,
-        password: password
-    }) 
+    return _makeRequest(API.AUTHENTICATE_USER, {login, password}) 
 }
 
 export async function registerAndLogIn(login: string, password: string): Promise<RegisterUserResponseBody & AuthenticateUserResponseBody> {
-    const registrationResult = await registerUser(login, password)
+    const registrationResult = await _registerUser(login, password)
     if (registrationResult.httpStatus !== 200) {
         return registrationResult
     }
@@ -67,10 +61,7 @@ export async function logOut(): Promise<StandardResponseBody> {
 }
 
 export async function addFriend(userToBefriendLogin: string, friendshipCode: string): Promise<StandardResponseBody> {
-    return _attemptAndRefreshToken(API.ADD_FRIEND, {
-        userToBefriendLogin: userToBefriendLogin,
-        friendshipCode: friendshipCode
-    })
+    return _attemptAndRefreshToken(API.ADD_FRIEND, {userToBefriendLogin, friendshipCode})
 }
 
 export async function getFriends(): Promise<GetFriendsResponseBody> {
@@ -78,33 +69,34 @@ export async function getFriends(): Promise<GetFriendsResponseBody> {
 }
 
 export async function addFriendsToChatroom(friendIds: number[], chatroomId: number): Promise<AddFriendsToChatroomResponseBody> {
-    return _attemptAndRefreshToken(API.ADD_FRIENDS_TO_CHATROOM, {
-        friendIds: friendIds,
-        chatroomId: chatroomId
-    })
+    return _attemptAndRefreshToken(API.ADD_FRIENDS_TO_CHATROOM, {friendIds, chatroomId})
 }
 
 export async function createChatroom(chatroomName: string): Promise<CreateChatroomResponseBody> {
-    return _attemptAndRefreshToken(API.CREATE_CHATROOM, {
-        chatroomName: chatroomName
-    })
+    return _attemptAndRefreshToken(API.CREATE_CHATROOM, {chatroomName})
 }
 
-export async function getConnectedChatrooms(after: Date): Promise<GetConnectedChatroomsResponseBody> {
-    return _attemptAndRefreshToken(API.GET_CONNECTED_CHATROOMS, {
-        after: after
-    })
+export async function getConnectedChatrooms(after: Date | null): Promise<GetConnectedChatroomsResponseBody> {
+    return _attemptAndRefreshToken(API.GET_CONNECTED_CHATROOMS, {after})
 }
 
-export async function createMessage(chatroomId: string, content: string): Promise<StandardResponseBody> {
-    return _attemptAndRefreshToken(API.CREATE_MESSAGE, {
-        chatroomId: chatroomId,
-        content: content
-    })
+export async function createMessage(chatroomId: number, content: string): Promise<StandardResponseBody> {
+    return _attemptAndRefreshToken(API.CREATE_MESSAGE, {chatroomId, content})
 }
 
-export async function getConversation(chatroomId: number): Promise<GetConversationResponseBody> {
-    return await _attemptAndRefreshToken(API.GET_CONVERSATION, {chatroomId: chatroomId})
+export async function getConversation(
+        chatroomId: number, 
+        before: Date | null, 
+        after: Date | null, 
+        nRows: number, 
+        descending: boolean): Promise<GetConversationResponseBody> {
+    return await _attemptAndRefreshToken(API.GET_CONVERSATION, {
+        chatroomId,
+        before,
+        after,
+        nRows,
+        descending
+    })
 }
 
 

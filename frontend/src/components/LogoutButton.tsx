@@ -1,4 +1,4 @@
-import { logOut } from "@/services/services"
+import { logOut } from "@/services/server/server-service"
 import { Button, type ButtonProps } from "@chakra-ui/react"
 import { useNavigate } from "react-router-dom"
 

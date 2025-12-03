@@ -3,7 +3,7 @@ import { useChatContext } from "../../contexts/ChatContext"
 import ChatListElement from "./ChatListElement"
 
 export default function ChatList(props: StackProps) {
-    const {currentRecipient, setCurrentRecipient, connectedUsers} = useChatContext()
+    const {selectedChatroom: currentRecipient, setSelectedChatroom: setCurrentRecipient, connectedChatrooms: connectedUsers} = useChatContext()
     return (
         <VStack alignItems="stretch" {...props}>
             {connectedUsers.map((recipient, n) => 

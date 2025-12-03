@@ -1,5 +1,5 @@
 import { useChatContext } from "@/contexts/ChatContext"
-import { createMessage } from "@/services/services"
+import { createMessage } from "@/services/server/server-service"
 import { type StackProps, VStack, Heading } from "@chakra-ui/react"
 import Conversation from "./Conversation"
 import MessageInput from "./MessageInput"
@@ -7,7 +7,7 @@ import MessageInput from "./MessageInput"
 
 
 export default function Chat(props: StackProps) {
-    const {currentRecipient, conversation} = useChatContext()
+    const {selectedChatroom: currentRecipient, conversation} = useChatContext()
 
     return (
         <VStack alignItems="stretch" {...props}>
