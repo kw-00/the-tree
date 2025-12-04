@@ -82,8 +82,8 @@ BEGIN
 		);
 	ELSIF p_password IS NULL THEN
 		RETURN json_build_object(
-			'status', 400,
-			'errorCode', 'NULL_PARAMETER', 
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', 'p_password')
 		);
 	END IF;
@@ -95,7 +95,7 @@ BEGIN
 
 	RETURN json_build_object(
 		'userId', v_user_id,
-		'status', 200,
+		'httpStatus', 200,
 		'status', 'SUCCESS',
 		'message', 'Registration succeeded.'
 	); 
@@ -145,8 +145,8 @@ BEGIN
 		);
 	ELSIF p_password IS NULL THEN
 		RETURN json_build_object(
-			'status', 400,
-			'errorCode', 'NULL_PARAMETER', 
+			'httpStatus', 400,
+			'status', 'NULL_PARAMETER', 
 			'message', format('Parameter %L cannot be NULL.', 'p_password')
 		);
 	END IF;
