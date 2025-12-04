@@ -2,10 +2,10 @@ import { Button, HStack, Textarea, VStack, type StackProps } from "@chakra-ui/re
 import type { FormEvent } from "react"
 
 interface MessageInputProps {
-    onSubmit: (message: string) => void
+    handleSubmit: (message: string) => void
 }
 
-export default function MessageInput({onSubmit, ...rest}: MessageInputProps & StackProps) {
+export default function MessageInput({handleSubmit: onSubmit, ...rest}: MessageInputProps & StackProps) {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
         const form = e.currentTarget as HTMLFormElement

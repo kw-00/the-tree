@@ -1,4 +1,4 @@
-import { logOut } from "@/services/server/server-service"
+import { logOut } from "@/services/server-service"
 import { Button, type ButtonProps } from "@chakra-ui/react"
 import { useNavigate } from "react-router-dom"
 
@@ -9,7 +9,7 @@ export default function LogoutButton(props: ButtonProps) {
     const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
         const apiCallResult = await logOut()
-        if (apiCallResult.status === 200) {
+        if (apiCallResult.httpStatus === 200) {
             navigate("/")
         }
     }

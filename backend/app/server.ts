@@ -19,30 +19,30 @@ app.use(cors({
     credentials: true
 }))
 
-const API_PATH = "api"
+const API_PATH = "/api"
 
 type ValidatorType = "login" | "password" | "accessToken" | "refreshToken" | "id" | "uuid" | "chatroomName" | "friendshipCode"
 
 const myValidators = (keyName: string, validatorType: ValidatorType, isBody: boolean = true) => {
-    let baseValidator;
+    let getBaseValidator;
     if (isBody) {
-        baseValidator = validator.body(keyName)
+        getBaseValidator = () => validator.body(keyName)
     } else {
-        baseValidator = validator.check(keyName)
+        getBaseValidator = () => validator.check(keyName)
     } 
     const validators = {
-        login: baseValidator.isString().notEmpty()
+        login: getBaseValidator().isString().notEmpty()
             .isLength({min: Number(process.env.LOGIN_LENGTH_MIN), max: Number(process.env.LOGIN_LENGTH_MAX)}),
-        password: baseValidator.isString().notEmpty()
+        password: getBaseValidator().isString().notEmpty()
             .isLength({min: Number(process.env.PASSWORD_LENGTH_MIN), max: Number(process.env.PASSWORD_LENGTH_MAX)}),
-        accessToken: baseValidator.isJWT(),
-        refreshToken: baseValidator.isUUID("4"),
-        id: baseValidator.isNumeric().isInt({min: 0}),
-        uuid: baseValidator.isUUID(),
-        chatroomName: baseValidator.isString().notEmpty()
+        accessToken: getBaseValidator().isJWT(),
+        refreshToken: getBaseValidator().isUUID("4"),
+        id: getBaseValidator().isNumeric().isInt({min: 0}),
+        uuid: getBaseValidator().isUUID(),
+        chatroomName: getBaseValidator().isString().notEmpty()
             .isLength({min: Number(process.env.CHATROOM_NAME_LENGTH_MIN), max: Number(process.env.CHATROOM_NAME_LENGTH_MAX)})
             .optional({values: "null"}),
-        friendshipCode: baseValidator.isString().notEmpty()
+        friendshipCode: getBaseValidator().isString().notEmpty()
             .isLength({min: Number(process.env.FRIENDSHIP_CODE_LENGTH_MIN), max: Number(process.env.FRIENDSHIP_CODE_LENGTH_MAX)})
     }
     // @ts-ignore
@@ -62,7 +62,7 @@ const handleRequest = async (req: Request, res: Response,
                 httpStatus: 400,
                 status: "BAD_REQUEST",
                 message: "Request did not pass validation",
-                validationErrors: validationErrors.array() 
+                validationErrors: validationErrors.array
             })
             return
         }
@@ -70,10 +70,13 @@ const handleRequest = async (req: Request, res: Response,
         // Get database service response, separating auth from the rest of the body
         const {auth, ...rest} = await callback(validatedData)
         // Attach auth in cookies
-        Object.entries(auth!).forEach(([name, value]) => {
-            res.cookie(name, value, {httpOnly: true, secure: true, sameSite: "strict"})
-        })
+        if (auth !== undefined) {
+            Object.entries(auth).forEach(([name, value]) => {
+                res.cookie(name, value, {httpOnly: true, secure: true, sameSite: "strict"})
+            })
+        }
         // Send the response
+        console.log(rest.httpStatus)
         res.status(rest.httpStatus).json(rest)
     } catch (error) {
         // On error, send a general error response
@@ -104,8 +107,8 @@ const handleRequest = async (req: Request, res: Response,
 app.post(`${API_PATH}/register_user`,
     [myValidators("login", "login"), myValidators("password", "password")],
     async (req: Request, res: Response) => {
-        handleRequest(req, res, async (req) => {
-            const {login, password} = req.body
+        handleRequest(req, res, async (validatedData) => { 
+            const {login, password} = validatedData
             return controller.registerUser(login, password)
         })
     }
@@ -252,7 +255,6 @@ app.post(`${API_PATH}/get_conversation`,
     }
 )
 
-
 const options = {
     key: fs.readFileSync("./cert/key.pem"),
     cert: fs.readFileSync("./cert/certificate.crt")
@@ -260,3 +262,4 @@ const options = {
 }
 
 https.createServer(options, app).listen(3000)
+

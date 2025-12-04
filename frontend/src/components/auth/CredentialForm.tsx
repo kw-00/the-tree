@@ -1,31 +1,30 @@
 import { PasswordInput } from "@/components/ui/password-input"
+import type { authenticateUserOptions } from "@/services/tanstack-service"
 import { Button, Field, Fieldset, Heading, Input, type FieldsetRootProps } from "@chakra-ui/react"
+import { useMutation } from "@tanstack/react-query"
 import type { FormEvent } from "react"
 import { useState } from "react"
 
-type CredentialFormHandler = (login: string, password: string) => void
-
 interface CredentialFormProps {
-    callback: CredentialFormHandler
+    mutationOptions: typeof authenticateUserOptions
     submitButtonText: string
-
-    className?: string
 }
 
-export default function CredentialForm({callback, submitButtonText, ...rest}: CredentialFormProps & FieldsetRootProps) {
+export default function CredentialForm({mutationOptions, submitButtonText, ...rest}: CredentialFormProps & FieldsetRootProps) {
 
     const [login, setLogin] = useState("")
     const [password, setPassword] = useState("")
+    
+    const {isError, mutateAsync} = useMutation(mutationOptions())
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
-        callback(login, password)
-        console.log("Hello,", login)
+        await mutateAsync({login, password})
     }
 
     return (
         <form onSubmit={handleSubmit}>
-            <Fieldset.Root {...rest}>
+            <Fieldset.Root {...rest} invalid={isError}>
                 <Fieldset.Legend><Heading size="sm">Enter your credentials</Heading></Fieldset.Legend>
                 <Fieldset.Content>
                     <Field.Root>

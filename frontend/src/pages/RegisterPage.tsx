@@ -1,9 +1,9 @@
-import { registerAndLogIn } from "@/services/server/server-service"
 import CredentiaPage from "../components/auth/CredentialPage"
+import { registerAndLoginOptions } from "@/services/tanstack-service"
 
 
 export default function LoginPage() {
     return (
-        <CredentiaPage submitHandler={registerAndLogIn} submitButtonText="Register" alternativePath="/login" alternativeText="Log in instead"/>
+        <CredentiaPage mutationOptions={registerAndLoginOptions} submitButtonText="Register" alternativePath="/login" alternativeText="Log in instead"/>
     )
 }

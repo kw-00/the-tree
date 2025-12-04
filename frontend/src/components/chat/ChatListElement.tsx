@@ -1,19 +1,17 @@
 
-import type { User } from "@/types/data-types"
 import { Card, chakra, Heading, type CardRootProps } from "@chakra-ui/react"
 import clickableRecipe from "@/recipes/Clickable"
 
 
 interface ChatListElementProps {
-    recipient: User
-    isSelected: boolean
+    chatroom: {id: number, name: string}
 }
-function ChatListElementBase({recipient, isSelected, ...rest}: ChatListElementProps & CardRootProps) {
+function ChatListElementBase({chatroom, ...rest}: ChatListElementProps & CardRootProps) {
     return (
         <Card.Root flexDir="row" alignItems="center" userSelect="none" {...rest}>
             <Card.Header py={0} px="5">
                 <Heading>
-                    {recipient.login}
+                    {chatroom.name}
                 </Heading>            
             </Card.Header>
             <Card.Body>
