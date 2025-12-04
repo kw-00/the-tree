@@ -6,6 +6,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { Provider } from './components/ui/provider'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 export default function App() {
   const [queryClient] = useState(() => new QueryClient())
@@ -22,6 +23,7 @@ export default function App() {
           </Routes>
         </BrowserRouter>
       </Provider>
+      <ReactQueryDevtools initialIsOpen={true}/>
     </QueryClientProvider>
   )
 }

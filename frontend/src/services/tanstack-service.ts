@@ -1,4 +1,4 @@
-import { useMutation, useQuery, type QueryKey, type UseMutationOptions, type UseQueryOptions } from "@tanstack/react-query"
+import { mutationOptions, queryOptions, type QueryKey, type UseMutationOptions, type UseQueryOptions } from "@tanstack/react-query"
 import * as ss from "@/services/server-service"
 
 
@@ -25,30 +25,31 @@ function createKeyFactory<T>(fn: (params: T) => QueryKey): KeyFactory<T> {
     return fn
 }
 
-export const keyFactories = {
-    friends: createKeyFactory(() => ["friends"]),
-    chatrooms: createKeyFactory(() =>  ["chatrooms"]),
+const keyFactories = {
+    friends: createKeyFactory((_: {}) => ["friends"]),
+    chatrooms: createKeyFactory((_: {}) =>  ["chatrooms"]),
     conversations: createKeyFactory((params: {chatroomId: number}) => ["conversations", params.chatroomId]),
 }
 
 function createUseQueryFactory<T extends ss.StandardResponseBody, K, P>(
         request: (params: P) => Promise<T>, 
-        keyFactory: KeyFactory<K>, 
-        options?: UseQueryOptions) {
+        keyFactory: KeyFactory<K>) {
             
-    return (kfParams: K, fnParams: P) => useQuery({
+    return (kfParams: K, fnParams: P, options?: Partial<UseQueryOptions>) => queryOptions<T, Error, T, readonly unknown[]>({
         queryKey: keyFactory(kfParams),
+
+        // @ts-ignore
         queryFn: () =>  throwErrorOnRequestFailure(() => request(fnParams)),
         ...defaultQueryOptions,
         ...options
     })
+
 }
 
 function createUseMutationFactory<T extends ss.StandardResponseBody, P>(
-        request: (params: P) => Promise<T>, 
-        options?: UseMutationOptions) {
+        request: (params: P) => Promise<T>) {
             
-    return () => useMutation<unknown, Error, P, unknown>({
+    return (options?: Partial<UseMutationOptions>) => mutationOptions<T, Error, P, unknown>({
         // @ts-ignore
         mutationFn: (params: P) => throwErrorOnRequestFailure(() => request(params)),
         ...defaultMutationOptions,
@@ -76,3 +77,12 @@ export const createChatroom = createUseMutationFactory(ss.createChatroom)
 export const getConnectedChatrooms = createUseQueryFactory(ss.getConnectedChatrooms, keyFactories.chatrooms)
 export const createMessage = createUseMutationFactory(ss.createMessage)
 export const getConversation = createUseQueryFactory(ss.getConversation, keyFactories.conversations)
+
+const keyFactoryMapping = new Map()
+keyFactoryMapping.set(getFriends, keyFactories.friends)
+keyFactoryMapping.set(getConnectedChatrooms, keyFactories.chatrooms)
+keyFactoryMapping.set(getConversation, keyFactories.conversations)
+
+export const keyFactory = (useQueryFactory: ReturnType<typeof createUseQueryFactory<any, any, any>>) => {
+    return keyFactoryMapping.get(useQueryFactory)
+}

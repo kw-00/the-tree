@@ -1,26 +1,35 @@
 import { PasswordInput } from "@/components/ui/password-input"
-import type { authenticateUserOptions } from "@/services/tanstack-service"
+import type { authenticateUser } from "@/services/tanstack-service"
 import { Button, Field, Fieldset, Heading, Input, type FieldsetRootProps } from "@chakra-ui/react"
 import { useMutation } from "@tanstack/react-query"
 import type { FormEvent } from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 interface CredentialFormProps {
-    mutationOptions: typeof authenticateUserOptions
+    mutationFactory: typeof authenticateUser
     submitButtonText: string
 }
 
-export default function CredentialForm({mutationOptions, submitButtonText, ...rest}: CredentialFormProps & FieldsetRootProps) {
+export default function CredentialForm({mutationFactory, submitButtonText, ...rest}: CredentialFormProps & FieldsetRootProps) {
 
     const [login, setLogin] = useState("")
     const [password, setPassword] = useState("")
     
-    const {isError, mutateAsync} = useMutation(mutationOptions())
+    const {isError, isSuccess, status, mutateAsync} = useMutation(mutationFactory())
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
         await mutateAsync({login, password})
     }
+
+    
+    const navigate = useNavigate()
+    useEffect(() => {
+        if (isSuccess) {
+            navigate("/dashboard")
+        }
+    }, [status])
 
     return (
         <form onSubmit={handleSubmit}>
@@ -40,6 +49,4 @@ export default function CredentialForm({mutationOptions, submitButtonText, ...re
             </Fieldset.Root>
         </form>
     )
-
-
 }

@@ -1,20 +1,16 @@
 import { VStack,Text, type StackProps } from "@chakra-ui/react"
 import ChatListElement from "./ChatListElement"
-import { useQuery } from "@tanstack/react-query"
-import { getConnectedChatroomsOptions } from "@/services/tanstack-service"
-import { useEffect, useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { getConnectedChatrooms, keyFactory } from "@/services/tanstack-service"
 import { useChatContext } from "@/contexts/ChatContext"
 
 export default function ChatList(props: StackProps) {
-    const {setSelectedChatroomId} = useChatContext()
-    const [after, setAfter] = useState<Date | undefined>(undefined)
-    const {isLoading, isError, isSuccess, data, error} = useQuery(getConnectedChatroomsOptions({after}))
 
-    useEffect(() => {
-        if (isSuccess) {
-            setAfter(new Date())
-        }
-    }, [isSuccess])
+    const {setSelectedChatroomId} = useChatContext()
+    const queryClient = useQueryClient()
+
+    const lastFetchDate = new Date(queryClient.getQueryState(keyFactory(getConnectedChatrooms))?.dataUpdatedAt ?? 0) 
+    const {isLoading, isError, isSuccess, data, error} = useQuery(getConnectedChatrooms({}, {after: lastFetchDate}))
 
     return (
         <VStack alignItems="stretch" {...props}>
