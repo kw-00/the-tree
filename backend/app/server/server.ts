@@ -57,7 +57,8 @@ fastify.addSchema({
 
 async function handleRequest<T extends DatabaseServiceResponse>(
         req: FastifyRequest<{Body: Record<string, any>}>, 
-        res: FastifyReply, 
+        res: FastifyReply,
+        includeParams: string[],
         callback: (params: {[key: string]: any} & any) => Promise<T>) {
 
     try {
@@ -72,7 +73,12 @@ async function handleRequest<T extends DatabaseServiceResponse>(
                 message: "Body keys collide with cookie keys. Must be unique."
             })
         }
-        const result = await callback({...body, ...cookies})
+        const args: {[key: string]: any} = {}
+        Object.entries({...body, ...cookies})
+            .filter(([k]) => includeParams.includes(k))
+            .forEach(([k, v]) => args[k] = v)
+            
+        const result = await callback(args)
         res.status(result.httpStatus).send(result)
     } catch (error) {
         res.status(500).send({
@@ -106,7 +112,11 @@ fastify.post(`${API_PATH}/register_user`, {
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
-        await handleRequest(req, rep, controller.registerUser)
+        await handleRequest(
+            req, rep, 
+            ["login", "password"],
+            controller.registerUser
+        )
     }
 )
 
@@ -123,7 +133,11 @@ fastify.post(`${API_PATH}/authenticate_user`, {
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
-        await handleRequest(req, rep, controller.authenticateUser)
+        await handleRequest(
+            req, rep, 
+            ["login", "password"],
+            controller.authenticateUser
+        )
     }
 )
 
@@ -137,7 +151,11 @@ fastify.post(`${API_PATH}/refresh_token`, {
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
-        await handleRequest(req, rep, controller.refreshToken)
+        await handleRequest(
+            req, rep,
+            ["refreshToken"],
+            controller.refreshToken
+        )
     }
 )
 
@@ -151,7 +169,11 @@ fastify.post(`${API_PATH}/log_out`, {
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
-        await handleRequest(req, rep, controller.logOut)
+        await handleRequest(
+            req, rep,
+            ["refreshToken"],
+            controller.logOut
+        )
     }
 )
 
@@ -168,7 +190,11 @@ fastify.post(`${API_PATH}/add_friend`, {
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
-        await handleRequest(req, rep, controller.addFriend)
+        await handleRequest(
+            req, rep,
+            ["userToBefriendLogin", "friendshipCode"],
+            controller.addFriend
+        )
     }
 )
 
@@ -182,7 +208,11 @@ fastify.post(`${API_PATH}/get_friends`, {
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
-        await handleRequest(req, rep, controller.getFriends)
+        await handleRequest(
+            req, rep,
+            ["accessToken"],
+            controller.getFriends
+        )
     }
 )
 
@@ -203,7 +233,11 @@ fastify.post(`${API_PATH}/add_friends_to_chatroom`, {
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
-        await handleRequest(req, rep, controller.addFriendsToChatroom)
+        await handleRequest(
+            req, rep,
+            ["accessToken", "friendIds", "chatroomId"],
+            controller.addFriendsToChatroom
+        )
     }
 )
 
@@ -220,7 +254,11 @@ fastify.post(`${API_PATH}/create_chatroom`, {
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
-        await handleRequest(req, rep, controller.createChatroom)
+        await handleRequest(
+            req, rep,
+            ["accessToken", "chatroomName"],
+            controller.createChatroom
+        )
     }
 )
 
@@ -237,7 +275,11 @@ fastify.post(`${API_PATH}/get_connected_chatrooms`, {
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
-        await handleRequest(req, rep, controller.getConnectedChatrooms)
+        await handleRequest(
+            req, rep,
+            ["accessToken", "after"],
+            controller.getConnectedChatrooms
+        )
     }
 )
 
@@ -254,7 +296,11 @@ fastify.post(`${API_PATH}/create_message`, {
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
-        await handleRequest(req, rep, controller.createMessage)
+        await handleRequest(
+            req, rep,
+            ["accessToken", "chatroomId", "content"],
+            controller.createMessage
+        )
     }
 )
 
@@ -274,7 +320,11 @@ fastify.post(`${API_PATH}/get_conversation`, {
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
-        await handleRequest(req, rep, controller.getConversation)
+        await handleRequest(
+            req, rep,
+            ["accessToken", "chatroomId", "before", "after", "nRows", "descending"],
+            controller.getConversation
+        )
     }
 )
 
