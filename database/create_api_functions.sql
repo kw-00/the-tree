@@ -1038,11 +1038,12 @@ BEGIN
 	END IF;
 
 	-- If user is not in the chatroom, error
-	SELECT 1 FROM users u
-	INNER JOIN chatrooms_users cu ON cu.user_id = u.id
-	INNER JOIN chatrooms c ON c.id = cu.chatroom_id
-	WHERE u.id = p_user_id;
-	IF NOT FOUND THEN
+	IF NOT EXISTS (
+		SELECT 1 FROM users u
+		INNER JOIN chatrooms_users cu ON cu.user_id = u.id
+		INNER JOIN chatrooms c ON c.id = cu.chatroom_id
+		WHERE u.id = p_user_id
+	) THEN
 		RETURN json_build_object(
 			'httpStatus', 403,
 			'status', 'NOT_IN_CHATROOM', 
