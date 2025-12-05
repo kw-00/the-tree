@@ -116,7 +116,7 @@ const pool = new Pool(databaseCredentials)
 
 async function _callAPI(functionName: string, params: {[keys: string]: any}): Promise<StandardResponse & any[]> {
     const placeholders = Object.keys(params)
-        .map(([k, n]) => n + 1)
+        .map((k, n) => n + 1)
         .map(v => `$${v}`)
         .join(", ")
     const query = await pool.query(`SELECT api.${functionName}(${placeholders}) AS result;`, Object.values(params))

@@ -75,7 +75,10 @@ async function handleRequest<T extends DatabaseServiceResponse>(
             status: "UNEXPECTED_ERROR",
             message: "An error occured",
             error: process.env.NODE_ENV === "development" && error instanceof Error? {
-                error
+                name: error.name,
+                message: error.message,
+                cause: error.cause,
+                stack: error.stack
             }
             :
             String(error)
