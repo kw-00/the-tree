@@ -1060,13 +1060,13 @@ BEGIN
 			AND m.created_at <= v_before 
 			AND m.created_at >= v_after
 		ORDER BY
-			CASE WHEN p_descending THEN created_at END DESC,
-			CASE WHEN NOT p_descending THEN created_at END ASC
+			CASE WHEN p_descending THEN m.created_at END DESC,
+			CASE WHEN NOT p_descending THEN m.created_at END ASC
 		FETCH FIRST p_n_rows ROWS ONLY
 	) AS messages(userId, content)
 	INTO v_conversation;
 	RETURN json_build_object(
-		'conversation', v_conversation,
+		'conversation', COALESCE(v_conversation, '[]'::JSONB),
 		'httpStatus', 200,
 		'status', 'SUCCESS', 
 		'message', 'Successfully retrieved conversation.'
