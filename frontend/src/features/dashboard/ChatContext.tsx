@@ -13,6 +13,7 @@ type ChatProviderProps = {
 }
 
 export function ChatProvider({children}: ChatProviderProps) {
+    // Shared state for currently selected chatroom
     const [selectedChatroomId, setSelectedChatroomId] = useState<number | null>(null)
 
     return <ChatContext.Provider value={{selectedChatroomId, setSelectedChatroomId}}>{children}</ChatContext.Provider>

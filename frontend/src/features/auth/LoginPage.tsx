@@ -1,5 +1,5 @@
 import {authenticateUser} from "@/services/tanstack-service"
-import CredentiaPage from "../components/auth/CredentialPage"
+import CredentiaPage from "@/features/auth/CredentialPage"
 
 
 export default function LoginPage() {

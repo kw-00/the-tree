@@ -1,19 +1,19 @@
 import { type StackProps, VStack, Heading } from "@chakra-ui/react"
-import Conversation from "./Conversation"
+import ChatMessages from "./ChatMessages"
 import MessageInput from "./MessageInput"
-import { useChatContext } from "@/contexts/ChatContext"
+import { useChatContext } from "@/features/dashboard/ChatContext"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getConnectedChatrooms, getConversation, createMessage, keyFactory } from "@/services/tanstack-service"
 
 
 
 
-export default function Chat(props: StackProps) {
+export default function ChatPanel(props: StackProps) {
     const {selectedChatroomId: chatroomId} = useChatContext()
 
     const queryClient = useQueryClient()
 
-    // Select last update dates for queries with old date as default if undefined
+    // Get last update dates for queries with old date as default if undefined
     const chatroomLastUpdate= new Date(queryClient.getQueryState(keyFactory(getConnectedChatrooms))?.dataUpdatedAt ?? 0)
     const conversationLastUpdate = new Date(queryClient.getQueryState(keyFactory(getConnectedChatrooms))?.dataUpdatedAt ?? 0) 
 
@@ -26,6 +26,7 @@ export default function Chat(props: StackProps) {
         {enabled: !!chatroomId}
     ))
 
+    // Muation for creating a message
     const messageMutation = useMutation(createMessage())
 
     return (
@@ -35,7 +36,7 @@ export default function Chat(props: StackProps) {
                 ?  chatroomsQuery.data.connectedChatrooms?.find(({id}) => id == chatroomId)?.name ?? "Loading..."
                 : "Select chat or start a new one"}
             </Heading>
-            <Conversation messages={conversationQuery.data?.conversation ?? []} />
+            <ChatMessages messages={conversationQuery.data?.conversation ?? []} />
 
             <MessageInput handleSubmit={chatroomId !== null 
                 ? async (message) => await messageMutation.mutateAsync({chatroomId: chatroomId, content: message}) 

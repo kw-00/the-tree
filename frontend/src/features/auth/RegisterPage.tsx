@@ -1,4 +1,4 @@
-import CredentiaPage from "../components/auth/CredentialPage"
+import CredentiaPage from "@/features/auth/CredentialPage"
 import { registerAndLogin } from "@/services/tanstack-service"
 
 

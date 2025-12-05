@@ -16,6 +16,7 @@ export default function CredentialForm({mutationFactory, submitButtonText, ...re
     const [login, setLogin] = useState("")
     const [password, setPassword] = useState("")
     
+    // Mutation to be used upon submission
     const {isError, isSuccess, status, mutateAsync} = useMutation(mutationFactory())
 
     const handleSubmit = async (e: FormEvent) => {
@@ -23,7 +24,7 @@ export default function CredentialForm({mutationFactory, submitButtonText, ...re
         await mutateAsync({login, password})
     }
 
-    
+    // Navigate to dashboard when mutation succeeds
     const navigate = useNavigate()
     useEffect(() => {
         if (isSuccess) {

@@ -2,6 +2,7 @@ import { Card, Heading, Text, type CardRootProps } from "@chakra-ui/react"
 
 
 interface MessageProps {
+    userId: number
     userLogin: string
     content: string
 }

@@ -3,10 +3,10 @@ import { Card, chakra, Heading, type CardRootProps } from "@chakra-ui/react"
 import clickableRecipe from "@/recipes/Clickable"
 
 
-interface ChatListElementProps {
+interface ChatroomListElementProps {
     chatroom: {id: number, name: string}
 }
-function ChatListElementBase({chatroom, ...rest}: ChatListElementProps & CardRootProps) {
+function ChatroomsListElementBase({chatroom, ...rest}: ChatroomListElementProps & CardRootProps) {
     return (
         <Card.Root flexDir="row" alignItems="center" userSelect="none" {...rest}>
             <Card.Header py={0} px="5">
@@ -21,5 +21,5 @@ function ChatListElementBase({chatroom, ...rest}: ChatListElementProps & CardRoo
     )
 }
 
-const ChatListElement = chakra(ChatListElementBase, clickableRecipe)
-export default ChatListElement
+const ChatroomsListElement = chakra(ChatroomsListElementBase, clickableRecipe)
+export default ChatroomsListElement

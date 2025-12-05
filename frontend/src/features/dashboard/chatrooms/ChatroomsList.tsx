@@ -1,15 +1,17 @@
 import { VStack,Text, type StackProps } from "@chakra-ui/react"
-import ChatListElement from "./ChatListElement"
+import ChatroomsListElement from "./ChatroomsListElement"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { getConnectedChatrooms, keyFactory } from "@/services/tanstack-service"
-import { useChatContext } from "@/contexts/ChatContext"
+import { useChatContext } from "@/features/dashboard/ChatContext"
 
-export default function ChatList(props: StackProps) {
+export default function ChatroomsList(props: StackProps) {
 
     const {setSelectedChatroomId} = useChatContext()
     const queryClient = useQueryClient()
 
+
     const lastFetchDate = new Date(queryClient.getQueryState(keyFactory(getConnectedChatrooms))?.dataUpdatedAt ?? 0) 
+    // Query for fetching chatroom list
     const {isLoading, isError, isSuccess, data, error} = useQuery(getConnectedChatrooms({}, {after: lastFetchDate}))
 
     return (
@@ -20,7 +22,7 @@ export default function ChatList(props: StackProps) {
             :
             isSuccess ? 
             data!.connectedChatrooms!.map((chatroom) => {
-                return <ChatListElement chatroom={chatroom} onClick={() => setSelectedChatroomId(chatroom.id)}/>
+                return <ChatroomsListElement chatroom={chatroom} onClick={() => setSelectedChatroomId(chatroom.id)}/>
             })
             :
             <Text>What the Fudge Is Happening?!</Text>
