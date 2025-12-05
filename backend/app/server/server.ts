@@ -22,7 +22,12 @@ const fastify = Fastify({
 
 const API_PATH = "/api"
 
-fastify.register(cors, {origin: true})
+fastify.register(cors, {
+    origin: true, 
+    allowedHeaders: ["Content-Type"], 
+    methods: ["GET", "POST"], 
+    credentials: true}
+)
 fastify.register(cookie, {hook: "onRequest", parseOptions: {}})
 
 
