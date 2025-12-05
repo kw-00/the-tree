@@ -839,7 +839,12 @@ BEGIN
 	END IF;
 
 	-- Gather chatrooms connected to the given user
-	SELECT json_agg(row_to_json(connected_chatrooms)) 
+	SELECT json_agg(
+		json_build_object(
+			'id', id,
+			'name', name
+		)
+	) 
 	FROM (
 		SELECT c.id, c.name
 		FROM chatrooms c
@@ -1053,7 +1058,13 @@ BEGIN
 	END IF;
 
 	-- Return json — success
-	SELECT json_agg(row_to_json(messages)) FROM (
+	SELECT json_agg(
+		json_build_object(
+			'userId', userId,
+			'userLogin', userLogin,
+			'content', content
+		)
+	) FROM (
 		SELECT u.id, u.login, m.content
 		FROM messages m
 		INNER JOIN users u ON u.id = m.user_id
