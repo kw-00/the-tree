@@ -92,7 +92,7 @@ fastify.post(`${API_PATH}/register_user`, {
                 required: ["login", "password"],
                 properties: {
                     login: {$ref: "common#/properties/login"},
-                    password: {$ref: "common#/properties/date"}
+                    password: {$ref: "common#/properties/password"}
                 }
             }
         }
@@ -109,7 +109,7 @@ fastify.post(`${API_PATH}/authenticate_user`, {
                 required: ["login", "password"],
                 properties: {
                     login: {$ref: "common#/properties/login"},
-                    password: {$ref: "common#/properties/date"}
+                    password: {$ref: "common#/properties/password"}
                 }
             }
         }
