@@ -77,9 +77,14 @@ async function handleRequest<T extends DatabaseServiceResponse>(
         Object.entries({...body, ...cookies})
             .filter(([k]) => includeParams.includes(k))
             .forEach(([k, v]) => args[k] = v)
-            
-        const result = await callback(args)
-        res.status(result.httpStatus).send(result)
+        
+        
+        const {auth, ...rest} = await callback(args)
+        if (auth?.accessToken && auth.refreshToken) {
+            res.setCookie("accessToken", auth.accessToken, {httpOnly: true, secure: true, sameSite: "strict"})
+            res.setCookie("refreshToken", auth.refreshToken, {httpOnly: true, secure: true, sameSite: "strict"})
+            res.status(rest.httpStatus).send(rest as any)
+        }
     } catch (error) {
         res.status(500).send({
             httpStatus: 500,
