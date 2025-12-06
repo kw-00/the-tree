@@ -83,8 +83,8 @@ async function handleRequest<T extends DatabaseServiceResponse>(
         if (auth?.accessToken && auth.refreshToken) {
             res.setCookie("accessToken", auth.accessToken, {httpOnly: true, secure: true, sameSite: "strict"})
             res.setCookie("refreshToken", auth.refreshToken, {httpOnly: true, secure: true, sameSite: "strict"})
-            res.status(rest.httpStatus).send(rest as any)
         }
+        res.status(rest.httpStatus).send(rest as any)
     } catch (error) {
         res.status(500).send({
             httpStatus: 500,
