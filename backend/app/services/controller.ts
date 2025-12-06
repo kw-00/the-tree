@@ -15,6 +15,17 @@ export type RefreshTokenParams = {
 
 export type LogOutParams = RefreshTokenParams
 
+export type CreateFriendshipCodeParams = {
+    userId: number
+    code: string
+    expiresAt: Date | null
+}
+
+export type GetFrienshipCodesParams = {
+    userId: number
+    after: Date | null
+}
+
 export type AddFriendParams = {
     accessToken: string
     userToBefriendLogin: string

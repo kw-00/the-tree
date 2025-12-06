@@ -1,3 +1,4 @@
+import BoxForm, { type BoxFormProps } from "@/components/BoxForm"
 import { PasswordInput } from "@/components/ui/password-input"
 import type { authenticateUser } from "@/services/tanstack-service"
 import { Button, Field, Fieldset, Heading, Input, type FieldsetRootProps } from "@chakra-ui/react"
@@ -9,9 +10,11 @@ import { useNavigate } from "react-router-dom"
 interface CredentialFormProps {
     mutationFactory: typeof authenticateUser
     submitButtonText: string
+    boxProps?: BoxFormProps
+    fieldsetProps?: FieldsetRootProps
 }
 
-export default function CredentialForm({mutationFactory, submitButtonText, ...rest}: CredentialFormProps & FieldsetRootProps) {
+export default function CredentialForm({mutationFactory, submitButtonText, boxProps, fieldsetProps}: CredentialFormProps & FieldsetRootProps) {
 
     const [login, setLogin] = useState("")
     const [password, setPassword] = useState("")
@@ -33,8 +36,8 @@ export default function CredentialForm({mutationFactory, submitButtonText, ...re
     }, [status])
 
     return (
-        <form onSubmit={handleSubmit}>
-            <Fieldset.Root {...rest} invalid={isError}>
+        <BoxForm onSubmit={handleSubmit} {...boxProps}>
+            <Fieldset.Root {...fieldsetProps} invalid={isError}>
                 <Fieldset.Legend><Heading size="sm">Enter your credentials</Heading></Fieldset.Legend>
                 <Fieldset.Content>
                     <Field.Root>
@@ -48,6 +51,6 @@ export default function CredentialForm({mutationFactory, submitButtonText, ...re
                 </Fieldset.Content>
                 <Button type="submit">{submitButtonText}</Button>
             </Fieldset.Root>
-        </form>
+        </BoxForm>
     )
 }

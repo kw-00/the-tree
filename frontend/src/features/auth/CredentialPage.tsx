@@ -16,7 +16,7 @@ export default function CredentiaPage({mutationFactory, submitButtonText, altern
         <VStack flexGrow={1} justifyContent="space-between">
             <Heading size="5xl" m="3">Welcome</Heading>
             <VStack>
-                <CredentialForm mutationFactory={mutationFactory} submitButtonText={submitButtonText} w="md"/>
+                <CredentialForm mutationFactory={mutationFactory} submitButtonText={submitButtonText} w="md" boxProps={{w: "lg"}}/>
                 <NavigationButton path={alternativePath} variant="secondary">{alternativeText}</NavigationButton>
             </VStack>
             <div></div>

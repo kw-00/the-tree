@@ -1,8 +1,8 @@
 import { Heading, type BoxProps } from "@chakra-ui/react"
 import MessageInput from "./MessageInput"
 import { useChatContext } from "@/features/dashboard/ChatContext"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { getConnectedChatrooms, getConversation, createMessage, keyFactory } from "@/services/tanstack-service"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { getConnectedChatrooms, getConversation, keyFactory } from "@/services/tanstack-service"
 import Panel from "@/components/panel/Panel"
 import PanelElement from "@/components/panel/PanelElement"
 import Message from "./Message"
@@ -28,9 +28,6 @@ export default function ChatPanel(props: BoxProps) {
         {enabled: !!chatroomId}
     ))
 
-    // Muation for creating a message
-    const messageMutation = useMutation(createMessage())
-
     return (
         <Panel variant="primary" layout="vstack" {...props}>
             <PanelElement variant="header">
@@ -40,7 +37,7 @@ export default function ChatPanel(props: BoxProps) {
                     : "Select chat or start a new one"}
                 </Heading>
             </PanelElement>
-            <PanelElement>
+            <PanelElement flexGrow={1}>
                 {
                     conversationQuery.isSuccess ?
                     conversationQuery.data.conversation!.map(({userId, userLogin, content}) => 
@@ -50,10 +47,7 @@ export default function ChatPanel(props: BoxProps) {
                 }
             </PanelElement>
 
-            <MessageInput handleSubmit={chatroomId !== null 
-                ? async (message) => await messageMutation.mutateAsync({chatroomId: chatroomId, content: message}) 
-                : () => {}}
-                position="sticky" bottom={0} />
+            <MessageInput position="sticky" bottom={0} />
         </Panel>
     )
 }

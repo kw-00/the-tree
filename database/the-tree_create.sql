@@ -49,11 +49,11 @@ CREATE TABLE friends (
 
 -- Table: friendship codes
 CREATE TABLE friendship_codes (
-	id INT NOT NULL,
+	id SERIAL NOT NULL,
 	user_id INT NOT NULL,
 	code TEXT NOT NULL,
-	revoked BOOL,
-	expires_at TIMESTAMPTZ,
+	revoked BOOL DEFAULT FALSE,
+	expires_at TIMESTAMPTZ DEFAULT NULL,
 	created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 	CONSTRAINT friendship_codes_pk PRIMARY KEY (id)
 );
