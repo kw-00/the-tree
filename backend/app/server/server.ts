@@ -148,11 +148,7 @@ fastify.post(`${API_PATH}/authenticate_user`, {
 
 fastify.post(`${API_PATH}/refresh_token`, {
         schema: {
-            body: {
-                type: "object",
-                required: [],
-                properties: {}
-            }
+            body: {}
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
@@ -166,11 +162,7 @@ fastify.post(`${API_PATH}/refresh_token`, {
 
 fastify.post(`${API_PATH}/log_out`, {
         schema: {
-            body: {
-                type: "object",
-                required: [],
-                properties: {}
-            }
+            body: {}
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
@@ -205,11 +197,7 @@ fastify.post(`${API_PATH}/add_friend`, {
 
 fastify.post(`${API_PATH}/get_friends`, {
         schema: {
-            body: {
-                type: "object",
-                required: [],
-                properties: {}
-            }
+            body: {}
         }
     }, 
     async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
