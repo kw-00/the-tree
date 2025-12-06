@@ -11,11 +11,6 @@ const buttonRecipe = defineRecipe({
         py: "2",
         rounded: "sm",
         fontWeight: "bold",
-
-        boxSizing: "border-box",
-        "&&:hover&:acive": {
-            bg: "transparent"
-        }
     },
     variants: {
         variant: {

@@ -183,7 +183,7 @@ async function _makeRequest(endpointUrl: string, requestBody?: {[key: string]: a
             method: "POST",
             headers: requestBody !== undefined ? {"Content-Type": "application/json"} : undefined,
             credentials: "include",
-            body: requestBody !== undefined ? JSON.stringify(requestBody) : undefined
+            body: requestBody !== undefined ? JSON.stringify(requestBody) : JSON.stringify({})
         }
     )
     const body = await response.json()

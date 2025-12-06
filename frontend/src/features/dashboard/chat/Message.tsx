@@ -1,4 +1,5 @@
-import { Card, Heading, Text, type CardRootProps } from "@chakra-ui/react"
+import PanelElement from "@/components/panel/PanelElement"
+import { Heading, Text, type BoxProps } from "@chakra-ui/react"
 
 
 interface MessageProps {
@@ -7,15 +8,11 @@ interface MessageProps {
     content: string
 }
 
-export default function Message({userLogin, content, ...rest}: MessageProps & CardRootProps) {
+export default function Message({userLogin, content, ...rest}: MessageProps & BoxProps) {
     return (
-        <Card.Root {...rest}>
-            <Card.Header>
-                <Heading>{userLogin}</Heading>
-            </Card.Header>
-            <Card.Body>
-                <Text pl="2">{content}</Text>
-            </Card.Body>
-        </Card.Root>
+        <PanelElement {...rest}>
+            <Heading>{userLogin}</Heading>
+            <Text>{content}</Text>
+        </PanelElement>
     )
 }

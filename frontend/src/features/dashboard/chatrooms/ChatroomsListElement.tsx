@@ -1,25 +1,19 @@
 
-import { Card, chakra, Heading, type CardRootProps } from "@chakra-ui/react"
-import clickableRecipe from "@/recipes/Clickable"
+import { Text, Heading, type BoxProps } from "@chakra-ui/react"
+import PanelElement from "@/components/panel/PanelElement"
+import type { PanelElementVariantProps } from "node_modules/@chakra-ui/react/dist/types/styled-system/generated/recipes.gen"
 
 
-interface ChatroomListElementProps {
+type ChatroomListElementProps = {
     chatroom: {id: number, name: string}
-}
-function ChatroomsListElementBase({chatroom, ...rest}: ChatroomListElementProps & CardRootProps) {
+} & PanelElementVariantProps & BoxProps
+function ChatroomsListElement({chatroom, ...rest}: ChatroomListElementProps) {
     return (
-        <Card.Root flexDir="row" alignItems="center" userSelect="none" {...rest}>
-            <Card.Header py={0} px="5">
-                <Heading>
-                    {chatroom.name}
-                </Heading>            
-            </Card.Header>
-            <Card.Body>
-                Click to switch to this conversation.
-            </Card.Body>
-        </Card.Root>
+        <PanelElement clickable={true} {...rest}>
+            <Heading>{chatroom.name}</Heading>
+            <Text>Click to select conversation...</Text>
+        </PanelElement>
     )
 }
 
-const ChatroomsListElement = chakra(ChatroomsListElementBase, clickableRecipe)
 export default ChatroomsListElement
