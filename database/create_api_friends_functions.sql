@@ -26,25 +26,14 @@ $function$
 BEGIN
 	-- If p_user_id or p_code is null, error
 	IF p_user_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
-		);
+		RETURN api_utility.null_parameter_response('p_user_id');
 	ELSIF p_code IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_code')
-		);
+		RETURN api_utility.null_parameter_response('p_code');
 	END IF;
 
-	IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_user_id) THEN
-		RETURN json_build_object(
-			'httpStatus', 404,
-			'status', 'USER_NOT_FOUND', 
-			'message', format('User with ID of %L does not exist.', p_user_id)
-		);	
+	-- If user does not exist, error
+	IF NOT api_utility.user_exists(p_user_id) THEN
+		RETURN api_utility.user_not_found_response(p_user_id);
 	END IF;
 
 	INSERT INTO friendship_codes (user_id, code, expires_at)
@@ -72,37 +61,25 @@ RETURNS:
 */
 CREATE OR REPLACE FUNCTION api_friends.get_friendship_codes(
 	p_user_id INT,
-	p_after TIMESTAMPTZ
+	p_before TIMESTAMPTZ,
+	p_after TIMESTAMPTZ,
+	p_n_rows INT,
+	p_descending BOOL
 )
 RETURNS JSONB
 AS
 $function$
 DECLARE
-	v_after TIMESTAMPTZ;
 	v_frienshipCodes JSONB;
 BEGIN
 	-- If any parameter is null, error
 	IF p_user_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
-		);
+		RETURN api_utility.null_parameter_response('p_user_id');
 	END IF;
 
-    -- Initialize v_after with p_after or old date if p_after is null
-	IF p_after IS NULL THEN
-		SELECT '2000-01-01 00:00:00+00'::TIMESTAMPTZ INTO v_frienshipCodes;
-	ELSE
-		SELECT p_after INTO v_after;
-	END IF;
 
-	IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_user_id) THEN
-		RETURN json_build_object(
-			'httpStatus', 404,
-			'status', 'USER_NOT_FOUND', 
-			'message', format('User with ID of %L does not exist.', p_user_id)
-		);	
+	IF NOT api_utility.user_exists(p_user_id) THEN
+		RETURN api_utility.user_not_found_response(p_user_id);
 	END IF;
 
 	SELECT json_agg(
@@ -117,7 +94,12 @@ BEGIN
 	WHERE user_id = p_user_id 
 		AND NOT revoked
 		AND expires_at > now()
-		AND created_at > v_after;
+		AND (p_before IS NULL OR created_at < p_before)
+		AND (p_after IS NULL OR created_at > p_after)
+	ORDER BY
+		CASE WHEN p_descending THEN created_at END DESC,
+		created_at ASC
+	LIMIT p_n_rows;
 
 	RETURN json_build_object(
 		'frienshipCodes', COALAESCE(v_frienshipCodes, '[]'::JSONB),
@@ -159,41 +141,25 @@ $function$
 DECLARE
 	v_user_to_befriend_id INT;
 BEGIN
-	-- If either user ID is null, error
-	IF p_user_login IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_user_login')
-		);
+	-- If any parameter is null, error
+	IF p_user_id IS NULL THEN
+		RETURN api_utility.null_parameter_response('p_user_id');
 	ELSIF p_user_to_befriend_login IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_user_to_befriend_login')
-		);
+		RETURN api_utility.null_parameter_response('p_user_to_befriend_login');
 	ELSIF p_friendship_code IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_friendship_code')
-		);
+		RETURN api_utility.null_parameter_response('p_friendship_code');
 	END IF;
 	
 	-- If either user does not exist, error
-	IF NOT EXISTS(SELECT 1 FROM users WHERE id = p_user_id) THEN
-		RETURN json_build_object(
-			'httpStatus', 404,
-			'status', 'USER_NOT_FOUND', 
-			'message', format('User with ID of %L does not exist.', p_user_id)
-		);	
+	IF NOT api_utility.user_exists(p_user_id) THEN
+		RETURN user_not_found_response(p_user_id);
 	END IF;
 	SELECT id INTO v_user_to_befriend_id FROM users WHERE login = p_user_to_befriend_login;
 	IF NOT FOUND THEN
 		RETURN json_build_object(
 			'httpStatus', 404,
 			'status', 'USER_NOT_FOUND', 
-			'message', format('User with ID of %L does not exist.', p_user_id)
+			'message', format('User with login of %L does not exist.', p_user_to_befriend_login)
 		);	
 	END IF;
 
@@ -256,7 +222,11 @@ RETURNS:
 		* 404/USER_NOT_FOUND
 */
 CREATE OR REPLACE FUNCTION api_friends.get_friends(
-	p_user_id INT
+	p_user_id INT,
+	p_before TIMESTAMPTZ,
+	p_after TIMESTAMPTZ,
+	p_n_rows INT,
+	p_descending BOOL
 )
 RETURNS JSONB
 AS
@@ -266,20 +236,12 @@ DECLARE
 BEGIN
 	-- If user_id is NULL or user does not exist, error
 	IF p_user_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
-		);	
+		RETURN api_utility.null_parameter_response('p_user_id');
 	END IF;
 
-	-- Fetch user ID. If there is no match for p_user_login, error
-	IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_user_id) THEN
-		RETURN json_build_object(
-			'httpStatus', 404,
-			'status', 'USER_NOT_FOUND', 
-			'message', format('User with ID of %L does not exist.', p_user_id)
-		);	
+	-- If user does not exist, error
+	IF NOT api_utility.user_exists(p_user_id) THEN
+		RETURN api_utility.user_not_found_response(p_user_id);
 	END IF;
 
 	-- Find friends and create JSON list
@@ -287,6 +249,12 @@ BEGIN
 		SELECT u.id, u.login FROM users u
 		INNER JOIN friends f ON u.id IN (f.user1_id, f.user2_id)
 		WHERE u.id != p_user_id AND p_user_id IN (f.user1_id, f.user2_id)
+			AND (p_before IS NULL OR f.created_at < p_before)
+			AND (p_after IS NULL OR f.created_at > p_after)
+		ORDER BY
+			CASE WHEN p_descending THEN f.created_at END DESC,
+			f.created_at ASC
+		LIMIT p_n_rows
 	) AS fl(id, login)
 	INTO v_friends;
 

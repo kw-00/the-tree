@@ -26,17 +26,9 @@ DECLARE
 BEGIN
 	-- Return error if any parameter is null
 	IF p_login IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_login')
-		);
+		RETURN api_utility.null_parameter_response('p_login');
 	ELSIF p_password IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_password')
-		);
+		RETURN api_utility.null_parameter_response('p_password');
 	END IF;
 
 	-- Add a new user to the database

@@ -32,38 +32,27 @@ DECLARE
 BEGIN
 	-- If p_user_id is null, error
 	IF p_user_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400, 
-			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
-		);
+		RETURN api_utility.null_parameter_response('p_user_id');
+	END IF;
+
+	-- If p_friend_ids is null, error
+	IF p_friend_ids IS NULL THEN
+		RETURN api_utility.null_parameter_response('p_friend_ids');
 	END IF;
 
 	-- If p_chatroom is null, error
 	IF p_chatroom_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400, 
-			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_chatroom_id')
-		);	
+		RETURN api_utility.null_parameter_response('p_chatroom_id');
 	END IF;
 
 	-- If p_user_id does not exist, error
-	IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_user_id) THEN
-		RETURN json_build_object(
-			'httpStatus', 404, 
-			'status', 'USER_NOT_FOUND',
-			'message', format('User with ID of %L does not exist.', p_user_id)
-		);
+	IF NOT api_utility.user_exists(p_user_id) THEN
+		RETURN api_utility.user_not_found_response(p_user_id);
 	END IF;
 
 	-- If chatroom does not exist, error
-	IF NOT EXISTS (SELECT 1 FROM chatrooms WHERE id = p_chatroom_id) THEN
-		RETURN json_build_object(
-			'httpStatus', 404, 
-			'status', 'USER_NOT_FOUND',
-			'message', format('Chatroom with ID of %L does not exist.', p_chatroom_id)
-		);
+	IF NOT api_utility.chatroom_exists(p_chatroom_id) THEN
+		RETURN chatroom_not_found_response(p_chatroom_id);
 	END IF;
 
 	-- If user is not in chatroom, error
@@ -153,29 +142,17 @@ DECLARE
 BEGIN
 	-- If p_user_id is null, error
 	IF p_user_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400, 
-			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
-		);
+		RETURN api_utility.null_parameter_response('p_user_id');
 	END IF;
 
 	-- If p_chatroom_name is null, error
 	IF p_chatroom_name IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400, 
-			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_chatroom_name')
-		);	
+		RETURN api_utility.null_parameter_response('p_chatroom_name');
 	END IF;
 
 	-- If ID does not exist, error
-	IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_user_id) THEN
-		RETURN json_build_object(
-			'httpStatus', 404, 
-			'status', 'USER_NOT_FOUND',
-			'message', format('User with ID of %L does not exist.', p_user_id)
-		);
+	IF NOT api_utility.user_exists(p_user_id) THEN
+		RETURN api_utility.user_not_found_response(p_user_id);
 	END IF;
 	
 	-- Create chatroom
@@ -210,39 +187,26 @@ RETURNS:
 */
 CREATE OR REPLACE FUNCTION api_chatrooms.get_connected_chatrooms(
 	p_user_id INT,
-	p_after TIMESTAMPTZ
+	p_before TIMESTAMPTZ,
+	p_after TIMESTAMPTZ,
+	p_n_rows INT,
+	p_descending BOOL
 )
 RETURNS JSONB
 AS
 $function$
 DECLARE
-	v_after TIMESTAMPTZ;
 	v_connected_chatrooms JSONB;
 BEGIN
-	-- If p_user_login is null, error
+	-- If p_user_id is null, error
 	IF p_user_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
-		);
+		RETURN api_utility.null_parameter_response('p_user_id');
 	END IF;
 
-	-- If p_after is null, initialize v_after with old date.
-	-- Otherwise, initialize it with p_after
-	IF p_after IS NULL THEN
-		SELECT '2000-01-01 00:00:00+00' INTO v_after;
-	ELSE
-		SELECT p_after INTO v_after;
-	END IF;
 		
 	-- If user does not exist, error
-	IF NOT EXISTS(SELECT 1 FROM users WHERE id = p_user_id) THEN
-		RETURN json_build_object(
-			'httpStatus', 404,
-			'status', 'USER_NOT_FOUND', 
-			'message', format('User with ID of %L does not exist.', p_user_id)
-		);
+	IF NOT api_utility.user_exists(p_user_id) THEN
+		RETURN api_utility.user_not_found_response(p_user_id);
 	END IF;
 
 	-- Gather chatrooms connected to the given user
@@ -257,7 +221,14 @@ BEGIN
 		FROM chatrooms c
 		INNER JOIN chatrooms_users cu ON cu.chatroom_id = c.id
 		INNER JOIN users u ON u.id = cu.user_id
-		WHERE c.created_at >= v_after AND u.id = p_user_id
+		WHERE 
+			(p_before IS NULL OR c.created_at < p_before)
+			AND (p_after IS NULL OR c.created_at > p_after)
+			AND u.id = p_user_id
+		ORDER BY 
+			CASE WHEN p_descending THEN c.created_at END DESC,
+			c.created_at ASC
+		LIMIT p_n_rows
 	) AS connected_chatrooms(id, name)
 	INTO v_connected_chatrooms;
 

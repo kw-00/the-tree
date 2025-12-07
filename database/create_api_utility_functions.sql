@@ -93,3 +93,17 @@ BEGIN
 END    
 $function$
 LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION api_utility.pk_in_use_response()
+RETURNS JSONB
+AS
+$function$
+BEGIN
+    RETURN json_build_object(
+        'httpStatus', 409,
+        'status', 'PK_IN_USE',
+        'message', 'Primary key already in use.'
+    );
+END    
+$function$
+LANGUAGE plpgsql;

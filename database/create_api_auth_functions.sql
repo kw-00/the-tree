@@ -26,17 +26,9 @@ DECLARE
 BEGIN
 	-- Return error if any parameter is null
 	IF p_login IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_login')
-		);
+		RETURN api_utility.null_parameter_response('p_login');
 	ELSIF p_password IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_password')
-		);
+		RETURN api_utility.null_parameter_response('p_password');
 	END IF;
 
 	-- Look for user that matches the given credentials
@@ -96,11 +88,7 @@ DECLARE
 BEGIN
 	-- If any parameter is null, error
 	IF p_refresh_token_uuid IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'massage', format('Parameter %L cannot be NULL.', 'p_refresh_token_uuid')
-		);
+		RETURN api_utility.null_parameter_response('p_refresh_token_uuid');
 	END IF;
 	
 
@@ -193,17 +181,9 @@ DECLARE
 BEGIN
 	-- If any parameter is null, error
 	IF p_user_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
-		);
+		RETURN api_utility.null_parameter_response('p_user_id');
 	ELSIF p_validity_period_seconds IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_validity_period_seconds')
-		);
+		RETURN api_utility.null_parameter_response('p_validity_period_seconds');
 	END IF;
 
 	-- Set token expiry time
@@ -226,11 +206,7 @@ BEGIN
 EXCEPTION
 	-- If token UUID happens to conflict with another, error
 	WHEN unique_violation THEN
-		RETURN json_build_object(
-			'httpStatus', 409,
-			'status', 'PK_IN_USE',
-			'message', 'Primary key already in use.'
-		);
+		RETURN api_utility.pk_in_use_response();
 END;
 $function$
 LANGUAGE plpgsql;
@@ -256,11 +232,7 @@ $function$
 BEGIN
 	-- Check whether p_refresh_token_uuid is not null
 	IF p_refresh_token_uuid IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_refresh_token_uuid')
-		);
+		RETURN api_utility.null_parameter_response('p_refresh_token_uuid');
 	END IF;
 
 	-- If token does not exist, success! No need to revoke it. Just return success response

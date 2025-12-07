@@ -28,38 +28,18 @@ $function$
 BEGIN
 	-- If any parameter is null, error
 	IF p_user_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400, 
-			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
-		);
+		RETURN api_utility.null_parameter_response('p_user_id');
 	ELSIF p_chatroom_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400, 
-			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_chatroom_id')
-		);	
+		RETURN api_utility.null_parameter_response('p_chatroom_id');	
 	ELSIF p_content IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400, 
-			'status', 'NULL_PARAMETER',
-			'message', format('Parameter %L cannot be NULL.', 'p_content')
-		);
+		RETURN api_utility.null_parameter_response('p_c0ntent');
 	END IF;
 	
 	-- If user or chatroom does not exist, error
-	IF NOT EXISTS (SELECT 1 FROM users WHERE id = p_user_id) THEN
-		RETURN json_build_object(
-			'httpStatus', 404, 
-			'status', 'USER_NOT_FOUND',
-			'message', format('User with ID of %L does not exist.', p_user_id)
-		);
-	ELSIF NOT EXISTS (SELECT 1 FROM chatrooms WHERE id = p_chatroom_id) THEN
-		RETURN json_build_object(
-			'httpStatus', 404, 
-			'status', 'CHATROOM_NOT_FOUND',
-			'message', format('Chatroom with ID of %L does not exist.', p_chatroom_id)
-		);
+	IF NOT api_utility.user_exists(p_user_id) THEN
+		RETURN api_utility.user_not_found_response(p_user_id);
+	ELSIF NOT api_utility.chatroom_exists(p_chatroom_id) THEN
+		RETURN api_utility.chatroom_not_found_response(p_chatroom_id);
 	END IF;
 
 	-- If user does not belong to the chatroom, error
@@ -118,64 +98,18 @@ RETURNS JSONB
 AS
 $function$
 DECLARE
-	v_before TIMESTAMPTZ;
-	v_after TIMESTAMPTZ;
 	v_conversation JSONB;
 BEGIN
 	-- If p_user_id or p_chatroom_id is null, error
 	IF p_user_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_user_id')
-		);
+		RETURN api_utility.null_parameter_response('p_user_id');
 	ELSIF p_chatroom_id IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_chatroom_id')
-		);
-	END IF;
-
-	-- If p_n_rows is null, error
-	IF p_n_rows IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_n_rows')
-		);
-	END IF;
-
-	-- If p_descending is null, error
-	IF p_descending IS NULL THEN
-		RETURN json_build_object(
-			'httpStatus', 400,
-			'status', 'NULL_PARAMETER', 
-			'message', format('Parameter %L cannot be NULL.', 'p_descending')
-		);
-	END IF;
-
-	-- Initialize v_after with p_after or with an old timestamp if null
-	IF p_after IS NULL THEN
-		SELECT '2000-01-01 00:00:00+00'::TIMESTAMPTZ INTO v_after;
-	ELSE
-		SELECT p_after INTO v_after;
-	END IF;
-
-	-- Initialize v_before with p_before or with CURRENT_TIMESTAMP if null
-	IF p_before IS NULL THEN
-		SELECT CURRENT_TIMESTAMP INTO v_before;
-	ELSE
-		SELECT p_before INTO v_before;
+		RETURN api_utility.null_parameter_response('p_chatroom_id');
 	END IF;
 
 	-- If chatroom does not exist, error
-	IF NOT EXISTS(SELECT 1 FROM chatrooms c WHERE c.id = p_chatroom_id) THEN
-		RETURN json_build_object(
-			'httpStatus', 404,
-			'status', 'CHATROOM_NOT_FOUND', 
-			'message', format('Chatroom with ID of %L does not exist.', p_chatroom_id)
-		);
+	IF NOT api_utility.chatroom_exists(p_chatroom_id) THEN
+		RETURN api_utility.chatroom_not_found_response(p_chatroom_id);
 	END IF;
 
 	-- If user is not in the chatroom, error
@@ -204,11 +138,11 @@ BEGIN
 		FROM messages m
 		INNER JOIN users u ON u.id = m.user_id
 		WHERE m.chatroom_id = p_chatroom_id
-			AND m.created_at <= v_before 
-			AND m.created_at >= v_after
+			AND (p_before IS NULL OR m.created_at < p_before)
+			AND (p_after IS NULL OR m.created_at > p_after)
 		ORDER BY
 			CASE WHEN p_descending THEN m.created_at END DESC,
-			CASE WHEN NOT p_descending THEN m.created_at END ASC
+			m.created_at ASC
 		FETCH FIRST p_n_rows ROWS ONLY
 	) AS messages(userId, userLogin, content)
 	INTO v_conversation;
