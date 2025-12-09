@@ -73,7 +73,8 @@ export async function verifyRefreshToken(params: VerifyRefreshTokenParams): Prom
             (SELECT status FROM old) AS status, 
             (SELECT expired FROM old) AS expired,
             EXISTS (SELECT 1 FROM new) AS isValid, 
-            (SELECT user_id FROM old) AS userId;
+            (SELECT user_id FROM old) AS userId
+        ;
     `, [now, params.refreshToken])
 
     const {status, expired, isValid, userId} = query.rows[0]
