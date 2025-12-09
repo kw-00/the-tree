@@ -1,5 +1,6 @@
 import { DatabaseError } from "pg"
-import { DBServiceResponse, pgErrorCondition, pool, userDoesNotExist } from "./utility"
+import { DBServiceResponse, pool, userDoesNotExist } from "./general/utility"
+import { pgErrorCondition } from "./general/db-error-codes-mapping"
 
 
 type AuthenticateUserParams = {

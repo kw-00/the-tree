@@ -1,4 +1,4 @@
-import { chatroomDoesNotExist, DBServiceResponse, PaginationParams, pool, userDoesNotExist, userNotInChatroom } from "./utility"
+import { chatroomDoesNotExist, DBServiceResponse, PaginationParams, pool, userDoesNotExist, userNotInChatroom } from "./general/utility"
 
 export type MessageData = {
     id: number

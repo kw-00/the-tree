@@ -1,4 +1,4 @@
-import { DBServiceResponse, PaginationParams, pool, recordDoesNotExist, userDoesNotExist } from "./utility"
+import { DBServiceResponse, PaginationParams, pool, recordDoesNotExist, userDoesNotExist } from "./general/utility"
 
 
 export type FriendshipCodeData = {
