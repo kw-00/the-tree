@@ -15,11 +15,15 @@ export type CreateChatroomResponse = {
     chatroomId?: number
 } & DBServiceResponse
 
-
+/**
+ * Creates a chatroom on behalf of a given user. Adds that user into the chatroom immediately after.
+ */
 export async function createChatroom(params: CreateChatroomParams): Promise<CreateChatroomResponse> {
+    // Make sure user exists
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
     
+    // Create the chatroom and add the user to it
     const query = await pool.query(`
         WITH inserted(id) AS (
             INSERT INTO chatrooms (name) 
@@ -33,6 +37,7 @@ export async function createChatroom(params: CreateChatroomParams): Promise<Crea
 
     const chatroomId = query.rows[0]["id"]
 
+    // Return the chatroom's ID
     return {
         chatroomId: chatroomId,
         status: "SUCCESS",
@@ -48,11 +53,18 @@ export type GetConnectedChatroomsResponse = {
     chatrooms?: ChatroomData[]
 } & DBServiceResponse
 
+/**
+ * Retrieves all chatrooms for a given user.
+ * 
+ * Accepts ```PaginationParams```.
+ */
 export async function getConnectedChatrooms(params: GetConnectedChatroomsParams): Promise<GetConnectedChatroomsResponse> {
     const {userId, before, after, descending, limit} = params
+    // Make sure user exists
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
     
+    // Retrieve chatrooms
     const query = await pool.query(`
         SELECT c.id, c.name, c.created_at AS joinedAt
         FROM chatrooms c
@@ -89,16 +101,25 @@ export type AddFriendsToChatroomResponse = {
 } & DBServiceResponse
 
 
+/**
+ * Adds a user's friends to a given chatroom. User must be in that chatroom.
+ * 
+ * Returns three arrays with user IDs — one for friends that were added, another for friends that were skipped for whatever reason
+ * and one more for users who weren't friends 
+ */
 export async function addFriendsToChatroom(params: AddFriendsToChatroomParams): Promise<AddFriendsToChatroomResponse> {
+    // Make sure user and chatroom exist
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
 
     const chatroomNotExists = await chatroomDoesNotExist(params.chatroomId)
     if (chatroomNotExists) return chatroomNotExists
 
+    // Make sure user is in the chatroom
     const notInChatroom = await userNotInChatroom({userId: params.userId, chatroomId: params.chatroomId})
     if (notInChatroom) return notInChatroom
 
+    // Add friends
     const query = await pool.query(`
         -- Gather the user IDs among friendIds that actually exist
 	    -- and are the users's friends. Put them in a CTE called "valid"
@@ -152,24 +173,31 @@ export type LeaveChatroomParams = {
 export type LeaveChatroomResponse = DBServiceResponse
 
 
-export async function leaveChatroom(params: LeaveChatroomParams): Promise<LeaveChatroomResponse> {
+/**
+ * Removes a user from a chatroom.
+ */
+export async function removeUserFromChatroom(params: LeaveChatroomParams): Promise<LeaveChatroomResponse> {
+    // Make sure user and chatroom exist
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
 
     const chatroomNotExists = await chatroomDoesNotExist(params.chatroomId)
     if (chatroomNotExists) return chatroomNotExists
 
+    // Remove user from chatroom
     const query = await pool.query(`
         DELETE FROM chatrooms_users
         WHERE user_id = $1 and chatroom_id = $2;
     `, [params.userId, params.chatroomId])
 
+    // If any rows were modified, success
     if (query.rowCount !== null && query.rowCount > 0) {
         return {
             status: "SUCCESS",
             message: "Removed user from chatroom."
         }
     } else {
+        // Otherwise, the user already did not belong to chatroom. Return SUCCESS_REDUNDANT
         return {
             status: "SUCCESS_REDUNDANT",
             message: "User is not in chatroom. No need to remove them."

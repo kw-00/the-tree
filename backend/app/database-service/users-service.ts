@@ -12,14 +12,19 @@ type RegisterUserResponse = {
     userId?: number
 } & DBServiceResponse
 
+/**
+ * Registers a user.
+ */
 export async function registerUser(params: RegisterUserParams): Promise<RegisterUserResponse> {
     try {
+        // Insert new user into database
         const query = await pool.query(`
             INSERT INTO users (login, password) 
             VALUES ($1, $2)
             RETURNING id; 
         `, [params.login, params.password])
 
+        // Retrieve the user's ID
         const userId = query.rows[0]["id"]
 
         return {
@@ -29,6 +34,7 @@ export async function registerUser(params: RegisterUserParams): Promise<Register
         }
     } catch (error) {
         if (error instanceof DatabaseError) {
+            // If the error is unique violation, return LOGIN_IN_USE
             if (error.code !== undefined && pgErrorCondition(error.code) === "unique_violation") {
                 return {
                     status: "LOGIN_IN_USE",
@@ -36,6 +42,7 @@ export async function registerUser(params: RegisterUserParams): Promise<Register
                 }
             }
         }
+        // But if not, pass on the error
         throw error
     }
 
@@ -48,10 +55,15 @@ type ChangeLoginParams = {
 
 type ChangeLoginResponse = DBServiceResponse
 
+/**
+ * Changes a user's login.
+ */
 export async function changeLogin(params: ChangeLoginParams): Promise<ChangeLoginResponse> {
+    // Make sure the user exists
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
 
+    // Update the user's login
     await pool.query(`
         UPDATE users
         SET login = $1
@@ -71,10 +83,15 @@ type ChangePasswordParams = {
 
 type ChangePasswordResponse = DBServiceResponse
 
+/**
+ * Changes a user's password.
+ */
 export async function changePassword(params: ChangePasswordParams): Promise<ChangePasswordResponse> {
+    // Make sure the user exists
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
 
+    // Change the password
     await pool.query(`
         UPDATE users
         SET password = $1

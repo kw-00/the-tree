@@ -350,6 +350,10 @@ const pgErrorCodes = {
 
 type PgErrorCondition = typeof pgErrorCodes[keyof typeof pgErrorCodes]
 
+/**
+ * Converts an error code from pg (DatabaseError.code) to PostgreSQL condition names.
+ * Condition names are part of PostgreSQL and have the benefit of being human-readable.
+ */
 export function pgErrorCondition(errorCode: string): PgErrorCondition {
     const condition = (pgErrorCodes as any)[errorCode]
     if (condition === undefined) {
