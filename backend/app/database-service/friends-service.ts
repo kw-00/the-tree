@@ -89,26 +89,43 @@ export async function revokeFriendshipCode(params: RevokeFriendshipCodeParams): 
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
 
+    const friendshipCodeNotExists = await recordDoesNotExist({value: params.friendshipCodeId, column: "id", table: "friendship_codes"})
+    if (friendshipCodeNotExists) return friendshipCodeNotExists
+
     const query = await pool.query(`
-        UPDATE friendship_codes
-        SET revoked = TRUE
-        WHERE 
-            user_id = $1
-            AND id = $2
-            AND NOT revoked
+        WITH updated AS (
+            UPDATE friendship_codes
+            SET revoked = TRUE
+            WHERE 
+                user_id = $1
+                AND id = $2
+                AND NOT revoked
+            RETURNING 1
+        )
+        SELECT 
+            EXISTS (SELECT 1 FROM friendship_codes WHERE user_id = $1 AND id = $2) AS belongs,
+            EXISTS (SELECT 1 FROM updated) AS isUpdated
         ;
     `, [params.userId, params.friendshipCodeId])
 
-    if (query.rowCount !== null && query.rowCount > 0) {
+    const {belongs, isUpdated} = query.rows[0]
+
+    if (isUpdated) {
         return {
             status: "SUCCESS",
             message: `Successfully revoked friendship code with ID of ${params.friendshipCodeId}.`
         }
     } else {
-        return {
-            status: "SUCCESS_REDUNDANT",
-            message: `Friendship code does not exist, has already been revoked ` 
-                + `or does not belong to user with ID of ${params.userId}.` // TODO more details, split cases
+        if (belongs) {
+            return {
+                status: "SUCCESS_REDUNDANT",
+                message: `Friendship code with ID of ${params.friendshipCodeId} has already been revoked.`
+            }
+        } else {
+            return {
+                status: "NOT_OWNER_OF_FRIENDSHIP_CODE",
+                message: `Frienship code with ID of ${params.friendshipCodeId} does not belong to user with ID of ${params.userId}.`
+            }
         }
     }
 }
