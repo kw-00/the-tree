@@ -79,7 +79,8 @@ export async function verifyRefreshToken(params: VerifyRefreshTokenParams): Prom
 
     const {status, expired, isValid, userId} = query.rows[0]
 
-    // If no token was found, or it is expired, or has been revoked, it is invalid
+    // If no matching token was found, or it is expired, 
+    // or has been revoked, then the token in question is invalid
     if (status === undefined) {
         return {
             status: "REFRESH_TOKEN_INVALID",
