@@ -1,4 +1,79 @@
-import { chatroomDoesNotExistResponse, DBServiceResponse, PaginationParams, pool, userDoesNotExistResponse } from "./utility"
+import { chatroomDoesNotExist, DBServiceResponse, userNotInChatroom, PaginationParams, pool, userDoesNotExist } from "./utility"
+
+export type ChatroomData = {
+    id: number
+    name: string
+    joinedAt: Date
+}
+
+export type CreateChatroomParams = {
+    userId: number
+    chatroomName: string
+}
+
+export type CreateChatroomResponse = {
+    chatroomId?: number
+} & DBServiceResponse
+
+
+export async function createChatroom(params: CreateChatroomParams): Promise<CreateChatroomResponse> {
+    const userNotExists = await userDoesNotExist(params.userId)
+    if (userNotExists) return userNotExists
+    
+    const query = await pool.query(`
+        WITH inserted(id) AS (
+            INSERT INTO chatrooms (name) 
+            VALUES ($1)
+            RETURNING id
+        )
+        INSERT INTO chatrooms_users (chatroom_id, user_id)
+        SELECT id, $2 FROM inserted
+        RETURNING (SELECT id FROM inserted);
+    `, [params.chatroomName, params.userId])
+
+    const chatroomId = query.rows[0]["id"]
+
+    return {
+        chatroomId: chatroomId,
+        status: "SUCCESS",
+        message: "Successfully created chatroom and added user into it." 
+    }
+}
+
+export type GetConnectedChatroomsParams = {
+    userId: number
+} & PaginationParams
+
+export type GetConnectedChatroomsResponse = {
+    chatrooms?: ChatroomData[]
+} & DBServiceResponse
+
+export async function getConnectedChatrooms(params: GetConnectedChatroomsParams): Promise<GetConnectedChatroomsResponse> {
+    const {userId, before, after, descending, limit} = params
+    const userNotExists = await userDoesNotExist(params.userId)
+    if (userNotExists) return userNotExists
+    
+    const query = await pool.query(`
+        SELECT c.id, c.name, c.created_at AS joinedAt
+        FROM chatrooms c
+        INNER JOIN chatrooms_users cu ON cu.chatroom_id = c.id
+        INNER JOIN users u ON u.id = cu.user_id
+        WHERE
+            u.id = $1
+            AND ($2 IS NULL OR c.created_at < $2)
+            AND ($3 IS NULL OR c.created_at > $3)
+        ORDER BY 
+            CASE WHEN $4 THEN c.created_at END DESC
+            c.created_at ASC
+        LIMIT $5;
+    `, [userId, before, after, descending, limit])
+
+    return {
+        chatrooms: query.rows,
+        status: "SUCCESS",
+        message: `Successfully retrieved connected chatroom for user ID of ${userId}.`
+    }
+}
 
 
 export type AddFriendsToChatroomParams = {
@@ -15,15 +90,18 @@ export type AddFriendsToChatroomResponse = {
 
 
 export async function addFriendsToChatroom(params: AddFriendsToChatroomParams): Promise<AddFriendsToChatroomResponse> {
-    const userNotExists = await userDoesNotExistResponse(params.userId)
+    const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
 
-    const chatroomNotExists = await chatroomDoesNotExistResponse(params.chatroomId)
+    const chatroomNotExists = await chatroomDoesNotExist(params.chatroomId)
     if (chatroomNotExists) return chatroomNotExists
+
+    const notInChatroom = await userNotInChatroom({userId: params.userId, chatroomId: params.chatroomId})
+    if (notInChatroom) return notInChatroom
 
     const query = await pool.query(`
         -- Gather the user IDs among friendIds that actually exist
-	    -- and put them in a CTE called valid
+	    -- and are the users's friends. Put them in a CTE called "valid"
         WITH valid AS (
             SELECT id
             FROM UNNEST($1) AS ids_to_add(id)
@@ -32,7 +110,7 @@ export async function addFriendsToChatroom(params: AddFriendsToChatroomParams): 
                 AND $2 IN (f.user1_id, f.user2_id)
         ),
         -- Try to add those users to the chatroom
-        -- and put those who were successfully added in a CTE called inserted
+        -- and put those who were successfully added in a CTE called "inserted"
         inserted AS (
             INSERT INTO chatrooms_users (chatroom_id, user_id)
             SELECT $3, id FROM valid
@@ -66,80 +144,36 @@ export async function addFriendsToChatroom(params: AddFriendsToChatroomParams): 
     }
 }
 
-export type CreateChatroomParams = {
+export type LeaveChatroomParams = {
     userId: number
-    chatroomName: string
+    chatroomId: number
 }
 
-export type CreateChatroomResponse = {
-    chatroomId?: number
-} & DBServiceResponse
+export type LeaveChatroomResponse = DBServiceResponse
 
 
-export async function createChatroom(params: CreateChatroomParams): Promise<CreateChatroomResponse> {
-    const userNotExists = await userDoesNotExistResponse(params.userId)
+export async function leaveChatroom(params: LeaveChatroomParams): Promise<LeaveChatroomResponse> {
+    const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
-    
+
+    const chatroomNotExists = await chatroomDoesNotExist(params.chatroomId)
+    if (chatroomNotExists) return chatroomNotExists
+
     const query = await pool.query(`
-        WITH inserted(id) AS (
-            INSERT INTO chatrooms (name) 
-            VALUES ($1)
-            RETURNING id
-        )
-        INSERT INTO chatrooms_users (chatroom_id, user_id)
-        SELECT id, $2 FROM inserted
-        RETURNING (SELECT id FROM inserted);
-    `, [params.chatroomName, params.userId])
+        DELETE FROM chatrooms_users
+        WHERE user_id = $1 and chatroom_id = $2;
+    `, [params.userId, params.chatroomId])
 
-    const chatroomId = query.rows[0]["id"]
-
-    return {
-        chatroomId: chatroomId,
-        status: "SUCCESS",
-        message: "Successfully created chatroom and added user into it." 
+    if (query.rowCount !== null && query.rowCount > 0) {
+        return {
+            status: "SUCCESS",
+            message: "Removed user from chatroom."
+        }
+    } else {
+        return {
+            status: "SUCCESS_REDUNDANT",
+            message: "User is not in chatroom. No need to remove them."
+        }
     }
 }
 
-export type GetConnectedChatroomsParams = {
-    userId: number
-} & PaginationParams
-
-export type GetConnectedChatroomsResponse = {
-    chatrooms?: {
-        id: number
-        name: string
-        createdAt: Date
-    }[]
-} & DBServiceResponse
-
-export async function getConnectedChatrooms(params: GetConnectedChatroomsParams): Promise<GetConnectedChatroomsResponse> {
-    const {userId, before, after, descending, limit} = params
-    const userNotExists = await userDoesNotExistResponse(params.userId)
-    if (userNotExists) return userNotExists
-    
-    const query = await pool.query(`
-        SELECT id, name, created_at AS createdAt
-        FROM chatrooms c
-        INNER JOIN chatrooms_users cu ON cu.chatroom_id = c.id
-        INNER JOIN users u ON u.id = cu.user_id
-        WHERE
-            u.id = $1
-            AND ($2 IS NULL OR c.created_at < $2)
-            AND ($3 IS NULL OR c.created_at > $3)
-        ORDER BY 
-            CASE WHEN $4 THEN c.created_at END DESC
-            created_at ASC
-        LIMIT $5;
-    `, [userId, before, after, descending, limit])
-
-    const result: GetConnectedChatroomsResponse["chatrooms"] = []
-    for (const row in query.rows) {
-        result.push(row as any)
-    }
-
-    return {
-        chatrooms: result,
-        status: "SUCCESS",
-        message: "Successfully created chatroom and added user into it." 
-    }
-}

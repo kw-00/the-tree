@@ -13,22 +13,11 @@ const databaseCredentials = {
 export const pool = new Pool(databaseCredentials)
 
 
-type DBResponseStatus = 
-"SUCCESS" | 
-"UUID_COLLISION" |
-"LOGIN_IN_USE" | 
-"BEFRIENDING_SELF" | 
-"INVALID_CREDENTIALS" |
-"REFRESH_TOKEN_INVALID_OR_EXPIRED" |
-"REFRESH_TOKEN_REUSE" |
-"REFRESH_TOKEN_REVOKED" |
-"NOT_IN_CHATROOM" |
-"INVALID_FRIENDSHIP_CODE" |
-"NOT_FOUND" |
-"NULL_PARAMETER"
+type DBResponseStatus = keyof typeof dbToHttpStatusMapping
 
-export const dbToHttpStatusMapping: {[key: string]: number} = {
+export const dbToHttpStatusMapping = {
     "SUCCESS": 200,
+    "SUCCESS_REDUNDANT": 200,
     "UUID_COLLISION": 409,
     "LOGIN_IN_USE": 409,
 	"BEFRIENDING_SELF": 409,
@@ -49,7 +38,7 @@ export type DBServiceResponse = {
 }
 
 
-export const pgErrorCodes: Record<string, string> = {
+const pgErrorCodes = {
     // Class 00 — Successful Completion
     "00000": "successful_completion",
 
@@ -397,15 +386,25 @@ export const pgErrorCodes: Record<string, string> = {
     "XX000": "internal_error",
     "XX001": "data_corrupted",
     "XX002": "index_corrupted"
-};
+} as const
 
-export type RecordExistsParams<T> = {
+type PgErrorCondition = typeof pgErrorCodes[keyof typeof pgErrorCodes]
+
+export function pgErrorCondition(errorCode: string): PgErrorCondition {
+    const condition = (pgErrorCodes as any)[errorCode]
+    if (condition === undefined) {
+        throw new Error(`Error code of ${errorCode} is invalid.`)
+    }
+    return condition
+}
+
+export type RecordDoesNotExistParams<T> = {
     value: T
     column: string
     table: string
 }
 
-export async function recordDoesNotExistResponse<T>(params: RecordExistsParams<T>): Promise<DBServiceResponse | undefined> {
+export async function recordDoesNotExist<T>(params: RecordDoesNotExistParams<T>): Promise<DBServiceResponse | undefined> {
     const {value, column, table} = params
     const recordExists = (await pool.query(`
         SELECT EXISTS (SELECT 1 FROM ${table} WHERE ${column} = $1) AS userExists;
@@ -420,12 +419,34 @@ export async function recordDoesNotExistResponse<T>(params: RecordExistsParams<T
     }
 }
 
-export async function userDoesNotExistResponse(id: number): Promise<DBServiceResponse | undefined> {
-    return recordDoesNotExistResponse({value: id, column: "id", table: "chatrooms"})
+export async function userDoesNotExist(id: number): Promise<DBServiceResponse | undefined> {
+    return recordDoesNotExist({value: id, column: "id", table: "chatrooms"})
 }
 
-export async function chatroomDoesNotExistResponse(id: number): Promise<DBServiceResponse | undefined> {
-    return recordDoesNotExistResponse({value: id, column: "id", table: "chatrooms"})
+export async function chatroomDoesNotExist(id: number): Promise<DBServiceResponse | undefined> {
+    return recordDoesNotExist({value: id, column: "id", table: "chatrooms"})
+}
+
+export type NotInChatroomParams = {
+    userId: number
+    chatroomId: number
+}
+
+export async function userNotInChatroom(params: NotInChatroomParams): Promise<DBServiceResponse | undefined> {
+    const inChatroom = (await pool.query(`
+        SELECT EXISTS(
+            SELECT 1 FROM users u
+            INNER JOIN chatrooms_users cu ON cu.user_id = u.id
+            INNER JOIN chatrooms c ON c.id = cu.chatroom_id
+        ) AS inChatroom;
+    `)).rows[0]["inChatroom"]
+    if (!inChatroom) {
+        return {
+            status: "NOT_IN_CHATROOM",
+            message: `User with ID of ${params.userId} is not in chatroom with ID of ${params.chatroomId}.`
+        }
+    }
+
 }
 
 

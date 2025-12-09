@@ -1,5 +1,5 @@
 import { DatabaseError } from "pg"
-import { DBServiceResponse, pgErrorCodes, pool, userDoesNotExistResponse } from "./utility"
+import { DBServiceResponse, pgErrorCondition, pool, userDoesNotExist } from "./utility"
 
 
 type AuthenticateUserParams = {
@@ -117,7 +117,7 @@ export type CreateRefreshTokenResponse = {
 
 
 export async function createRefreshToken(params: CreateRefreshTokenParams): Promise<CreateRefreshTokenResponse> {
-    const notExists = await userDoesNotExistResponse(params.userId)
+    const notExists = await userDoesNotExist(params.userId)
     if (notExists) return notExists
     
     try {
@@ -134,7 +134,7 @@ export async function createRefreshToken(params: CreateRefreshTokenParams): Prom
         }
     } catch (error) {
         if (error instanceof DatabaseError) {
-            if (error.name !== undefined && pgErrorCodes[error.name] === "unique_violation") {
+            if (error.code !== undefined && pgErrorCondition(error.code) === "unique_violation") {
                 return {
                     status: "UUID_COLLISION",
                     message: "Refresh token UUID happened to collide with another."
@@ -169,7 +169,7 @@ export async function revokeRefreshToken(params: RevokeRefreshTokenParams): Prom
         }
     } else {
         return {
-            status: "SUCCESS",
+            status: "SUCCESS_REDUNDANT",
             message: "Refresh token does not exist. No need to revoke it."
         }
     }
