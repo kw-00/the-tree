@@ -25,7 +25,7 @@ export async function authenticateUser(params: AuthenticateUserParams): Promise<
     if (query.rowCount === 0) {
         return {
             status: "INVALID_CREDENTIALS",
-            message: "Login and passsword do not match"
+            message: "Login and password do not match"
         }
     } else {
         // Otherwise, success
@@ -55,29 +55,21 @@ export async function verifyRefreshToken(params: VerifyRefreshTokenParams): Prom
     const now = new Date()
     // Retrieve some info on the token and mark it as used if it is valid
     const query = await pool.query(`
-        WITH old(status, user_id, expired) AS (
-            SELECT status, user_id, (expires_at <= $1)
-            FROM refresh_tokens 
-            WHERE uuid = $2
-        ),
-        new AS (
+        WITH updated AS (
             UPDATE refresh_tokens
             SET status = 'used'
             WHERE 
-                uuid = $2
-                AND expires_at > $1
+                uuid = $1
                 AND status = 'default'
-            RETURNING 1
         )
         SELECT 
-            (SELECT status FROM old) AS status, 
-            (SELECT expired FROM old) AS expired,
-            EXISTS (SELECT 1 FROM new) AS isValid, 
-            (SELECT user_id FROM old) AS userId
+            status, 
+            (expires_at <= $2) AS expired,
+            user_id AS userId
         ;
-    `, [now, params.refreshToken])
+    `, [params.refreshToken, now])
 
-    const {status, expired, isValid, userId} = query.rows[0]
+    const {status, expired, userId} = query.rows[0]
 
     // If no matching token was found, or it is expired, 
     // or has been revoked, then the token in question is invalid
@@ -183,15 +175,11 @@ export type RevokeRefreshTokenResponse = DBServiceResponse
 export async function revokeRefreshToken(params: RevokeRefreshTokenParams): Promise<RevokeRefreshTokenResponse> {
     // Set the token status to "revoked"
     const query = await pool.query(`
-        WITH updated AS (
-            UPDATE refresh_tokens
-            SET status = 'revoked'
-            WHERE uuid = $1
-            RETURNING 1
-        )
-        SELECT EXISTS (SELECT 1 FROM updated LIMIT 1) AS found;
+        UPDATE refresh_tokens
+        SET status = 'revoked'
+        WHERE uuid = $1;
     `, [params.refreshToken])
-    const found = query.rows[0]["found"]
+    const found = query.rowCount ?? 0 > 0
     // If the token was found, success
     if (found) {
         return {

@@ -35,7 +35,7 @@ export async function createMessage(params: CreateMessageParams): Promise<Create
     const query = await pool.query(`
         INSERT INTO messages (user_id, chatroom_id, content)
         VALUES ($1, $2, $3)
-        RETURNING AT id, content, created_at as createdAt;        
+        RETURNING AT id, content, created_at AS createdAt;        
     `, [params.userId, params.chatroomId, params.content])
 
     const {id, content, createdAt} = query.rows[0]
@@ -86,8 +86,8 @@ export async function getMessages(params: GetMessagesParams): Promise<GetMessage
             AND ($2 IS NULL OR m.created_at < $2)
             AND ($3 IS NULL OR m.created_at > $3)
         ORDER BY 
-            CASE WHEN $4 THEN f.created_at END DESC
-            fc.created_at ASC
+            CASE WHEN $4 THEN m.id END DESC
+            m.id ASC
         LIMIT $5;
     `, [chatroomId, before, after, descending, limit])
 

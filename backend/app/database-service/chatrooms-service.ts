@@ -32,7 +32,7 @@ export async function createChatroom(params: CreateChatroomParams): Promise<Crea
         )
         INSERT INTO chatrooms_users (chatroom_id, user_id)
         SELECT id, $2 FROM inserted
-        RETURNING (SELECT id FROM inserted);
+        RETURNING chatroom_id;
     `, [params.chatroomName, params.userId])
 
     const chatroomId = query.rows[0]["id"]
@@ -75,8 +75,8 @@ export async function getConnectedChatrooms(params: GetConnectedChatroomsParams)
             AND ($2 IS NULL OR c.created_at < $2)
             AND ($3 IS NULL OR c.created_at > $3)
         ORDER BY 
-            CASE WHEN $4 THEN c.created_at END DESC
-            c.created_at ASC
+            CASE WHEN $4 THEN c.id END DESC
+            c.id ASC
         LIMIT $5;
     `, [userId, before, after, descending, limit])
 

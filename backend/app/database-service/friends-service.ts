@@ -196,12 +196,14 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
             RETURNING created_at
         )
         SELECT 
-            EXISTS (SELECT 1 FROM matches) AS codeValid, 
-            EXISTS (SELECT 1 FROM inserted) AS rowInserted
-            (SELECT id FROM matches) AS friendId,
-            (SELECT login FROM matches) AS friendLogin,
-            (SELECT created_at FROM inserted) AS friendSince
-        ;
+            EXISTS(m.id) AS codeValid, 
+            EXISTS(i.created_at) AS rowInserted, 
+            m.id AS friendId,
+            m.login AS friendLogin,
+            i.created_at AS friendSince
+        FROM (SELECT 1) AS dummy
+        LEFT JOIN matches m ON TRUE
+        LEFT JOIN inserted i ON TRUE;
     `, [params.friendshipCode, params.userToBefriendLogin, params.userId])
 
     const {friendId, friendLogin, createdAt: friendSince, codeValid, rowInserted} = query.rows[0]
@@ -266,8 +268,8 @@ export async function getFriends(params: GetFriendsParams): Promise<GetFriendsRe
             AND ($2 IS NULL OR f.created_at < $2)
             AND ($3 IS NULL OR f.created_at > $3)
         ORDER BY 
-            CASE WHEN $4 THEN f.created_at END DESC
-            fc.created_at ASC
+            CASE WHEN $4 THEN f.id END DESC
+            f.id ASC
         LIMIT $5;
     `, [userId, before, after, descending, limit])
 
