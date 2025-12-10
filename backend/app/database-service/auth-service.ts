@@ -117,12 +117,12 @@ export async function verifyRefreshToken(params: VerifyRefreshTokenParams): Prom
 }
 
 
-export type CreateRefreshTokenParams = {
+type CreateRefreshTokenParams = {
     userId: number
     validityPeriodSeconds: number
 }
 
-export type CreateRefreshTokenResponse = {
+type CreateRefreshTokenResponse = {
     refreshToken?: string
 } & DBServiceResponse
 
@@ -163,11 +163,11 @@ export async function createRefreshToken(params: CreateRefreshTokenParams): Prom
     }
 }
 
-export type RevokeRefreshTokenParams = {
+type RevokeRefreshTokenParams = {
     refreshToken: string
 }
 
-export type RevokeRefreshTokenResponse = DBServiceResponse
+type RevokeRefreshTokenResponse = DBServiceResponse
 
 /**
  * Revokes a given refresh token.

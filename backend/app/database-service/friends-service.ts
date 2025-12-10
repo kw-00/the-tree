@@ -1,26 +1,26 @@
 import { DBServiceResponse, PaginationParams, pool, recordDoesNotExist, userDoesNotExist } from "./general/utility"
 
 
-export type FriendshipCodeData = {
+type FriendshipCodeData = {
     id: number
     code: string
     expiresAt?: Date
     createdAt: Date
 }
 
-export type FriendData = {
+type FriendData = {
     id: number
     login: string
     friendSince: Date
 }
 
-export type CreateFriendshipCodeParams = {
+type CreateFriendshipCodeParams = {
     userId: number
     code: string
     expiryDate?: Date
 }
 
-export type CreateFriendshipCodeResponse = {
+type CreateFriendshipCodeResponse = {
     friendshipCodeData?: FriendshipCodeData
 } & DBServiceResponse
 
@@ -48,11 +48,11 @@ export async function createFrienshipCode(params: CreateFriendshipCodeParams): P
     }
 }
 
-export type GetFriendshipCodesParams = {
+type GetFriendshipCodesParams = {
     userId: number
 } & PaginationParams
 
-export type GetFriendshipCodesResponse = {
+type GetFriendshipCodesResponse = {
     friendshipCodes?: FriendshipCodeData[]
 } & DBServiceResponse
 
@@ -90,12 +90,12 @@ export async function getFriendshipCodes(params: GetFriendshipCodesParams): Prom
     }
 }
 
-export type RevokeFriendshipCodeParams = {
+type RevokeFriendshipCodeParams = {
     userId: number
     friendshipCodeId: string
 }
 
-export type RevokeFriendshipCodeResponse = DBServiceResponse
+type RevokeFriendshipCodeResponse = DBServiceResponse
 
 /**
  * Revokes (invalidates) a friendship code on behalf of a given user.
@@ -152,13 +152,13 @@ export async function revokeFriendshipCode(params: RevokeFriendshipCodeParams): 
 }
 
 
-export type AddFriendParams = {
+type AddFriendParams = {
     userId: number
     userToBefriendLogin: string
     friendshipCode: string
 }
 
-export type AddFriendResponse = {
+type AddFriendResponse = {
     friendData?: FriendData
 } & DBServiceResponse
 
@@ -238,11 +238,11 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
 }
 
 
-export type GetFriendsParams = {
+type GetFriendsParams = {
     userId: number
 } & PaginationParams
 
-export type GetFriendsResponse = {
+type GetFriendsResponse = {
     friends?: FriendData[]
 } & DBServiceResponse
 
