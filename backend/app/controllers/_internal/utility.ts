@@ -1,4 +1,4 @@
-import { type DBServiceResponse } from "@/database-service/public/types"
+import { type DBServiceFunction, type DBServiceResponse } from "@/database-service/public/types"
 import { AccessTokenManagement } from "@/utilities/access-token-management"
 import { stMap } from "@/utilities/status-mapping"
 import type { IdParams, AccessTokenParams, ControllerResponse } from "../public/types"
@@ -41,7 +41,7 @@ export function simpleResponse<DBResponse extends DBServiceResponse>(response: D
  */
 export async function accessToIdThenCall<IdP extends IdParams, ResExtras extends Record<Exclude<string, "status" | "message">, unknown>> (
     params: AccessTokenParams<IdP>, 
-    callback: (params: IdP) => Promise<DBServiceResponse & Partial<ResExtras>>): Promise<ControllerResponse<DBServiceResponse & Partial<ResExtras>>> {
+    callback: DBServiceFunction<IdP, DBServiceResponse & Partial<ResExtras>>): Promise<ControllerResponse<DBServiceResponse & Partial<ResExtras>>> {
 
     const {accessToken, ...rest} = params 
     const verificationResult = AccessTokenManagement.verifyToken(accessToken)
