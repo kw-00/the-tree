@@ -45,25 +45,33 @@ const Schema = z.object({
         })
     }),
     dataRules: z.object({
-        login: z.object({
+        users: z.object({
+            login: z.object({
+                minLength: z.int().positive(),
+                maxLength: z.int().positive()
+            }),
+            password: z.object({
+                minLength: z.int().positive(),
+                maxLength: z.int().positive()
+            })
+        }),
+        friends: z.object({
+            friendshipCode: z.object({
+                minLength: z.int().positive(),
+                maxLength: z.int().positive()
+            })
+        }),
+        chatrooms: z.object({
+            name: z.object({
+                minLength: z.int().positive(),
+                maxLenght: z.int().positive()
+            })
+        }),
+        messages: z.object({
+            messageContent: z.object({
             minLength: z.int().positive(),
             maxLength: z.int().positive()
-        }),
-        password: z.object({
-            minLength: z.int().positive(),
-            maxLength: z.int().positive()
-        }),
-        friendshipCode: z.object({
-            minLength: z.int().positive(),
-            maxLength: z.int().positive()
-        }),
-        chatroomName: z.object({
-            minLength: z.int().positive(),
-            maxLenght: z.int().positive()
-        }),
-        messageContent: z.object({
-            minLength: z.int().positive(),
-            maxLength: z.int().positive()
+        })
         })
     })
 })

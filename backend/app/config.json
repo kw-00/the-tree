@@ -39,25 +39,34 @@
         }
     },
     "dataRules": {
-        "login": {
-            "minLength": 3,
-            "maxLength": 50
+        "users": {
+            "login": {
+                "minLength": 3,
+                "maxLength": 50
+            },
+            "password": {
+                "minLength": 3,
+                "maxLength": 50
+            }
         },
-        "password": {
-            "minLength": 3,
-            "maxLength": 50
+        "friends": {
+            "friendshipCode": {
+                "minLength": 1,
+                "maxLength": 20
+            }
         },
-        "friendshipCode": {
-            "minLength": 1,
-            "maxLength": 20
+        "chatrooms": {
+            "name": {
+                "minLength": 1,
+                "maxLength": 50
+            }
         },
-        "chatroomName": {
-            "minLength": 1,
-            "maxLength": 50
-        },
-        "messageContent": {
-            "minLength": 1,
-            "maxLength": 2000
+        "messages": {
+            "content": {
+                "minLength": 1,
+                "maxLength": 2000
+            }
         }
+
     }
 }
