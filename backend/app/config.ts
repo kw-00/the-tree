@@ -68,7 +68,7 @@ const Schema = z.object({
             })
         }),
         messages: z.object({
-            messageContent: z.object({
+            content: z.object({
             minLength: z.int().positive(),
             maxLength: z.int().positive()
         })
