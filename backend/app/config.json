@@ -1,4 +1,35 @@
 {
+    "api": {
+        "basePath": "/api",
+        "auth": {
+            "logIn": "/log_in",
+            "refreshToken": "/refresh_token",
+            "logOut": "/log_out"
+        },
+        "user": {
+            "registerUser": "/register_user",
+            "changeLogin": "/change_login",
+            "changePassword": "/change_password"
+        },
+        "friends": {
+            "createFriendshipToken": "/create_friendship_token",
+            "getFriendshipCodes": "/get_friendship_codes",
+            "revokeFriendshipCode": "/revoke_friendship_code",
+            "addFriend": "/add_friend",
+            "getFriends": "/get_friends",
+            "removeFriend": "/remove_friend"
+        },
+        "chatrooms": {
+            "createChatroom": "/create_chatroom",
+            "getConnectedChatrooms": "/get_connected_chatrooms",
+            "addFriendsToChatroom": "/add_friends_to_chatroom",
+            "leaveChatroom": "/leave_chatroom"
+        },
+        "messages": {
+            "createMessage": "/create_message",
+            "getMessages": "/get_messages"
+        }
+    },
     "tokens": {
         "access": {
             "validityPeriod": 3600
@@ -24,7 +55,7 @@
             "minLength": 1,
             "maxLength": 50
         },
-        "message": {
+        "messageContent": {
             "minLength": 1,
             "maxLength": 2000
         }
