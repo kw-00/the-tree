@@ -1,3 +1,4 @@
+import type { stMap } from "@/utilities/status-mapping"
 import { Pool } from "pg"
 
 
@@ -15,7 +16,7 @@ const databaseCredentials = {
  */
 export const pool = new Pool(databaseCredentials)
 
-type DBResponseStatus = keyof typeof dbServiceToHttpStatusMapping
+type DBResponseStatus = keyof typeof stMap
 
 // Types
 
@@ -37,26 +38,6 @@ export type PaginationParams = {
 export type DBServiceResponse = {
     status: DBResponseStatus
     message: string
-}
-
-/**
- * Maps response codes from database services to relevant HTTP status.
- */
-export const dbServiceToHttpStatusMapping = {
-    "SUCCESS": 200,
-    "SUCCESS_REDUNDANT": 200,
-    "NULL_PARAMETER": 400,
-    "INVALID_CREDENTIALS": 401,
-    "REFRESH_TOKEN_INVALID": 401,
-    "REFRESH_TOKEN_REUSE": 401,
-    "REFRESH_TOKEN_REVOKED": 401,
-	"NOT_IN_CHATROOM": 403,
-	"INVALID_FRIENDSHIP_CODE": 403,
-    "NOT_OWNER_OF_FRIENDSHIP_CODE": 403,
-    "NOT_FOUND": 404,
-    "UUID_COLLISION": 409,
-    "LOGIN_IN_USE": 409,
-    "BEFRIENDING_SELF": 409,
 }
 
 export type RecordDoesNotExistParams<T> = {
