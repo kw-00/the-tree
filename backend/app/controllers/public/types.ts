@@ -1,6 +1,6 @@
 
 
-import type { DBServiceResponse } from "@/database-service/general/types"
+import type { DBServiceResponse } from "@/database-service/public/types"
 
 export type ControllerResponse<Body = DBServiceResponse> = {
     httpStatus: number

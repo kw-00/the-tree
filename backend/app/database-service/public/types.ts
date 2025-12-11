@@ -22,8 +22,4 @@ export type DBServiceResponse = {
     status: DBResponseStatus
     message: string
 }
-export type RecordDoesNotExistParams<T> = {
-    value: T
-    column: string
-    table: string
-}
+

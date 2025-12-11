@@ -1,7 +1,7 @@
 import * as s from "@/database-service/messages-service"
-import { accessToIdThenCall } from "./general/_utility"
-import { type ControllerResponse } from "./general/types"
-import { type AccessTokenParams } from "./general/types"
+import { accessToIdThenCall } from "./_internal/utility"
+import type { AccessTokenParams, ControllerResponse } from "./public/types"
+
 
 export type CreateMessageParams = AccessTokenParams<s.CreateMessageParams>
 export type CreateMessageResponse = ControllerResponse<s.CreateMessageResponse>

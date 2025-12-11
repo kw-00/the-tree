@@ -1,6 +1,6 @@
-import { dbServiceToController } from "./general/_utility"
-import { type ControllerResponse } from "./general/types"
+
 import * as s from "@/database-service/users-service"
+import { dbServiceToController } from "./_internal/utility"
 
 
 export const registerUser = dbServiceToController(s.registerUser)

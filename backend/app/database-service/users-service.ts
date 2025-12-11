@@ -1,8 +1,9 @@
 import { DatabaseError } from "pg"
-import { userDoesNotExist } from "./general/_utility"
-import { type DBServiceResponse } from "./general/types"
-import { pool } from "./general/pool"
-import { pgErrorCondition } from "./general/db-error-codes-mapping"
+import { pool } from "./_internal/pool"
+import { userDoesNotExist } from "./_internal/utility"
+import { pgErrorCondition } from "./_internal/db-error-codes-mapping"
+import type { DBServiceResponse } from "./public/types"
+
 
 
 export type RegisterUserParams = {

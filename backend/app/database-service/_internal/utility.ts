@@ -1,7 +1,11 @@
 import { pool } from "./pool"
-import type { RecordDoesNotExistParams, DBServiceResponse } from "./types"
+import type { DBServiceResponse } from "../public/types"
 
-
+type RecordDoesNotExistParams<T> = {
+    value: T;
+    column: string;
+    table: string;
+};
 
 /**
  * Checks whether a record with a given value at a given column exists, for a given table.
@@ -104,3 +108,4 @@ export async function userNotInChatroom(params: NotInChatroomParams): Promise<DB
     return false
 
 }
+

@@ -1,7 +1,7 @@
-import { type DBServiceResponse } from "@/database-service/general/types"
+import { type DBServiceResponse } from "@/database-service/public/types"
 import { AccessTokenManagement } from "@/utilities/access-token-management"
 import { stMap } from "@/utilities/status-mapping"
-import type { IdParams, AccessTokenParams, ControllerResponse } from "./types"
+import type { IdParams, AccessTokenParams, ControllerResponse } from "../public/types"
 
 /**
  * Accepts a database service function and converts it 1:1 to a controller function.
