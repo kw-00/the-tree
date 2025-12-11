@@ -1,5 +1,7 @@
 import { DatabaseError } from "pg"
-import { type DBServiceResponse, pool, userDoesNotExist } from "./general/utility"
+import { userDoesNotExist } from "./general/_utility"
+import { type DBServiceResponse } from "./general/types"
+import { pool } from "./general/pool"
 import { pgErrorCondition } from "./general/db-error-codes-mapping"
 
 

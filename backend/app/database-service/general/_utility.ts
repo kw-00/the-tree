@@ -1,50 +1,7 @@
-import type { stMap } from "@/utilities/status-mapping"
-import { Pool } from "pg"
+import { pool } from "./pool"
+import type { RecordDoesNotExistParams, DBServiceResponse } from "./types"
 
 
-
-const databaseCredentials = {
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASSWORD,
-    port: Number(process.env.DB_PORT)
-}
-
-/**
- * The query pool used by all database services.
- */
-export const pool = new Pool(databaseCredentials)
-
-type DBResponseStatus = keyof typeof stMap
-
-// Types
-
-/**
- * Used to determine which and how many records are retrieved
- * in a query that returns many rows. Used for pagination.
- */
-export type PaginationParams = {
-    before?: Date
-    after?: Date
-    descending?: boolean
-    limit?: number
-}
-
-/**
- * Every database service function should return a result that
- * satisfied this type.
- */
-export type DBServiceResponse = {
-    status: DBResponseStatus
-    message: string
-}
-
-export type RecordDoesNotExistParams<T> = {
-    value: T
-    column: string
-    table: string
-}
 
 /**
  * Checks whether a record with a given value at a given column exists, for a given table.

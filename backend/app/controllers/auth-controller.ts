@@ -1,4 +1,5 @@
-import { type ControllerResponse, type ControllerAuthResponse, simpleResponse } from "./general/utility"
+import { simpleResponse } from "./general/_utility"
+import { type ControllerResponse, type ControllerAuthResponse } from "./general/types"
 import * as s from "@/database-service/auth-service"
 import { AccessTokenManagement } from "@/utilities/access-token-management"
 import { Config } from "@/config"

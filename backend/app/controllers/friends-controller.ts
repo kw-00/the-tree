@@ -1,5 +1,7 @@
 import * as s from "@/database-service/friends-service"
-import { accessToIdThenCall, type AccessTokenParams, type ControllerResponse } from "./general/utility"
+import { accessToIdThenCall } from "./general/_utility"
+import { type ControllerResponse } from "./general/types"
+import { type AccessTokenParams } from "./general/types"
 
 
 

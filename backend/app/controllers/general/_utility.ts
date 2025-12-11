@@ -1,15 +1,7 @@
-import { type DBServiceResponse } from "@/database-service/general/utility"
+import { type DBServiceResponse } from "@/database-service/general/types"
 import { AccessTokenManagement } from "@/utilities/access-token-management"
 import { stMap } from "@/utilities/status-mapping"
-
-export type ControllerResponse<Body = DBServiceResponse> = {
-    httpStatus: number
-    body: Body
-}
-
-export type ControllerAuthResponse<Body = DBServiceResponse, Auth = {accessToken: string, refreshToken: string}> = {
-    auth?: Auth
-} & ControllerResponse<Body>
+import type { IdParams, AccessTokenParams, ControllerResponse } from "./types"
 
 /**
  * Accepts a database service function and converts it 1:1 to a controller function.
@@ -40,15 +32,6 @@ export function simpleResponse<DBResponse extends DBServiceResponse>(response: D
         body: response
     }
 }
-
-/**
- * A type that represents any given type passed in as DBParams, but with ```userId: number``` converted to ```accessToken: string```.
- * 
- * Many controllers will use this, particularly those which accept access tokens and then pass on the parameters with access token converted
- * to user ID.
- */
-export type AccessTokenParams<DBParams extends IdParams> = Omit<DBParams, "userId"> & {accessToken: string}
-type IdParams = {userId: number}
 
 /**
  * Wraps a callback. First converts ```accessToken``` from params to ```userId```, then fires callback with the altered params.

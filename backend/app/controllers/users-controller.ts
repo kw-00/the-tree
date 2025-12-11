@@ -1,4 +1,5 @@
-import { dbServiceToController, type ControllerResponse } from "./general/utility"
+import { dbServiceToController } from "./general/_utility"
+import { type ControllerResponse } from "./general/types"
 import * as s from "@/database-service/users-service"
 
 
