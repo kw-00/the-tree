@@ -1,0 +1,32 @@
+{
+    "tokens": {
+        "access": {
+            "validityPeriod": 3600
+        },
+        "refresh": {
+            "validityPeriod": 360000
+        }
+    },
+    "dataRules": {
+        "login": {
+            "minLength": 3,
+            "maxLength": 50
+        },
+        "password": {
+            "minLength": 3,
+            "maxLength": 50
+        },
+        "friendshipCode": {
+            "minLength": 1,
+            "maxLength": 20
+        },
+        "chatroomName": {
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "message": {
+            "minLength": 1,
+            "maxLength": 2000
+        }
+    }
+}

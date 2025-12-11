@@ -136,7 +136,6 @@ dist
 .pnp.*
 
 # User
-config.json
 cert
 
 ig_*
