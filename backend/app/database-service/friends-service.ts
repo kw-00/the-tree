@@ -283,3 +283,42 @@ export async function getFriends(params: GetFriendsParams): Promise<GetFriendsRe
         message: `Successfully retrieved friends for user with ID of ${userId}.`
     }
 }
+
+export type RemoveFriendParams = {
+    userId: number
+    friendId: number
+}
+
+export type RemoveFriendResponse = DBServiceResponse
+
+export async function removeFriend(params: RemoveFriendParams): Promise<RemoveFriendResponse> {
+    const {userId, friendId} = params
+    // Make sure user and friend exist
+    const userNotExists = await userDoesNotExist(userId)
+    if (userNotExists) return userNotExists
+
+    const friendNotExists = await userDoesNotExist(friendId)
+    if (friendNotExists) return friendNotExists
+
+    const query = await pool.query(`
+        DELETE FROM friends
+        WHERE 
+            $1 IN (user1_id, user2_id)
+            AND $2 IN (user1_id, user2_id)
+        ;
+    `, [userId, friendId])
+
+    if (query.rowCount ?? 0 > 0) {
+        return {
+            status: "SUCCESS",
+            message: `Successfully removed friendship between user with IDs of ${userId} and ${friendId}.`
+        }
+    } else {
+        return {
+            status: "SUCCESS_REDUNDANT",
+            message: `Users with IDs of ${userId} and ${friendId} are not friends.`
+        }
+    }
+}
+
+

@@ -167,18 +167,18 @@ export async function addFriendsToChatroom(params: AddFriendsToChatroomParams): 
     }
 }
 
-export type LeaveChatroomParams = {
+export type RemoveUserFromChatroomParams = {
     userId: number
     chatroomId: number
 }
 
-export type LeaveChatroomResponse = DBServiceResponse
+export type RemoveUserFromChatroomResponse = DBServiceResponse
 
 
 /**
  * Removes a user from a chatroom.
  */
-export async function removeUserFromChatroom(params: LeaveChatroomParams): Promise<LeaveChatroomResponse> {
+export async function leaveChatroom(params: RemoveUserFromChatroomParams): Promise<RemoveUserFromChatroomResponse> {
     // Make sure user and chatroom exist
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists

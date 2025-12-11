@@ -43,3 +43,12 @@ export type GetFriendsResponse = ControllerResponse<s.GetFriendsResponse>
 export async function getFriends(params: GetFriendsParams): Promise<GetFriendsResponse> {
     return accessToIdThenCall(params, s.getFriends)
 }
+
+
+export type RemoveFriendParams = AccessTokenParams<s.RemoveFriendParams>
+
+export type RemoveFriendResponse = ControllerResponse<s.RemoveFriendResponse>
+
+export async function removeFriend(params: RemoveFriendParams): Promise<RemoveFriendResponse> {
+    return accessToIdThenCall(params, s.removeFriend)
+}
