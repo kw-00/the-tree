@@ -1,18 +1,18 @@
-import { chatroomDoesNotExist, DBServiceResponse, PaginationParams, pool, userDoesNotExist, userNotInChatroom } from "./general/utility"
+import { chatroomDoesNotExist, type DBServiceResponse, type PaginationParams, pool, userDoesNotExist, userNotInChatroom } from "./general/utility"
 
-type MessageData = {
+export type MessageData = {
     id: number
     content: string
     createdAt: Date
 }
 
-type CreateMessageParams = {
+export type CreateMessageParams = {
     userId: number
     chatroomId: number
     content: string
 }
 
-type CreateMessageResponse = {
+export type CreateMessageResponse = {
     messageData?: MessageData
 } & DBServiceResponse
 
@@ -48,12 +48,12 @@ export async function createMessage(params: CreateMessageParams): Promise<Create
     }
 }
 
-type GetMessagesParams = {
+export type GetMessagesParams = {
     userId: number
     chatroomId: number
 } & PaginationParams
 
-type GetMessagesResponse = {
+export type GetMessagesResponse = {
     messagesData?: MessageData[] 
 } & DBServiceResponse
 

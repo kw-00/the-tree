@@ -1,3 +1,4 @@
+import { Config } from "@/config"
 import jwtWebToken from "jsonwebtoken"
 
 
@@ -10,7 +11,7 @@ export interface AccessTokenPayload {
 export class AccessTokenManagement {
 
     static getToken(sub: number): string {
-        return this._getToken(sub, Number(process.env.ACCESS_TOKEN_VALIDITY_PERIOD), process.env.ACCESS_TOKEN_SECRET as string)
+        return this._getToken(sub, Config.tokens.access.validityPeriod, process.env.ACCESS_TOKEN_SECRET as string)
     }
 
     static verifyToken(token: string): AccessTokenPayload | null {

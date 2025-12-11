@@ -1,14 +1,14 @@
 import { DatabaseError } from "pg"
-import { DBServiceResponse, pool, userDoesNotExist } from "./general/utility"
+import { type DBServiceResponse, pool, userDoesNotExist } from "./general/utility"
 import { pgErrorCondition } from "./general/db-error-codes-mapping"
 
 
-type RegisterUserParams = {
+export type RegisterUserParams = {
     login: string
     password: string
 }
 
-type RegisterUserResponse = {
+export type RegisterUserResponse = {
     userId?: number
 } & DBServiceResponse
 
@@ -20,15 +20,10 @@ export async function registerUser(params: RegisterUserParams): Promise<Register
         // Insert new user into database
         const query = await pool.query(`
             INSERT INTO users (login, password) 
-            VALUES ($1, $2)
-            RETURNING id; 
+            VALUES ($1, $2);
         `, [params.login, params.password])
 
-        // Retrieve the user's ID
-        const userId = query.rows[0]["id"]
-
         return {
-            userId: userId,
             status: "SUCCESS",
             message: `Successfully registered user with login of ${params.login}.`
         }
@@ -48,12 +43,12 @@ export async function registerUser(params: RegisterUserParams): Promise<Register
 
 }
 
-type ChangeLoginParams = {
+export type ChangeLoginParams = {
     userId: number
     newLogin: string
 }
 
-type ChangeLoginResponse = DBServiceResponse
+export type ChangeLoginResponse = DBServiceResponse
 
 /**
  * Changes a user's login.
@@ -76,12 +71,12 @@ export async function changeLogin(params: ChangeLoginParams): Promise<ChangeLogi
     }
 }
 
-type ChangePasswordParams = {
+export type ChangePasswordParams = {
     userId: number
     newPassword: string
 }
 
-type ChangePasswordResponse = DBServiceResponse
+export type ChangePasswordResponse = DBServiceResponse
 
 /**
  * Changes a user's password.

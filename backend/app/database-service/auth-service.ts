@@ -1,14 +1,14 @@
 import { DatabaseError } from "pg"
-import { DBServiceResponse, pool, userDoesNotExist } from "./general/utility"
+import { type DBServiceResponse, pool, userDoesNotExist } from "./general/utility"
 import { pgErrorCondition } from "./general/db-error-codes-mapping"
 
 
-type AuthenticateUserParams = {
+export type AuthenticateUserParams = {
     login: string
     password: string
 }
 
-type AuthenticateUserResponse = {
+export type AuthenticateUserResponse = {
     userId?: number
 } & DBServiceResponse
 
@@ -37,11 +37,11 @@ export async function authenticateUser(params: AuthenticateUserParams): Promise<
     }
 }
 
-type VerifyRefreshTokenParams = {
+export type VerifyRefreshTokenParams = {
     refreshToken: string
 }
 
-type VerifyRefreshTokenResponse = {
+export type VerifyRefreshTokenResponse = {
     userId?: number
 } & DBServiceResponse
 
@@ -117,12 +117,12 @@ export async function verifyRefreshToken(params: VerifyRefreshTokenParams): Prom
 }
 
 
-type CreateRefreshTokenParams = {
+export type CreateRefreshTokenParams = {
     userId: number
     validityPeriodSeconds: number
 }
 
-type CreateRefreshTokenResponse = {
+export type CreateRefreshTokenResponse = {
     refreshToken?: string
 } & DBServiceResponse
 
@@ -163,11 +163,11 @@ export async function createRefreshToken(params: CreateRefreshTokenParams): Prom
     }
 }
 
-type RevokeRefreshTokenParams = {
+export type RevokeRefreshTokenParams = {
     refreshToken: string
 }
 
-type RevokeRefreshTokenResponse = DBServiceResponse
+export type RevokeRefreshTokenResponse = DBServiceResponse
 
 /**
  * Revokes a given refresh token.

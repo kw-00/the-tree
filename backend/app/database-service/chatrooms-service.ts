@@ -1,17 +1,17 @@
-import { chatroomDoesNotExist, DBServiceResponse, userNotInChatroom, PaginationParams, pool, userDoesNotExist } from "./general/utility"
+import { chatroomDoesNotExist, type DBServiceResponse, userNotInChatroom, type PaginationParams, pool, userDoesNotExist } from "./general/utility"
 
-type ChatroomData = {
+export type ChatroomData = {
     id: number
     name: string
     joinedAt: Date
 }
 
-type CreateChatroomParams = {
+export type CreateChatroomParams = {
     userId: number
     chatroomName: string
 }
 
-type CreateChatroomResponse = {
+export type CreateChatroomResponse = {
     chatroomId?: number
 } & DBServiceResponse
 
@@ -45,11 +45,11 @@ export async function createChatroom(params: CreateChatroomParams): Promise<Crea
     }
 }
 
-type GetConnectedChatroomsParams = {
+export type GetConnectedChatroomsParams = {
     userId: number
 } & PaginationParams
 
-type GetConnectedChatroomsResponse = {
+export type GetConnectedChatroomsResponse = {
     chatrooms?: ChatroomData[]
 } & DBServiceResponse
 
@@ -88,13 +88,13 @@ export async function getConnectedChatrooms(params: GetConnectedChatroomsParams)
 }
 
 
-type AddFriendsToChatroomParams = {
+export type AddFriendsToChatroomParams = {
     userId: number
     friendIds: number
     chatroomId: number
 }
 
-type AddFriendsToChatroomResponse = {
+export type AddFriendsToChatroomResponse = {
     added?: number[]
     skipped?: number[]
     notFound?: number[]
@@ -165,12 +165,12 @@ export async function addFriendsToChatroom(params: AddFriendsToChatroomParams): 
     }
 }
 
-type LeaveChatroomParams = {
+export type LeaveChatroomParams = {
     userId: number
     chatroomId: number
 }
 
-type LeaveChatroomResponse = DBServiceResponse
+export type LeaveChatroomResponse = DBServiceResponse
 
 
 /**

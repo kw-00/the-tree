@@ -88,7 +88,7 @@ export async function recordDoesNotExist<T>(params: RecordDoesNotExistParams<T>)
         return {
             status: "NOT_FOUND",
             message: 
-                `${table[0].toUpperCase()}${table.substring(1, table.length - 1)} 
+                `${(table[0] ?? "").toUpperCase()}${table.substring(1, table.length - 1)} 
                 with ${column.toUpperCase()} of ${value} does not exist.`
         }
     }

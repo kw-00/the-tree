@@ -1,26 +1,26 @@
-import { DBServiceResponse, PaginationParams, pool, recordDoesNotExist, userDoesNotExist } from "./general/utility"
+import { type DBServiceResponse, type PaginationParams, pool, recordDoesNotExist, userDoesNotExist } from "./general/utility"
 
 
-type FriendshipCodeData = {
+export type FriendshipCodeData = {
     id: number
     code: string
     expiresAt?: Date
     createdAt: Date
 }
 
-type FriendData = {
+export type FriendData = {
     id: number
     login: string
     friendSince: Date
 }
 
-type CreateFriendshipCodeParams = {
+export type CreateFriendshipCodeParams = {
     userId: number
     code: string
     expiryDate?: Date
 }
 
-type CreateFriendshipCodeResponse = {
+export type CreateFriendshipCodeResponse = {
     friendshipCodeData?: FriendshipCodeData
 } & DBServiceResponse
 
@@ -48,11 +48,11 @@ export async function createFrienshipCode(params: CreateFriendshipCodeParams): P
     }
 }
 
-type GetFriendshipCodesParams = {
+export type GetFriendshipCodesParams = {
     userId: number
 } & PaginationParams
 
-type GetFriendshipCodesResponse = {
+export type GetFriendshipCodesResponse = {
     friendshipCodes?: FriendshipCodeData[]
 } & DBServiceResponse
 
@@ -90,12 +90,12 @@ export async function getFriendshipCodes(params: GetFriendshipCodesParams): Prom
     }
 }
 
-type RevokeFriendshipCodeParams = {
+export type RevokeFriendshipCodeParams = {
     userId: number
     friendshipCodeId: string
 }
 
-type RevokeFriendshipCodeResponse = DBServiceResponse
+export type RevokeFriendshipCodeResponse = DBServiceResponse
 
 /**
  * Revokes (invalidates) a friendship code on behalf of a given user.
@@ -152,13 +152,13 @@ export async function revokeFriendshipCode(params: RevokeFriendshipCodeParams): 
 }
 
 
-type AddFriendParams = {
+export type AddFriendParams = {
     userId: number
     userToBefriendLogin: string
     friendshipCode: string
 }
 
-type AddFriendResponse = {
+export type AddFriendResponse = {
     friendData?: FriendData
 } & DBServiceResponse
 
@@ -178,6 +178,7 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
     
     // Attempt to establish friendship in database while returning information
     // about how the attempt went and potentially about the friendship itself
+
     const query = await pool.query(`
         WITH matches(id, login) AS (
             SELECT u.id u.login FROM friendship_codes fc
@@ -196,8 +197,8 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
             RETURNING created_at
         )
         SELECT 
-            EXISTS(m.id) AS codeValid, 
-            EXISTS(i.created_at) AS rowInserted, 
+            (m.id IS NOT NULL) AS codeValid,
+            (i.created_at IS NOT NULL) AS rowInserted, 
             m.id AS friendId,
             m.login AS friendLogin,
             i.created_at AS friendSince
@@ -238,11 +239,11 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
 }
 
 
-type GetFriendsParams = {
+export type GetFriendsParams = {
     userId: number
 } & PaginationParams
 
-type GetFriendsResponse = {
+export type GetFriendsResponse = {
     friends?: FriendData[]
 } & DBServiceResponse
 
