@@ -4,7 +4,6 @@ import { accessToIdThenCall, type AccessTokenParams, type ControllerResponse } f
 
 
 export type CreateFriendshipCodeParams = AccessTokenParams<s.CreateFriendshipCodeParams>
-
 export type CreateFriendshipCodeResponse = ControllerResponse<s.CreateFriendshipCodeResponse>
 
 
