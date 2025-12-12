@@ -48,7 +48,7 @@ export function friendsRoutes(fastify: FastifyInstance, options: object) {
                         before: {type: "string", format: "date-time", nullable: true},
                         after: {type: "string", format: "date-time", nullable: true},
                         descending: {type: "boolean", nullable: true},
-                        limit: {type: "number", nullable: true}
+                        limit: {type: "integer", nullable: true}
                     }
                 }
             }
@@ -133,7 +133,7 @@ export function friendsRoutes(fastify: FastifyInstance, options: object) {
                         before: {type: "string", format: "date-time", nullable: true},
                         after: {type: "string", format: "date-time", nullable: true},
                         descending: {type: "boolean", nullable: true},
-                        limit: {type: "number", nullable: true}
+                        limit: {type: "integer", nullable: true}
                     }
                 }
             }

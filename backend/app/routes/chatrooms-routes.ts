@@ -47,7 +47,7 @@ export function chatroomsRoutes(fastify: FastifyInstance, options: object) {
                         before: {type: "string", format: "date-time", nullable: true},
                         after: {type: "string", format: "date-time", nullable: true},
                         descending: {type: "boolean", nullable: true},
-                        limit: {type: "number", nullable: true}
+                        limit: {type: "integer", nullable: true}
                     }
                 }
             }
