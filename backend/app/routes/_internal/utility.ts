@@ -47,10 +47,6 @@ const authSchemas = {
     }),
     refresh: z.object({
         refreshToken: z.uuidv4()
-    }),
-    both: z.object({
-        accessToken: z.jwt(),
-        refreshToken: z.uuidv4()
     })
 }
 
@@ -65,11 +61,6 @@ export function validateAuth<T extends AuthSchemaKey>(req: Req, type: T = "acces
         case "refresh":
             auth = {refreshToken: req.cookies.refreshToken}
             break
-        case "both":
-            auth = {
-                accessToken: req.cookies.accessToken,
-                refreshToken: req.cookies.refreshToken
-            }
     }
     const schema = authSchemas[type]
     return schema.parse(auth) as any
