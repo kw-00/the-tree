@@ -9,7 +9,7 @@ import { Config } from "@/config";
 const basePath = Config.api.basePath + Config.api.users.basePath
 const usersPaths = Config.api.users
 
-export function usersRoutes(fastify: FastifyInstance, options: object) {
+export async function usersRoutes(fastify: FastifyInstance, options: object) {
     // Register User
     fastify.post(`${basePath}${usersPaths.registerUser}`, {
             schema: {

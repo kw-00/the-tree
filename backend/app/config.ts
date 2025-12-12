@@ -69,7 +69,7 @@ const Schema = z.object({
         chatrooms: z.object({
             name: z.object({
                 minLength: z.int().positive(),
-                maxLenght: z.int().positive()
+                maxLength: z.int().positive()
             })
         }),
         messages: z.object({

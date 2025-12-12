@@ -7,6 +7,22 @@ type RecordDoesNotExistParams<T> = {
     table: string;
 };
 
+export function queryRowsToCamelCase(rows: any): any[] {
+    const typedRows = rows as Record<string, any>[]
+    let result = [] as Record<string, any>[]
+    typedRows.forEach(r => {
+        Object.entries(r).forEach(([k, v]) => {
+            const keyTokens = k.split("_")
+            let newName = String(keyTokens[0])
+            keyTokens.slice(1)
+                .map(t => `${(t[0] ?? "").toUpperCase()}${t.slice(1)}`)
+                .forEach(t => newName += t)
+            result.push({newName: v})
+        })
+    })
+    return result
+}
+
 /**
  * Checks whether a record with a given value at a given column exists, for a given table.
  * Uses pg internally and does not catch pg-related errors.
@@ -23,15 +39,18 @@ type RecordDoesNotExistParams<T> = {
  */
 export async function recordDoesNotExist<T>(params: RecordDoesNotExistParams<T>): Promise<DBServiceResponse | false> {
     const {value, column, table} = params
-    const recordExists = (await pool.query(`
-        SELECT EXISTS (SELECT 1 FROM ${table} WHERE ${column} = $1) AS userExists;
-    `, [value])).rows[0]["userExists"]
+    const query = await pool.query(`
+        SELECT EXISTS (SELECT 1 FROM ${table} WHERE ${column} = $1) AS record_exists;
+    `, [value])
+
+    const recordExists = query.rows[0]["record_exists"]
+    
     if (!recordExists) {
         return {
             status: "NOT_FOUND",
             message: 
-                `${(table[0] ?? "").toUpperCase()}${table.substring(1, table.length - 1)} 
-                with ${column.toUpperCase()} of ${value} does not exist.`
+                `${(table[0] ?? "").toUpperCase()}${table.substring(1, table.length - 1)} ` +
+                `with ${column.toUpperCase()} of ${value} does not exist.`
         }
     }
     return false
@@ -52,7 +71,7 @@ export async function recordDoesNotExist<T>(params: RecordDoesNotExistParams<T>)
  * ```
  */
 export async function userDoesNotExist(id: number): Promise<DBServiceResponse | false> {
-    return recordDoesNotExist({value: id, column: "id", table: "chatrooms"})
+    return recordDoesNotExist({value: id, column: "id", table: "users"})
 }
 
 /**

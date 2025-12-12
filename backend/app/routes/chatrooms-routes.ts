@@ -8,7 +8,7 @@ import type { Rep, Req } from "./public/types";
 const basePath = Config.api.basePath + Config.api.chatrooms
 const chatroomsPaths = Config.api.chatrooms
 
-export function chatroomsRoutes(fastify: FastifyInstance, options: object) {
+export async function chatroomsRoutes(fastify: FastifyInstance, options: object) {
 
     // Create Chatroom
     fastify.post(`${basePath}${chatroomsPaths.createChatroom}`, {

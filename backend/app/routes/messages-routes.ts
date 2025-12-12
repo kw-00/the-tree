@@ -8,7 +8,7 @@ import type { Rep, Req } from "./public/types";
 const basePath = Config.api.basePath + Config.api.messages
 const messagesPaths = Config.api.messages
 
-export function messagesRoutes(fastify: FastifyInstance, options: object) {
+export async function messagesRoutes(fastify: FastifyInstance, options: object) {
 
     // Create Message
     fastify.post(`${basePath}${messagesPaths.createMessage}`, {

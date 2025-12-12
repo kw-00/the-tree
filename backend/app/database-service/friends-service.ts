@@ -1,5 +1,5 @@
 import { pool } from "./_internal/pool"
-import { userDoesNotExist, recordDoesNotExist } from "./_internal/utility"
+import { userDoesNotExist, recordDoesNotExist, queryRowsToCamelCase } from "./_internal/utility"
 import type { DBServiceResponse, PaginationParams } from "./public/types"
 
 
@@ -39,10 +39,10 @@ export async function createFrienshipCode(params: CreateFriendshipCodeParams): P
     const query = await pool.query(`
         INSERT INTO friendship_codes (user_id, code, expires_at)
         VALUES ($1, $2, $3)
-        RETURNING id, code, expires_at AS expiresAt, created_at AS createdAt;
+        RETURNING id, code, expires_at, created_at;
     `, [params.userId, params.code, params.expiresAt])
 
-    const {id, code, expiresAt, createdAt} = query.rows[0]
+    const {id, code, expiresAt, createdAt} = queryRowsToCamelCase(query.rows)[0]
 
     return {
         friendshipCodeData: {id, code, expiresAt, createdAt},
@@ -72,7 +72,7 @@ export async function getFriendshipCodes(params: GetFriendshipCodesParams): Prom
     
     // Retrieve friendship codes
     const query = await pool.query(`
-        SELECT fc.id, fc.code, fc.expires_at AS expiresAt, fc.created_at AS createdAt
+        SELECT fc.id, fc.code, fc.expires_at, fc.created_at
         FROM friendship_codes fc
         INNER JOIN users u ON u.id = fc.user_id
         WHERE
@@ -87,7 +87,7 @@ export async function getFriendshipCodes(params: GetFriendshipCodesParams): Prom
     `, [userId, before, after, descending, limit])
 
     return {
-        friendshipCodes: query.rows,
+        friendshipCodes: queryRowsToCamelCase(query.rows),
         status: "SUCCESS",
         message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
     }
@@ -125,11 +125,11 @@ export async function revokeFriendshipCode(params: RevokeFriendshipCodeParams): 
         )
         SELECT 
             EXISTS (SELECT 1 FROM friendship_codes WHERE user_id = $1 AND id = $2) AS belongs,
-            EXISTS (SELECT 1 FROM updated) AS isUpdated
+            EXISTS (SELECT 1 FROM updated) AS is_updated
         ;
     `, [params.userId, params.friendshipCodeId])
 
-    const {belongs, isUpdated} = query.rows[0]
+    const {belongs, isUpdated} = queryRowsToCamelCase(query.rows)[0]
 
     // If revokation is succesful, success
     if (isUpdated) {
@@ -200,17 +200,17 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
             RETURNING created_at
         )
         SELECT 
-            (m.id IS NOT NULL) AS codeValid,
-            (i.created_at IS NOT NULL) AS rowInserted, 
-            m.id AS friendId,
-            m.login AS friendLogin,
-            i.created_at AS friendSince
+            (m.id IS NOT NULL) AS code_valid,
+            (i.created_at IS NOT NULL) AS row_inserted, 
+            m.id AS friend_id,
+            m.login AS friend_login,
+            i.created_at AS friend_since
         FROM (SELECT 1) AS dummy
         LEFT JOIN matches m ON TRUE
         LEFT JOIN inserted i ON TRUE;
     `, [params.friendshipCode, params.userToBefriendLogin, params.userId])
 
-    const {friendId, friendLogin, createdAt: friendSince, codeValid, rowInserted} = query.rows[0]
+    const {friendId, friendLogin, createdAt: friendSince, codeValid, rowInserted} = queryRowsToCamelCase(query.rows)[0]
 
     if (codeValid) {
         // If a row was inserted, that means the friendship has been established
@@ -263,7 +263,7 @@ export async function getFriends(params: GetFriendsParams): Promise<GetFriendsRe
     
     // Retrieve friends
     const query = await pool.query(`
-        SELECT u.id, u.login, f.created_at AS friendSince
+        SELECT u.id, u.login, f.created_at AS friend_since
         FROM users u
         INNER JOIN friends f ON u.id IN (f.user1_id, f.user2_id)
         WHERE
@@ -278,7 +278,7 @@ export async function getFriends(params: GetFriendsParams): Promise<GetFriendsRe
     `, [userId, before, after, descending, limit])
 
     return {
-        friends: query.rows,
+        friends: queryRowsToCamelCase(query.rows),
         status: "SUCCESS",
         message: `Successfully retrieved friends for user with ID of ${userId}.`
     }

@@ -1,8 +1,7 @@
 import { Config } from "@/config";
 import type { FastifyInstance } from "fastify";
 
-export function sharedSchema(fastify: FastifyInstance, options: object) {
-    fastify.addSchema({
+export const sharedSchema = {
     $id: "common", 
     type: "object",
     properties: {
@@ -16,17 +15,16 @@ export function sharedSchema(fastify: FastifyInstance, options: object) {
         },
         chatroomName: {type: "string", 
             minLength: Config.dataRules.chatrooms.name.minLength, 
-            maxLength: Config.dataRules.chatrooms.name.maxLenght
+            maxLength: Config.dataRules.chatrooms.name.maxLength
         },
         friendshipCode: {type: "string", 
             minLength: Config.dataRules.friends.friendshipCode.minLength, 
             maxLength: Config.dataRules.friends.friendshipCode.maxLength
         },
         messageContent: {type: "string", 
-            minLength: Config.dataRules.messages.content.maxLength, 
+            minLength: Config.dataRules.messages.content.minLength, 
             maxLength: Config.dataRules.messages.content.maxLength
         }
     }
-})
 }
 

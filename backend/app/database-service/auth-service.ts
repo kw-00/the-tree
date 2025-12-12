@@ -1,6 +1,6 @@
 import { DatabaseError } from "pg"
 import { pool } from "./_internal/pool"
-import { userDoesNotExist } from "./_internal/utility"
+import { queryRowsToCamelCase, userDoesNotExist } from "./_internal/utility"
 import { pgErrorCondition } from "./_internal/db-error-codes-mapping"
 import type { DBServiceResponse } from "./public/types"
 
@@ -72,7 +72,7 @@ export async function verifyRefreshToken(params: VerifyRefreshTokenParams): Prom
         ;
     `, [params.refreshToken, now])
 
-    const {status, expired, userId} = query.rows[0]
+    const {status, expired, userId} = queryRowsToCamelCase(query.rows)[0]
 
     // If no matching token was found, or it is expired, 
     // or has been revoked, then the token in question is invalid
@@ -114,6 +114,7 @@ export async function verifyRefreshToken(params: VerifyRefreshTokenParams): Prom
 
     // If all checks succeed, token is valid
     return {
+        userId: userId,
         status: "SUCCESS",
         message: "Refresh token is valid."
     }

@@ -9,7 +9,7 @@ export type CreateFriendshipCodeParams = AccessTokenParams<s.CreateFriendshipCod
 export type CreateFriendshipCodeResponse = ControllerResponse<s.CreateFriendshipCodeResponse>
 
 
-export async function createFrienshipCode(params: CreateFriendshipCodeParams): Promise<CreateFriendshipCodeResponse> {
+export async function createFriendshipCode(params: CreateFriendshipCodeParams): Promise<CreateFriendshipCodeResponse> {
     return accessToIdThenCall(params, s.createFrienshipCode)
 }
 

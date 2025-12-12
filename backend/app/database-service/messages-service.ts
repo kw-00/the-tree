@@ -1,5 +1,5 @@
 import { pool } from "./_internal/pool"
-import { userDoesNotExist, chatroomDoesNotExist, userNotInChatroom } from "./_internal/utility"
+import { userDoesNotExist, chatroomDoesNotExist, userNotInChatroom, queryRowsToCamelCase } from "./_internal/utility"
 import type { DBServiceResponse, PaginationParams } from "./public/types"
 
 
@@ -38,10 +38,10 @@ export async function createMessage(params: CreateMessageParams): Promise<Create
     const query = await pool.query(`
         INSERT INTO messages (user_id, chatroom_id, content)
         VALUES ($1, $2, $3)
-        RETURNING AT id, content, created_at AS createdAt;        
+        RETURNING AT id, content, created_at AS created_at;        
     `, [params.userId, params.chatroomId, params.content])
 
-    const {id, content, createdAt} = query.rows[0]
+    const {id, content, createdAt} = queryRowsToCamelCase(query.rows)[0]
 
     // Return message data
     return {
@@ -81,7 +81,7 @@ export async function getMessages(params: GetMessagesParams): Promise<GetMessage
 
     // Retrieve messages
     const query = await pool.query(`
-        SELECT m.id, m.content, m.created_at AS createdAt
+        SELECT m.id, m.content, m.created_at
         FROM chatrooms c
         INNER JOIN messages m ON m.chatroom_id = c.id
         WHERE
@@ -95,7 +95,7 @@ export async function getMessages(params: GetMessagesParams): Promise<GetMessage
     `, [chatroomId, before, after, descending, limit])
 
     return {
-        messagesData: query.rows,
+        messagesData: queryRowsToCamelCase(query.rows),
         status: "SUCCESS",
         message: `Successfully retrieved messages for chatroom with ID of ${chatroomId}.` 
     }

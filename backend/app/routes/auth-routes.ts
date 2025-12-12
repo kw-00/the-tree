@@ -8,7 +8,7 @@ import type { Rep, Req } from "./public/types";
 const basePath = Config.api.basePath + Config.api.auth.basePath
 const authPaths = Config.api.auth
 
-export function authRoutes(fastify: FastifyInstance, options: object) {
+export async function authRoutes(fastify: FastifyInstance, options: object) {
     // Log In
     fastify.post(`${basePath}${authPaths.logIn}`, {
             schema: {

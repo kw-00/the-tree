@@ -8,7 +8,7 @@ import type { Rep, Req } from "./public/types";
 const basePath = Config.api.basePath + Config.api.friends
 const friendsPaths = Config.api.friends
 
-export function friendsRoutes(fastify: FastifyInstance, options: object) {
+export async function friendsRoutes(fastify: FastifyInstance, options: object) {
 
     // Create Friendship Code
     fastify.post(`${basePath}${friendsPaths.createFriendshipCode}`, {
@@ -33,7 +33,7 @@ export function friendsRoutes(fastify: FastifyInstance, options: object) {
                         ...auth
                     }
                 },
-                controller.createFrienshipCode
+                controller.createFriendshipCode
             )
         }
     )  
