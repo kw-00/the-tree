@@ -23,7 +23,7 @@ export type ControllerResponse<Body = DBServiceResponse> = {
  * 
  * Overall, the response's structure looks like this:
  *  ```
- *   {
+ * type MyResponse = {
  *       httpStatus: number
  *       body: {...}
  *       auth?: { // Optional. If response does not have status "SUCCESS", auth is typically not sent
@@ -56,7 +56,8 @@ export type ControllerFunction<
 
 /**
  * Switches ```userId: number``` for ```accessToken: string```. Useful for types
- * representing controller params that are analogous to some database service function's params.
+ * representing controller params that are analogous to some database service function's params,
+ * where the controller requires an access token for authentication.
  * 
  * For example:
  * 
@@ -71,6 +72,26 @@ export type ControllerFunction<
  * ```
  */
 export type AccessTokenParams<DBParams extends IdParams> = Omit<DBParams, "userId"> & { accessToken: string} 
+
+/**
+ * Switches ```userId: number``` for ```login: string``` and password: ```string```. Useful for types
+ * representing controller params that are analogous to some database service function's params, where the
+ * controller requires user credentials for authentication.
+ * 
+ * For example:
+ * 
+ * ```
+ * // Database service
+ * export type MyServiceParams = {userId: number, favouriteColor: string}
+ * export async function myService(params: MyServiceParams): ...
+ * 
+ * // Controller
+ * export type MyControllerParams = AccessTokenParams<MyServiceParams> // {login: string, password: string, favouriteColor: string}
+ * export async function myController(params: MyControllerParams): ...
+ * ```
+ */
+export type CredentialParams<DBParams extends IdParams> = Omit<DBParams, "userId"> & { login: string, password: string} 
+
 export type IdParams = { userId: number} 
 
 

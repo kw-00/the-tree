@@ -1,11 +1,14 @@
 import { Config } from "@/config";
 import type { FastifyInstance, FastifyRequest } from "fastify";
+import { bodyExtractor, cookieExtractor, handleRequest } from "./_internal/utility";
+import * as controller from "@/controllers/auth-controller"
+import type { Rep, Req } from "./types";
 
 
-const basePath = Config.api.basePath
+const basePath = Config.api.basePath + Config.api.auth.basePath
 const authPaths = Config.api.auth
 
-export async function authRoutes(fastify: FastifyInstance, options: object) {
+export function authRoutes(fastify: FastifyInstance, options: object) {
     fastify.post(`${basePath}${authPaths.logIn}`, {
             schema: {
                 body: {
@@ -18,11 +21,10 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
                 }
             }
         }, 
-        async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
+        async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
-                ["login", "password"],
-                controller.authenticateUser
+                bodyExtractor, controller.logIn
             )
         }
     )
@@ -32,11 +34,10 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
                 body: {}
             }
         }, 
-        async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
+        async (req: Req, rep: Rep) => {
             await handleRequest(
-                req, rep,
-                ["refreshToken"],
-                controller.refreshToken
+                req, rep, 
+                cookieExtractor, controller.refreshToken
             )
         }
     )
@@ -46,11 +47,10 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
                 body: {}
             }
         }, 
-        async (req: FastifyRequest<{Body: Record<string, any>}>, rep) => {
+        async (req: Req, rep: Rep) => {
             await handleRequest(
-                req, rep,
-                ["refreshToken"],
-                controller.logOut
+                req, rep, 
+                cookieExtractor, controller.logOut
             )
         }
     )

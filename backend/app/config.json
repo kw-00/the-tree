@@ -2,16 +2,19 @@
     "api": {
         "basePath": "/api",
         "auth": {
+            "basePath": "/auth",
             "logIn": "/log_in",
             "refreshToken": "/refresh_token",
             "logOut": "/log_out"
         },
-        "user": {
+        "users": {
+            "basePath": "/users",
             "registerUser": "/register_user",
             "changeLogin": "/change_login",
             "changePassword": "/change_password"
         },
         "friends": {
+            "basePath": "/friends",
             "createFriendshipToken": "/create_friendship_token",
             "getFriendshipCodes": "/get_friendship_codes",
             "revokeFriendshipCode": "/revoke_friendship_code",
@@ -20,12 +23,14 @@
             "removeFriend": "/remove_friend"
         },
         "chatrooms": {
+            "basePath": "/chatrooms",
             "createChatroom": "/create_chatroom",
             "getConnectedChatrooms": "/get_connected_chatrooms",
             "addFriendsToChatroom": "/add_friends_to_chatroom",
             "leaveChatroom": "/leave_chatroom"
         },
         "messages": {
+            "basePath": "/messages",
             "createMessage": "/create_message",
             "getMessages": "/get_messages"
         }

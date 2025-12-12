@@ -23,7 +23,7 @@ export function dbServiceToController<Params, Body extends DBServiceResponse>(
 }
 
 /**
- * Predictably reates ```ControllerResponse``` from a ```DBServiceResponse```. Use when you don't want to manipulate
+ * Predictably creates ```ControllerResponse``` from a ```DBServiceResponse```. Use when you don't want to manipulate
  * the DBResponse and want a simple conversion.
  */
 export function simpleResponse<DBResponse extends DBServiceResponse>(response: DBResponse): ControllerResponse<DBResponse> {
