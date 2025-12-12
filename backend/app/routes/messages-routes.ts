@@ -1,7 +1,7 @@
 import { Config } from "@/config";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { handleRequest, validateAuth as parseAuth } from "./_internal/utility";
-import * as controller from "@/controllers/friends-controller"
+import * as controller from "@/controllers/messages-controller"
 import type { Rep, Req } from "./public/types";
 
 
@@ -33,7 +33,7 @@ export function messagesRoutes(fastify: FastifyInstance, options: object) {
                         ...auth
                     }
                 },
-                controller.createFrienshipCode
+                controller.createMessage
             )
         }
     )  
@@ -64,7 +64,7 @@ export function messagesRoutes(fastify: FastifyInstance, options: object) {
                         ...auth
                     }
                 },
-                controller.getFriendshipCodes
+                controller.getMessages
             )
         }
     )  
