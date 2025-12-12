@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify/types/instance";
-import type { Rep, Req } from "./types";
-import { bodyExtractor, handleRequest } from "./_internal/utility";
+import type { Rep, Req } from "./public/types";
+import { handleRequest } from "./_internal/utility";
 
 import * as controller from "@/controllers/users-controller"
 import { Config } from "@/config";
@@ -10,6 +10,7 @@ const basePath = Config.api.basePath + Config.api.users.basePath
 const usersPaths = Config.api.users
 
 export function usersRoutes(fastify: FastifyInstance, options: object) {
+    // Register User
     fastify.post(`${basePath}${usersPaths.registerUser}`, {
             schema: {
                 body: {
@@ -25,11 +26,15 @@ export function usersRoutes(fastify: FastifyInstance, options: object) {
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
-                bodyExtractor, controller.registerUser
+                (req) => {
+                    return req.body as any
+                },
+                controller.registerUser
             )
         }
     )
 
+    // Change Login
     fastify.post(`${basePath}${usersPaths.changeLogin}`, {
             schema: {
                 body: {
@@ -46,11 +51,15 @@ export function usersRoutes(fastify: FastifyInstance, options: object) {
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
-                bodyExtractor, controller.changeLogin
+                (req) => {
+                    return req.body as any
+                }, 
+                controller.changeLogin
             )
         }
     )
 
+    // Change Password
     fastify.post(`${basePath}${usersPaths.changePassword}`, {
             schema: {
                 body: {
@@ -67,7 +76,10 @@ export function usersRoutes(fastify: FastifyInstance, options: object) {
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
-                bodyExtractor, controller.changeLogin
+                (req) => {
+                    return req.body as any
+                }, 
+                controller.changeLogin
             )
         }
     )

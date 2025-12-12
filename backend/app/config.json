@@ -15,7 +15,7 @@
         },
         "friends": {
             "basePath": "/friends",
-            "createFriendshipToken": "/create_friendship_token",
+            "createFriendshipCode": "/create_friendship_code",
             "getFriendshipCodes": "/get_friendship_codes",
             "revokeFriendshipCode": "/revoke_friendship_code",
             "addFriend": "/add_friend",

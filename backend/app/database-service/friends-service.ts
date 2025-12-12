@@ -20,7 +20,7 @@ export type FriendData = {
 export type CreateFriendshipCodeParams = {
     userId: number
     code: string
-    expiryDate?: Date
+    expiresAt?: Date
 }
 
 export type CreateFriendshipCodeResponse = {
@@ -40,7 +40,7 @@ export async function createFrienshipCode(params: CreateFriendshipCodeParams): P
         INSERT INTO friendship_codes (user_id, code, expires_at)
         VALUES ($1, $2, $3)
         RETURNING id, code, expires_at AS expiresAt, created_at AS createdAt;
-    `, [params.userId, params.code, params.expiryDate])
+    `, [params.userId, params.code, params.expiresAt])
 
     const {id, code, expiresAt, createdAt} = query.rows[0]
 

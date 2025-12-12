@@ -21,7 +21,7 @@ const Schema = z.object({
         }),
         friends: z.object({
             basePath: z.string().startsWith("/"),
-            createFriendshipToken: z.string().startsWith("/"),
+            createFriendshipCode: z.string().startsWith("/"),
             getFriendshipCodes: z.string().startsWith("/"),
             revokeFriendshipCode: z.string().startsWith("/"),
             addFriend: z.string().startsWith("/"),

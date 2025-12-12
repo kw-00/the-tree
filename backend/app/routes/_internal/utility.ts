@@ -1,9 +1,15 @@
 import type { ControllerAuthResponse, ControllerFunction, ControllerResponse } from "@/controllers/public/types";
-import type { Rep, Req } from "../types";
+import type { Rep, Req } from "../public/types";
+
+import z from "zod"
 
 
 
-export async function handleRequest(req: Req, rep: Rep, paramExtractor: (req: Req) => any, controllerFunction: ControllerFunction<any, any, ControllerAuthResponse>) {
+export async function handleRequest<P>(
+    req: Req, rep: Rep, 
+    paramExtractor: (req: Req) => P,
+    controllerFunction: ControllerFunction<P, any, ControllerAuthResponse>
+) {
     try {
         const params = paramExtractor(req)
         const result = await controllerFunction(params)
@@ -11,7 +17,7 @@ export async function handleRequest(req: Req, rep: Rep, paramExtractor: (req: Re
         if (auth !== undefined) {
             const tokenCookieOptions = {secure: true, httpOnly: true, sameSite: "strict"} as const
             rep.cookie("accessToken", auth.accessToken, tokenCookieOptions)
-            rep.cookie("accessToken", auth.accessToken, tokenCookieOptions)
+            rep.cookie("refreshToken", auth.refreshToken, tokenCookieOptions)
         }
         rep.status(httpStatus).send(body)
 
@@ -35,15 +41,38 @@ export async function handleRequest(req: Req, rep: Rep, paramExtractor: (req: Re
     }
 }
 
-
-export const paramExtractor = (req: Req) => {
-    return req.params
-} 
-
-export const bodyExtractor = (req: Req) => {
-    return req.body
+const authSchemas = {
+    access: z.object({
+        accessToken: z.jwt()
+    }),
+    refresh: z.object({
+        refreshToken: z.uuidv4()
+    }),
+    both: z.object({
+        accessToken: z.jwt(),
+        refreshToken: z.uuidv4()
+    })
 }
 
-export const cookieExtractor = (req: Req) => {
-    return req.cookies
+type AuthSchemaKey = keyof typeof authSchemas
+
+export function validateAuth<T extends AuthSchemaKey>(req: Req, type: T = "access" as T): z.infer<typeof authSchemas[T]> {
+    let auth;
+    switch (type) {
+        case "access":
+            auth = {accessToken: req.cookies.accessToken}
+            break
+        case "refresh":
+            auth = {refreshToken: req.cookies.refreshToken}
+            break
+        case "both":
+            auth = {
+                accessToken: req.cookies.accessToken,
+                refreshToken: req.cookies.refreshToken
+            }
+    }
+    const schema = authSchemas[type]
+    return schema.parse(auth) as any
 }
+
+

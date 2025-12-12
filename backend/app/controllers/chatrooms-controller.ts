@@ -28,8 +28,8 @@ export async function addFriendsToChatroom(params: AddFriendsToChatroomParams): 
 }
 
 
-export type LeaveChatroomParams = AccessTokenParams<s.RemoveUserFromChatroomParams>
-export type LeaveChatroomResponse = ControllerResponse<s.RemoveUserFromChatroomResponse>
+export type LeaveChatroomParams = AccessTokenParams<s.LeaveChatroomParams>
+export type LeaveChatroomResponse = ControllerResponse<s.LeaveChatroomResponse>
 
 export async function leaveChatroom(params: LeaveChatroomParams): Promise<LeaveChatroomResponse> {
     return accessToIdThenCall(params, s.leaveChatroom)

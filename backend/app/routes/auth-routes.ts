@@ -1,14 +1,15 @@
 import { Config } from "@/config";
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import { bodyExtractor, cookieExtractor, handleRequest } from "./_internal/utility";
+import { handleRequest, validateAuth } from "./_internal/utility";
 import * as controller from "@/controllers/auth-controller"
-import type { Rep, Req } from "./types";
+import type { Rep, Req } from "./public/types";
 
 
 const basePath = Config.api.basePath + Config.api.auth.basePath
 const authPaths = Config.api.auth
 
 export function authRoutes(fastify: FastifyInstance, options: object) {
+    // Log In
     fastify.post(`${basePath}${authPaths.logIn}`, {
             schema: {
                 body: {
@@ -18,17 +19,24 @@ export function authRoutes(fastify: FastifyInstance, options: object) {
                         login: {$ref: "common#/properties/login"},
                         password: {$ref: "common#/properties/password"}
                     }
-                }
+                },
             }
         }, 
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
-                bodyExtractor, controller.logIn
+                (req) => {
+                    return {
+                        login: req.body.login,
+                        password: req.body.password
+                    }
+                },
+                controller.logIn
             )
         }
     )
     
+    // Refresh Token
     fastify.post(`${basePath}${authPaths.refreshToken}`, {
             schema: {
                 body: {}
@@ -37,11 +45,16 @@ export function authRoutes(fastify: FastifyInstance, options: object) {
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
-                cookieExtractor, controller.refreshToken
+                (req) => {
+                    const auth = validateAuth(req, "refresh")
+                    return auth
+                },
+                controller.refreshToken
             )
         }
     )
     
+    // Log Out
     fastify.post(`${basePath}${authPaths.logOut}`, {
             schema: {
                 body: {}
@@ -49,10 +62,13 @@ export function authRoutes(fastify: FastifyInstance, options: object) {
         }, 
         async (req: Req, rep: Rep) => {
             await handleRequest(
-                req, rep, 
-                cookieExtractor, controller.logOut
+                req, rep,
+                (req) => {
+                    const auth = validateAuth(req, "refresh")
+                    return auth
+                },
+                controller.logOut
             )
         }
     )
-    
 }
