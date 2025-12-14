@@ -1,4 +1,4 @@
-import { pool } from "../internal/pool";
+import { pool } from "../_internal/pool";
 
 
 export async function close() {

@@ -19,6 +19,10 @@ export type CreateChatroomResponse = {
 
 /**
  * Creates a chatroom on behalf of a given user. Adds that user into the chatroom immediately after.
+ * 
+ * Possible status values:
+ * - SUCCCESS
+ * - NOT_FOUND
  */
 export async function createChatroom(params: CreateChatroomParams): Promise<CreateChatroomResponse> {
     // Make sure user exists
@@ -59,6 +63,10 @@ export type GetConnectedChatroomsResponse = {
  * Retrieves all chatrooms for a given user.
  * 
  * Accepts ```PaginationParams```.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
  */
 export async function getConnectedChatrooms(params: GetConnectedChatroomsParams): Promise<GetConnectedChatroomsResponse> {
     const {userId, before, after, descending, limit} = params
@@ -108,6 +116,11 @@ export type AddFriendsToChatroomResponse = {
  * 
  * Returns three arrays with user IDs — one for friends that were added, another for friends that were skipped for whatever reason
  * and one more for users who weren't friends 
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
+ * - NOT_IN_CHATROOM
  */
 export async function addFriendsToChatroom(params: AddFriendsToChatroomParams): Promise<AddFriendsToChatroomResponse> {
     // Make sure user and chatroom exist
@@ -177,6 +190,11 @@ export type LeaveChatroomResponse = DBServiceResponse
 
 /**
  * Removes a user from a chatroom.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - SUCCESS_REDUNDANT
+ * - NOT_FOUND
  */
 export async function leaveChatroom(params: LeaveChatroomParams): Promise<LeaveChatroomResponse> {
     // Make sure user and chatroom exist

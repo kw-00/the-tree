@@ -8,6 +8,14 @@ import { Config } from "@/config"
 type LogInParams = s.AuthenticateUserParams
 type LoginResponse = ControllerAuthResponse
 
+/**
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - INVALID_CREDENTIALS
+ * - NOT_FOUND
+ * - UUID_COLLISION
+ */
 export async function logIn(params: LogInParams): Promise<LoginResponse> {
     // Check login and passord
     const authenticationResult = await s.authenticateUser(params)
@@ -36,6 +44,15 @@ export async function logIn(params: LogInParams): Promise<LoginResponse> {
 type RefreshTokenParams = s.VerifyRefreshTokenParams
 type RefreshTokenResponse = ControllerAuthResponse
 
+/**
+ * Possible status values:
+ * - SUCCESS
+ * - REFRESH_TOKEN_INVALID
+ * - REFRESH_TOKEN_REVOKED
+ * - REFRESH_TOKEN_REUSE
+ * - NOT_FOUND
+ * - UUID_COLLISION
+ */
 export async function refreshToken(params: RefreshTokenParams): Promise<RefreshTokenResponse> {
     // Verify refresh token
     const verificationResult = await s.verifyRefreshToken(params)
@@ -63,6 +80,11 @@ export async function refreshToken(params: RefreshTokenParams): Promise<RefreshT
 type LogOutParams = s.RevokeRefreshTokenParams
 type LogOutResponse = ControllerResponse
 
+/**
+ * Possible status values:
+ * - SUCCESS
+ * - SUCCESS_REDUNDANT
+ */
 export async function logOut(params: LogOutParams): Promise<LogOutResponse> {
     const tokenRevocationResult = await s.revokeRefreshToken(params)
     return simpleResponse(tokenRevocationResult)

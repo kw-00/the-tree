@@ -17,6 +17,11 @@ export type AuthenticateUserResponse = {
 
 /**
  * Authenticates a user with login and password
+ * 
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - INVALID_CREDENTIALS
  */
 export async function authenticateUser(params: AuthenticateUserParams): Promise<AuthenticateUserResponse> {
     // Look for matching login and password among users
@@ -52,6 +57,12 @@ export type VerifyRefreshTokenResponse = {
  * Checks whether a refresh token is valid and marks it as used. 
  * If the token has been used already, revokes all tokens for the associated user.
  * This means the token may have been stolen.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - REFRESH_TOKEN_INVALID
+ * - REFRESH_TOKEN_REVOKED
+ * - REFRESH_TOKEN_REUSE
  */
 export async function verifyRefreshToken(params: VerifyRefreshTokenParams): Promise<VerifyRefreshTokenResponse> {
 
@@ -132,6 +143,11 @@ export type CreateRefreshTokenResponse = {
 
 /**
  * Creates a refresh token for a specific user, with a mandatory validity period.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
+ * - UUID_COLLISION
  */
 export async function createRefreshToken(params: CreateRefreshTokenParams): Promise<CreateRefreshTokenResponse> {
     // Make sure user exists
@@ -175,6 +191,10 @@ export type RevokeRefreshTokenResponse = DBServiceResponse
 
 /**
  * Revokes a given refresh token.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - SUCCESS_REDUNDANT
  */
 export async function revokeRefreshToken(params: RevokeRefreshTokenParams): Promise<RevokeRefreshTokenResponse> {
     // Set the token status to "revoked"

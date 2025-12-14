@@ -17,6 +17,10 @@ export type RegisterUserResponse = {
 
 /**
  * Registers a user.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - LOGIN_IN_USE
  */
 export async function registerUser(params: RegisterUserParams): Promise<RegisterUserResponse> {
     try {
@@ -55,6 +59,10 @@ export type ChangeLoginResponse = DBServiceResponse
 
 /**
  * Changes a user's login.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
  */
 export async function changeLogin(params: ChangeLoginParams): Promise<ChangeLoginResponse> {
     // Make sure the user exists
@@ -83,6 +91,10 @@ export type ChangePasswordResponse = DBServiceResponse
 
 /**
  * Changes a user's password.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
  */
 export async function changePassword(params: ChangePasswordParams): Promise<ChangePasswordResponse> {
     // Make sure the user exists

@@ -6,6 +6,12 @@ import type { AccessTokenParams, ControllerResponse } from "./public/types"
 export type CreateMessageParams = AccessTokenParams<s.CreateMessageParams>
 export type CreateMessageResponse = ControllerResponse<s.CreateMessageResponse>
 
+/**
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
+ * - NOT_IN_CHATROOM
+ */
 export async function createMessage(params: CreateMessageParams): Promise<CreateMessageResponse> {
     return accessToIdThenCall(params, s.createMessage)
 }
@@ -14,6 +20,12 @@ export async function createMessage(params: CreateMessageParams): Promise<Create
 export type GetMessagesParams = AccessTokenParams<s.GetMessagesParams>
 export type GetMessagesResponse = ControllerResponse<s.GetMessagesResponse>
 
+/**
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
+ * - NOT_IN_CHATROOM
+ */
 export async function getMessages(params: GetMessagesParams): Promise<GetMessagesResponse> {
     return accessToIdThenCall(params, s.getMessages)
 }

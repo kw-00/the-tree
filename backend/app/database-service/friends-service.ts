@@ -29,6 +29,10 @@ export type CreateFriendshipCodeResponse = {
 
 /**
  * Creates a friendship code for a given user. Expiry date is optional.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
  */
 export async function createFrienshipCode(params: CreateFriendshipCodeParams): Promise<CreateFriendshipCodeResponse> {
     // Make sure user exists
@@ -63,6 +67,10 @@ export type GetFriendshipCodesResponse = {
  * Retrieves friendship codes for a given user.
  * 
  * Accepts ```PaginationParams```.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
  */
 export async function getFriendshipCodes(params: GetFriendshipCodesParams): Promise<GetFriendshipCodesResponse> {
     const {userId, before, after, descending, limit} = params
@@ -103,6 +111,13 @@ export type RevokeFriendshipCodeResponse = DBServiceResponse
 /**
  * Revokes (invalidates) a friendship code on behalf of a given user.
  * Only works if the user in fact owns the friendship code.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - SUCCESS_REDUNDANT
+ * - NOT_FOUND
+ * - NOT_OWNER_OF_FRIENDSHIP_CODE
+ * 
  */
 export async function revokeFriendshipCode(params: RevokeFriendshipCodeParams): Promise<RevokeFriendshipCodeResponse> {
     // Make sure user and friendship code exist
@@ -170,6 +185,12 @@ export type AddFriendResponse = {
  * 
  * One user is "active", meaning the friendship code is used on their behalf.
  * The other is "passive". They issued the friendship code.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - SUCCESS_REDUNDANT
+ * - NOT_FOUND
+ * - INVALID_FRIENDSHIP_CODE
  */
 export async function addFriend(params: AddFriendParams): Promise<AddFriendResponse> {
     // Make sure both users exist
@@ -254,6 +275,10 @@ export type GetFriendsResponse = {
  * Retrieves all friends of a given user.
  * 
  * Accepts ```PaginationParams```.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
  */
 export async function getFriends(params: GetFriendsParams): Promise<GetFriendsResponse> {
     const {userId, before, after, descending, limit} = params
@@ -291,6 +316,13 @@ export type RemoveFriendParams = {
 
 export type RemoveFriendResponse = DBServiceResponse
 
+/**
+ * Removes a friendship between user and their friend.
+ * Possible status values:
+ * - SUCCESS
+ * - SUCCESS_REDUNDANT
+ * - NOT_FOUND
+ */
 export async function removeFriend(params: RemoveFriendParams): Promise<RemoveFriendResponse> {
     const {userId, friendId} = params
     // Make sure user and friend exist

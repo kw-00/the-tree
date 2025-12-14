@@ -21,6 +21,11 @@ export type CreateMessageResponse = {
 
 /**
  * Creates a message from a specific user, in a specific chatroom
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
+ * - NOT_IN_CHATROOM
  */
 export async function createMessage(params: CreateMessageParams): Promise<CreateMessageResponse> {
     // Make sure the user and chatroom exist
@@ -64,6 +69,11 @@ export type GetMessagesResponse = {
  * Retrieves messages from a chatroom, on behalf of a user. That user must be in the chatroom.
  * 
  * Accepts ```PaginationParams```.
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
+ * - NOT_IN_CHATROOM
  */
 export async function getMessages(params: GetMessagesParams): Promise<GetMessagesResponse> {
     const {userId, chatroomId, before, after, descending, limit} = params
