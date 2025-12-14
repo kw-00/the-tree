@@ -50,7 +50,7 @@ export type LeaveChatroomResponse = ControllerResponse<s.LeaveChatroomResponse>
 /**
  * Possible status values:
  * - SUCCESS
- * - NOT_IN_CHATROOM
+ * - SUCCESS_REDUNDANT
  * - NOT_FOUND
  */
 export async function leaveChatroom(params: LeaveChatroomParams): Promise<LeaveChatroomResponse> {

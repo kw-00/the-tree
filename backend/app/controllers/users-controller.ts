@@ -4,7 +4,11 @@ import * as authService from "@/database-service/auth-service"
 import { dbServiceToController, simpleResponse } from "./_internal/utility"
 import type { ControllerResponse, CredentialParams } from "./public/types"
 
-
+/**
+ * Possible status values:
+ * - SUCCESS
+ * - LOGIN_IN_USE
+ */
 export const registerUser = dbServiceToController(s.registerUser)
 
 

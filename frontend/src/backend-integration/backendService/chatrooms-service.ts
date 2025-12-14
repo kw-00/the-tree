@@ -6,11 +6,18 @@ import type { PaginationParams, StandardResponse } from "./types"
 const baseUrl = `${ServerConfig.baseUrl}${ServerConfig.api.basePath}${ServerConfig.api.chatrooms.basePath}`
 const chatroomsPaths = ServerConfig.api.chatrooms
 
+export type ChatroomData = {
+    id: number
+    name: string
+    joinedAt: Date
+}
 
 export type CreateChatroomParams = {
     chatroomName: string
 }
-export type CreateChatroomResponse = StandardResponse<"SUCCESS" | "NOT_FOUND">
+export type CreateChatroomResponse = {
+    chatroomData?: ChatroomData
+} & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
 export async function createChatroom(params: CreateChatroomParams): Promise<CreateChatroomResponse> {
     return attemptAndRefreshToken(`${baseUrl}${chatroomsPaths.createChatroom}`, params)
@@ -18,7 +25,9 @@ export async function createChatroom(params: CreateChatroomParams): Promise<Crea
 
 
 export type GetConnectedChatroomsParams = PaginationParams
-export type GetConnectedChatroomsResponse = StandardResponse<"SUCCESS" | "NOT_FOUND">
+export type GetConnectedChatroomsResponse = {
+    chatroomsData?: ChatroomData[]
+} & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
 export async function getConnectedChatrooms(params: GetConnectedChatroomsParams): Promise<GetConnectedChatroomsResponse> {
     return attemptAndRefreshToken(`${baseUrl}${chatroomsPaths.getConnectedChatrooms}`, params)

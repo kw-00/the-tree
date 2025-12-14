@@ -23,7 +23,9 @@ export type CreateFriendshipCodeParams = {
     code: string
     expiresAt?: Date
 }
-export type CreateFriendshipCodeResponse = StandardResponse<"SUCCESS" | "NOT_FOUND">
+export type CreateFriendshipCodeResponse = {
+    friendshipCodeData?: FriendshipCodeData
+} & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
 
 export async function createFriendshipCode(params: CreateFriendshipCodeParams): Promise<CreateFriendshipCodeResponse> {
@@ -32,7 +34,9 @@ export async function createFriendshipCode(params: CreateFriendshipCodeParams): 
 
 
 export type GetFriendshipCodesParams = PaginationParams
-export type GetFriendshipCodesResponse = StandardResponse<"SUCCESS" | "NOT_FOUND">
+export type GetFriendshipCodesResponse = {
+    friendshipCodesData?: FriendshipCodeData[]
+} & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
 export async function getFriendshipCodes(params: GetFriendshipCodesParams): Promise<GetFriendshipCodesResponse> {
     return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getFriendshipCodes}`, params)
@@ -57,7 +61,9 @@ export type AddFriendParams = {
     userToBefriendLogin: string
     friendshipCode: string
 }
-export type AddFriendResponse = StandardResponse<
+export type AddFriendResponse = {
+    friendData?: FriendData
+} & StandardResponse<
     "SUCCESS" 
     | "SUCCESS_REDUNDANT"
     | "NOT_FOUND"
@@ -70,7 +76,9 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
 
 
 export type GetFriendsParams = PaginationParams
-export type GetFriendsResponse = StandardResponse<"SUCCESS" | "NOT_FOUND">
+export type GetFriendsResponse = {
+    friendsData?: FriendData[]
+} & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
 export async function getFriends(params: GetFriendsParams): Promise<GetFriendsResponse> {
     return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getFriends}`, params)

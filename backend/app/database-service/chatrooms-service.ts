@@ -1,5 +1,5 @@
 import { pool } from "./_internal/pool"
-import { chatroomDoesNotExist, userNotInChatroom, userDoesNotExist } from "./_internal/utility"
+import { chatroomDoesNotExist, userNotInChatroom, userDoesNotExist, queryRowsToCamelCase } from "./_internal/utility"
 import { type DBServiceResponse, type PaginationParams } from "./public/types"
 
 export type ChatroomData = {
@@ -14,7 +14,7 @@ export type CreateChatroomParams = {
 }
 
 export type CreateChatroomResponse = {
-    chatroomId?: number
+    chatroomData?: ChatroomData
 } & DBServiceResponse
 
 /**
@@ -31,21 +31,30 @@ export async function createChatroom(params: CreateChatroomParams): Promise<Crea
     
     // Create the chatroom and add the user to it
     const query = await pool.query(`
-        WITH inserted(id) AS (
+        WITH chatroom AS (
             INSERT INTO chatrooms (name) 
             VALUES ($1)
-            RETURNING id
+            RETURNING id, name
+        ),
+        cu AS (
+            INSERT INTO chatrooms_users (chatroom_id, user_id)
+            SELECT id, $2 FROM inserted
+            RETURNING created_at
         )
-        INSERT INTO chatrooms_users (chatroom_id, user_id)
-        SELECT id, $2 FROM inserted
-        RETURNING chatroom_id;
+        SELECT c.id, c.name, cu.created_at AS joined_at
+        FROM chatroom
+        LEFT JOIN cu ON TRUE;
     `, [params.chatroomName, params.userId])
 
-    const chatroomId = query.rows[0]["id"]
+    const {id, name, joinedAt} = queryRowsToCamelCase(query.rows)[0]
 
-    // Return the chatroom's ID
+    // Return chatroom data
     return {
-        chatroomId: chatroomId,
+        chatroomData: {
+            id: id,
+            name: name,
+            joinedAt: joinedAt
+        },
         status: "SUCCESS",
         message: "Successfully created chatroom and added user into it." 
     }
@@ -56,7 +65,7 @@ export type GetConnectedChatroomsParams = {
 } & PaginationParams
 
 export type GetConnectedChatroomsResponse = {
-    chatrooms?: ChatroomData[]
+    chatroomsData?: ChatroomData[]
 } & DBServiceResponse
 
 /**
@@ -91,7 +100,7 @@ export async function getConnectedChatrooms(params: GetConnectedChatroomsParams)
     `, [userId, before, after, descending, limit])
 
     return {
-        chatrooms: query.rows,
+        chatroomsData: query.rows,
         status: "SUCCESS",
         message: `Successfully retrieved connected chatroom for user ID of ${userId}.`
     }

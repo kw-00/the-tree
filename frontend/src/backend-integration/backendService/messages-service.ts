@@ -18,7 +18,7 @@ export type CreateMessageParams = {
 }
 
 export type CreateMessageResponse = {
-    messageData?: MessageData[]
+    messageData?: MessageData
 } & StandardResponse<"SUCCESS" | "NOT_FOUND" | "NOT_IN_CHATROOM">
 
 export async function createMessage(params: CreateMessageParams): Promise<CreateMessageResponse> {
@@ -30,7 +30,9 @@ export type GetMessagesParams = {
     chatroomId: number
 } & PaginationParams
 
-export type GetMessagesResponse = StandardResponse<"SUCCESS" | "NOT_FOUND" | "NOT_IN_CHATROOM">
+export type GetMessagesResponse = {
+    messagesData?: MessageData[]
+} & StandardResponse<"SUCCESS" | "NOT_FOUND" | "NOT_IN_CHATROOM">
 
 export async function getMessages(params: GetMessagesParams): Promise<GetMessagesResponse> {
     return attemptAndRefreshToken(`${baseUrl}${messagesPaths.getMessages}`, params)

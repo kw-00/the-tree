@@ -60,7 +60,7 @@ export type GetFriendshipCodesParams = {
 } & PaginationParams
 
 export type GetFriendshipCodesResponse = {
-    friendshipCodes?: FriendshipCodeData[]
+    friendshipCodesData?: FriendshipCodeData[]
 } & DBServiceResponse
 
 /**
@@ -95,7 +95,7 @@ export async function getFriendshipCodes(params: GetFriendshipCodesParams): Prom
     `, [userId, before, after, descending, limit])
 
     return {
-        friendshipCodes: queryRowsToCamelCase(query.rows),
+        friendshipCodesData: queryRowsToCamelCase(query.rows),
         status: "SUCCESS",
         message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
     }
@@ -103,7 +103,7 @@ export async function getFriendshipCodes(params: GetFriendshipCodesParams): Prom
 
 export type RevokeFriendshipCodeParams = {
     userId: number
-    friendshipCodeId: string
+    friendshipCodeId: number
 }
 
 export type RevokeFriendshipCodeResponse = DBServiceResponse
@@ -268,7 +268,7 @@ export type GetFriendsParams = {
 } & PaginationParams
 
 export type GetFriendsResponse = {
-    friends?: FriendData[]
+    friendsData?: FriendData[]
 } & DBServiceResponse
 
 /**
@@ -303,7 +303,7 @@ export async function getFriends(params: GetFriendsParams): Promise<GetFriendsRe
     `, [userId, before, after, descending, limit])
 
     return {
-        friends: queryRowsToCamelCase(query.rows),
+        friendsData: queryRowsToCamelCase(query.rows),
         status: "SUCCESS",
         message: `Successfully retrieved friends for user with ID of ${userId}.`
     }

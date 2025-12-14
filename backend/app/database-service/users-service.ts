@@ -11,9 +11,7 @@ export type RegisterUserParams = {
     password: string
 }
 
-export type RegisterUserResponse = {
-    userId?: number
-} & DBServiceResponse
+export type RegisterUserResponse = DBServiceResponse
 
 /**
  * Registers a user.
