@@ -58,7 +58,7 @@ export const getFriends = infiniteQueryOptions({
 })
 
 export const removeFriend = mutationOptions({
-    mutationFn: async (params: bs.RemoveFriendParams) => bs.removeFriend(params)
+    mutationFn: async (params: bs.RemoveFriendParams) => throwErrorOnRequestFailure(() => bs.removeFriend(params))
 })
 
 async function fetchFriendshipCodes(context: QueryFunctionContext) {
