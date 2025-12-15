@@ -3,9 +3,8 @@ import raw from "@/backend-integration/server-config.json" with {type: "json"}
 
 import z from "zod"
 
-
 const Schema = z.object({
-    baseUrl: z.httpUrl(),
+    baseUrl: z.string(),
     api: z.object({
         basePath: z.string().startsWith("/"),
         auth: z.object({

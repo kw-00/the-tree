@@ -1,8 +1,6 @@
 import { refreshToken } from "./auth-service"
 import type { StandardResponse } from "./types"
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL
-
 
 export async function makePOSTRequest(endpointUrl: string, requestBody?: {[key: string]: any}): Promise<StandardResponse<any>> {
     if (requestBody !== undefined) {
@@ -12,9 +10,9 @@ export async function makePOSTRequest(endpointUrl: string, requestBody?: {[key: 
     }
 
     const response = await fetch(
-        `${baseUrl}${endpointUrl}`, {
+        endpointUrl, {
             method: "POST",
-            headers: requestBody !== undefined ? {"Content-Type": "application/json"} : undefined,
+            headers: {"Content-Type": "application/json"},
             credentials: "include",
             body: requestBody !== undefined ? JSON.stringify(requestBody) : JSON.stringify({})
         }
@@ -25,7 +23,7 @@ export async function makePOSTRequest(endpointUrl: string, requestBody?: {[key: 
 
 export async function attemptAndRefreshToken(endpointUrl: string, body: object): Promise<StandardResponse<any>> {
     let response = await makePOSTRequest(endpointUrl, body)
-    if (response.status === "SUCCESS") {
+    if (response.status !== "SUCCESS") {
         const refreshAttemptResult = await refreshToken({})
         if (refreshAttemptResult.status === "SUCCESS") {
             response = await makePOSTRequest(endpointUrl, body)

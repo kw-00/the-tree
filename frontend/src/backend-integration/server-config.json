@@ -36,6 +36,14 @@
             "getMessages": "/get_messages"
         }
     },
+    "tokens": {
+        "access": {
+            "validityPeriod": 1000
+        },
+        "refresh": {
+            "validityPeriod": 100000
+        }
+    },
     "dataRules": {
         "users": {
             "login": {
