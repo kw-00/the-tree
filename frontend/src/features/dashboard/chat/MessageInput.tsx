@@ -1,8 +1,9 @@
-import { createMessage } from "@/services/tanstack-service"
+
 import { Button, HStack, Textarea, VStack, type StackProps } from "@chakra-ui/react"
 import { useMutation } from "@tanstack/react-query"
 import { useState, type FormEvent } from "react"
 import { useChatContext } from "../ChatContext"
+import { createMessage } from "@/backend-integration/queries/messages-queries"
 
 
 export default function MessageInput(props: StackProps) {
@@ -12,7 +13,7 @@ export default function MessageInput(props: StackProps) {
     const [content, setContent] = useState("")
 
     // Muation for creating a message
-    const messageMutation = useMutation(createMessage())
+    const messageMutation = useMutation(createMessage)
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()

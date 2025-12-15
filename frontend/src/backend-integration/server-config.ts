@@ -1,4 +1,4 @@
-import raw from "@/backend-integration/server-config.json" assert {type: "json"}
+import raw from "@/backend-integration/server-config.json" with {type: "json"}
 
 
 import z from "zod"

@@ -6,6 +6,8 @@ import type { DBServiceResponse, PaginationParams } from "./public/types"
 export type MessageData = {
     id: number
     content: string
+    userId: number
+    userLogin: string
     createdAt: Date
 }
 
@@ -41,16 +43,22 @@ export async function createMessage(params: CreateMessageParams): Promise<Create
 
     // Create the message
     const query = await pool.query(`
-        INSERT INTO messages (user_id, chatroom_id, content)
-        VALUES ($1, $2, $3)
-        RETURNING AT id, content, created_at AS created_at;        
+        WITTH inserted AS (
+            INSERT INTO messages (user_id, chatroom_id, content)
+            VALUES ($1, $2, $3)
+            RETURNING AT id, content, created_at
+        )
+        SELECT i.id, i.content, u.login AS user_login, i.created_at
+        FROM inserted i
+        INNER JOIN users u ON u.id = $1;
+        
     `, [params.userId, params.chatroomId, params.content])
 
-    const {id, content, createdAt} = queryRowsToCamelCase(query.rows)[0]
+    const {id, content, userLogin, createdAt} = queryRowsToCamelCase(query.rows)[0]
 
     // Return message data
     return {
-        messageData: {id, content, createdAt},
+        messageData: {id, content, userId: params.userId, userLogin: userLogin, createdAt},
         status: "SUCCESS",
         message: "Message created."
     }
@@ -91,9 +99,10 @@ export async function getMessages(params: GetMessagesParams): Promise<GetMessage
 
     // Retrieve messages
     const query = await pool.query(`
-        SELECT m.id, m.content, m.created_at
+        SELECT m.id, m.content, u.id AS user_id, u.login AS user_login, m.created_at
         FROM chatrooms c
         INNER JOIN messages m ON m.chatroom_id = c.id
+        INNER JOIN users u ON u.id = m.user_id
         WHERE
             c.id = $1
             AND ($2 IS NULL OR m.created_at < $2)

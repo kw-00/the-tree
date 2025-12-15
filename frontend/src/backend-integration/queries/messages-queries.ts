@@ -9,9 +9,9 @@ export const createMessage = mutationOptions({
     mutationFn: async (params: bs.CreateMessageParams) => throwErrorOnRequestFailure(() => bs.createMessage(params))
 })
 
-export const getMessages = (chatroomId: number) => infiniteQueryOptions({
+export const getMessages = (chatroomId: number | null) => infiniteQueryOptions({
     queryKey: ["chatrooms", chatroomId],
-    queryFn: getFetchMessagesFunction(chatroomId),
+    queryFn: getFetchMessagesFunction(chatroomId!),
     getNextPageParam: (lastPage) => {
         const date = lastPage[lastPage.length - 1].createdAt
         return {
@@ -26,7 +26,8 @@ export const getMessages = (chatroomId: number) => infiniteQueryOptions({
             direction: "after"
         }
     },
-    initialPageParam: {date: new Date(), direction: "before"}
+    initialPageParam: {date: new Date(), direction: "before"},
+    enabled: !!chatroomId
 })
 
 const getFetchMessagesFunction = (chatroomId: number) => async function fetchMessages(context: QueryFunctionContext) {

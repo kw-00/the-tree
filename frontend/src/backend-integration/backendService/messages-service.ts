@@ -9,6 +9,8 @@ const messagesPaths = ServerConfig.api.messages
 export type MessageData = {
     id: number
     content: string
+    userId: number
+    userLogin: string
     createdAt: Date
 }
 

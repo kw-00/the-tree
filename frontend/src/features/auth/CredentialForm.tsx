@@ -1,43 +1,30 @@
 import BoxForm, { type BoxFormProps } from "@/components/BoxForm"
 import { PasswordInput } from "@/components/ui/password-input"
-import type { authenticateUser } from "@/services/tanstack-service"
 import { Button, Field, Fieldset, Heading, Input, type FieldsetRootProps } from "@chakra-ui/react"
-import { useMutation } from "@tanstack/react-query"
-import type { FormEvent } from "react"
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useState, type FormEvent } from "react"
+
 
 interface CredentialFormProps {
-    mutationFactory: typeof authenticateUser
+    handleSubmit: (params: {login: string, password: string}) => void
     submitButtonText: string
     boxProps?: BoxFormProps
     fieldsetProps?: FieldsetRootProps
 }
 
-export default function CredentialForm({mutationFactory, submitButtonText, boxProps, fieldsetProps}: CredentialFormProps & FieldsetRootProps) {
+export default function CredentialForm({handleSubmit, submitButtonText, boxProps, fieldsetProps}: CredentialFormProps & FieldsetRootProps) {
 
     const [login, setLogin] = useState("")
     const [password, setPassword] = useState("")
     
-    // Mutation to be used upon submission
-    const {isError, isSuccess, status, mutateAsync} = useMutation(mutationFactory())
-
-    const handleSubmit = async (e: FormEvent) => {
+    const onSubmit = (e: FormEvent) => {
         e.preventDefault()
-        await mutateAsync({login, password})
+        handleSubmit({login, password})
     }
 
-    // Navigate to dashboard when mutation succeeds
-    const navigate = useNavigate()
-    useEffect(() => {
-        if (isSuccess) {
-            navigate("/dashboard")
-        }
-    }, [status])
 
     return (
-        <BoxForm onSubmit={handleSubmit} {...boxProps}>
-            <Fieldset.Root {...fieldsetProps} invalid={isError}>
+        <BoxForm onSubmit={onSubmit} {...boxProps}>
+            <Fieldset.Root {...fieldsetProps}>
                 <Fieldset.Legend><Heading size="sm">Enter your credentials</Heading></Fieldset.Legend>
                 <Fieldset.Content>
                     <Field.Root>
