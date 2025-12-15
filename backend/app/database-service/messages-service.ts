@@ -105,10 +105,10 @@ export async function getMessages(params: GetMessagesParams): Promise<GetMessage
         INNER JOIN users u ON u.id = m.user_id
         WHERE
             c.id = $1
-            AND ($2 IS NULL OR m.created_at < $2)
-            AND ($3 IS NULL OR m.created_at > $3)
+            AND ($2::TIMESTAMPTZ IS NULL OR m.created_at < $2::TIMESTAMPTZ)
+            AND ($3::TIMESTAMPTZ IS NULL OR m.created_at > $3::TIMESTAMPTZ)
         ORDER BY 
-            CASE WHEN $4 THEN m.id END DESC
+            CASE WHEN $4 THEN m.id END DESC,
             m.id ASC
         LIMIT $5;
     `, [chatroomId, before, after, descending, limit])

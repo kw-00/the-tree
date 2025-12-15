@@ -5,7 +5,7 @@ import * as controller from "@/controllers/friends-controller"
 import type { Rep, Req } from "./public/types";
 
 
-const basePath = Config.api.basePath + Config.api.friends
+const basePath = Config.api.basePath + Config.api.friends.basePath
 const friendsPaths = Config.api.friends
 
 export async function friendsRoutes(fastify: FastifyInstance, options: object) {
@@ -43,12 +43,11 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
             schema: {
                 body: {
                     type: "object",
-                    required: ["before", "after", "descending", "limit"],
                     properties: {
-                        before: {type: "string", format: "date-time", nullable: true},
-                        after: {type: "string", format: "date-time", nullable: true},
-                        descending: {type: "boolean", nullable: true},
-                        limit: {type: "integer", nullable: true}
+                        before: {type: "string", format: "date-time"},
+                        after: {type: "string", format: "date-time",},
+                        descending: {type: "boolean"},
+                        limit: {type: "integer"}
                     }
                 }
             }
@@ -127,13 +126,11 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
     fastify.post(`${basePath}${friendsPaths.getFriends}`, {
             schema: {
                 body: {
-                    type: "object",
-                    required: ["before", "after", "descending", "limit"],
                     properties: {
-                        before: {type: "string", format: "date-time", nullable: true},
-                        after: {type: "string", format: "date-time", nullable: true},
-                        descending: {type: "boolean", nullable: true},
-                        limit: {type: "integer", nullable: true}
+                        before: {type: "string", format: "date-time"},
+                        after: {type: "string", format: "date-time"},
+                        descending: {type: "boolean"},
+                        limit: {type: "integer"}
                     }
                 }
             }

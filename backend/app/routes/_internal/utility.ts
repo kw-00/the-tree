@@ -15,7 +15,7 @@ export async function handleRequest<P>(
         const result = await controllerFunction(params)
         const {httpStatus, body, auth} = result
         if (auth !== undefined) {
-            const tokenCookieOptions = {secure: true, httpOnly: true, sameSite: "strict"} as const
+            const tokenCookieOptions = {secure: true, httpOnly: true, sameSite: "strict", expires: new Date("2030"), path: "/"} as const
             rep.cookie("accessToken", auth.accessToken, tokenCookieOptions)
             rep.cookie("refreshToken", auth.refreshToken, tokenCookieOptions)
         }

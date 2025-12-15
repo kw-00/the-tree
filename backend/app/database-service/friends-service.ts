@@ -86,10 +86,10 @@ export async function getFriendshipCodes(params: GetFriendshipCodesParams): Prom
         WHERE
             u.id = $1
             AND fc.expires_at > now()
-            AND ($2 IS NULL OR fc.created_at < $2)
-            AND ($3 IS NULL OR fc.created_at > $3)
+            AND ($2::TIMESTAMPTZ IS NULL OR fc.created_at < $2::TIMESTAMPTZ)
+            AND ($3::TIMESTAMPTZ IS NULL OR fc.created_at > $3::TIMESTAMPTZ)
         ORDER BY 
-            CASE WHEN $4 THEN fc.created_at END DESC
+            CASE WHEN $4 THEN fc.created_at END DESC,
             fc.created_at ASC
         LIMIT $5;
     `, [userId, before, after, descending, limit])
@@ -294,11 +294,11 @@ export async function getFriends(params: GetFriendsParams): Promise<GetFriendsRe
         WHERE
             $1 IN (f.user1_id, f.user2_id)
             AND u.id != $1
-            AND ($2 IS NULL OR f.created_at < $2)
-            AND ($3 IS NULL OR f.created_at > $3)
+            AND ($2::TIMESTAMPTZ IS NULL OR f.created_at < $2::TIMESTAMPTZ)
+            AND ($3::TIMESTAMPTZ IS NULL OR f.created_at > $3::TIMESTAMPTZ)
         ORDER BY 
-            CASE WHEN $4 THEN f.id END DESC
-            f.id ASC
+            CASE WHEN $4 THEN f.created_at END DESC,
+            f.created_at ASC
         LIMIT $5;
     `, [userId, before, after, descending, limit])
 

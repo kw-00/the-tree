@@ -5,7 +5,7 @@ import * as controller from "@/controllers/chatrooms-controller"
 import type { Rep, Req } from "./public/types";
 
 
-const basePath = Config.api.basePath + Config.api.chatrooms
+const basePath = Config.api.basePath + Config.api.chatrooms.basePath
 const chatroomsPaths = Config.api.chatrooms
 
 export async function chatroomsRoutes(fastify: FastifyInstance, options: object) {
@@ -42,12 +42,11 @@ export async function chatroomsRoutes(fastify: FastifyInstance, options: object)
             schema: {
                 body: {
                     type: "object",
-                    required: ["before", "after", "descending", "limit"],
                     properties: {
-                        before: {type: "string", format: "date-time", nullable: true},
-                        after: {type: "string", format: "date-time", nullable: true},
-                        descending: {type: "boolean", nullable: true},
-                        limit: {type: "integer", nullable: true}
+                        before: {type: "string", format: "date-time"},
+                        after: {type: "string", format: "date-time"},
+                        descending: {type: "boolean"},
+                        limit: {type: "integer"}
                     }
                 }
             }

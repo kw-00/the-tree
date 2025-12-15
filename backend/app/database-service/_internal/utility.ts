@@ -116,8 +116,8 @@ export async function userNotInChatroom(params: NotInChatroomParams): Promise<DB
             SELECT 1 FROM users u
             INNER JOIN chatrooms_users cu ON cu.user_id = u.id
             INNER JOIN chatrooms c ON c.id = cu.chatroom_id
-        ) AS inChatroom;
-    `)).rows[0]["inChatroom"]
+        ) AS in_chatroom;
+    `)).rows[0]["in_chatroom"]
     if (!inChatroom) {
         return {
             status: "NOT_IN_CHATROOM",

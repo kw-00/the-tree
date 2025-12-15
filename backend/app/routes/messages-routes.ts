@@ -5,7 +5,7 @@ import * as controller from "@/controllers/messages-controller"
 import type { Rep, Req } from "./public/types";
 
 
-const basePath = Config.api.basePath + Config.api.messages
+const basePath = Config.api.basePath + Config.api.messages.basePath
 const messagesPaths = Config.api.messages
 
 export async function messagesRoutes(fastify: FastifyInstance, options: object) {
@@ -43,13 +43,13 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
             schema: {
                 body: {
                     type: "object",
-                    required: ["chatroomId", "before", "after", "descending", "limit"],
+                    required: ["chatroomId"],
                     properties: {
                         chatroomId: {type: "integer"},
-                        before: {type: "string", format: "date-time", nullable: true},
-                        after: {type: "string", format: "date-time", nullable: true},
-                        descending: {type: "boolean", nullable: true},
-                        limit: {type: "integer", nullable: true}
+                        before: {type: "string", format: "date-time"},
+                        after: {type: "string", format: "date-time"},
+                        descending: {type: "boolean"},
+                        limit: {type: "integer"}
                     }
                 }
             }

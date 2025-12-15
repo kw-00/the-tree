@@ -75,12 +75,15 @@ export async function verifyRefreshToken(params: VerifyRefreshTokenParams): Prom
             WHERE 
                 uuid = $1
                 AND status = 'default'
+            RETURNING status, expires_at, user_id
         )
         SELECT 
             status, 
             (expires_at <= $2) AS expired,
-            user_id AS userId
-        ;
+            user_id
+        FROM 
+        (SELECT 1) AS dummy
+        LEFT JOIN updated ON TRUE;
     `, [params.refreshToken, now])
 
     const {status, expired, userId} = queryRowsToCamelCase(query.rows)[0]

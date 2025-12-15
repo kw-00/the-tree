@@ -85,16 +85,16 @@ export async function getConnectedChatrooms(params: GetConnectedChatroomsParams)
     
     // Retrieve chatrooms
     const query = await pool.query(`
-        SELECT c.id, c.name, c.created_at AS joinedAt
+        SELECT c.id, c.name, c.created_at AS joined_at
         FROM chatrooms c
         INNER JOIN chatrooms_users cu ON cu.chatroom_id = c.id
         INNER JOIN users u ON u.id = cu.user_id
         WHERE
             u.id = $1
-            AND ($2 IS NULL OR c.created_at < $2)
-            AND ($3 IS NULL OR c.created_at > $3)
+            AND ($2::TIMESTAMPTZ IS NULL OR c.created_at < $2::TIMESTAMPTZ)
+            AND ($3::TIMESTAMPTZ IS NULL OR c.created_at > $3::TIMESTAMPTZ)
         ORDER BY 
-            CASE WHEN $4 THEN c.id END DESC
+            CASE WHEN $4 THEN c.id END DESC,
             c.id ASC
         LIMIT $5;
     `, [userId, before, after, descending, limit])

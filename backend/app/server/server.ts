@@ -14,7 +14,7 @@ import { messagesRoutes } from "@/routes/messages-routes"
 
 
 const fastify = Fastify({
-    logger: false,
+    logger: true,
     https: {
         cert: fs.readFileSync("./cert/certificate.crt"),
         key: fs.readFileSync("./cert/key.pem")
