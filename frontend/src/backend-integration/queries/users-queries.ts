@@ -3,18 +3,14 @@ import * as bs from "../backendService/users-service"
 import { throwErrorOnRequestFailure } from "./_utility"
 
 
-const usersQueries = {
-    registerUser: mutationOptions({
-        mutationFn: (params: bs.RegisterUserParams) => throwErrorOnRequestFailure(() => bs.registerUser(params))
-    }),
+export const registerUser = mutationOptions({
+    mutationFn: (params: bs.RegisterUserParams) => throwErrorOnRequestFailure(() => bs.registerUser(params))
+})
 
-    changeLogin: mutationOptions({
-        mutationFn: (params: bs.ChangeLoginParams) => throwErrorOnRequestFailure(() => bs.changeLogin(params))
-    }),
+export const changeLogin = mutationOptions({
+    mutationFn: (params: bs.ChangeLoginParams) => throwErrorOnRequestFailure(() => bs.changeLogin(params))
+})
 
-    changePassword: mutationOptions({
-        mutationFn: (params: bs.ChangePasswordParams) => throwErrorOnRequestFailure(() => bs.changePassword(params))
-    })
-}
-
-export default usersQueries
+export const changePassword = mutationOptions({
+    mutationFn: (params: bs.ChangePasswordParams) => throwErrorOnRequestFailure(() => bs.changePassword(params))
+})
