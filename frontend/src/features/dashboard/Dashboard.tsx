@@ -11,12 +11,12 @@ export default function Dashboard() {
   return (
     <Provider>
       <ChatProvider>
-        <HStack justifyContent="center" alignItems="start" flexGrow={1}>
+        <HStack justifyContent="center" alignItems="start" flexGrow={1} onScroll={() => console.log("hello")}>
             <FriendsPanel/>
             <VStack flexGrow={1} alignItems="stretch">
               <ChatroomsPanel p="10"/>
             </VStack>
-            <VStack h="100vh" alignItems="stretch" px="8" overflowY="scroll" flexGrow={2} >
+            <VStack h="100vh" alignItems="stretch" px="8" flexGrow={2} >
               <HStack justifyContent="flex-end" position="sticky" top={0} bg="currentBg" zIndex={1}>
                   <LogoutButton variant="secondary"/>
               </HStack>

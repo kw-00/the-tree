@@ -5,22 +5,18 @@ import { useState, type FormEvent } from "react"
 import { useChatContext } from "../ChatContext"
 import { createMessage } from "@/backend-integration/queries/messages-queries"
 
+type MessageInputProps = {
+    handleSubmit: (content: string) => void 
+} & StackProps
 
-export default function MessageInput(props: StackProps) {
-
-    const {selectedChatroomId} = useChatContext()
+export default function MessageInput(props: MessageInputProps) {
 
     const [content, setContent] = useState("")
 
-    // Muation for creating a message
-    const messageMutation = useMutation(createMessage)
-
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
-        if (selectedChatroomId) {
-            messageMutation.mutateAsync({chatroomId: selectedChatroomId, content: content})
-            setContent("")
-        }
+        props.handleSubmit(content)
+        setContent("")
     }
 
     return (

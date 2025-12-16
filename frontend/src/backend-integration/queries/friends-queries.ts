@@ -13,17 +13,17 @@ export const getFriendshipCodes = infiniteQueryOptions({
     queryKey: ["friendshipCodes"],
     queryFn: fetchFriendshipCodes,
     getNextPageParam: (lastPage) => {
-        const date = lastPage[lastPage.length - 1].createdAt
-        return {
-            date: date,
-            direction: "before"
-        }
-    },
-    getPreviousPageParam: (firstPage) => {
-        const date = firstPage[0].createdAt
+        const date = lastPage[0].createdAt
         return {
             date: date,
             direction: "after"
+        }
+    },
+    getPreviousPageParam: (firstPage) => {
+        const date = firstPage[firstPage.length - 1].createdAt
+        return {
+            date: date,
+            direction: "before"
         }
     },
     initialPageParam: {date: new Date(), direction: "before"}
@@ -41,17 +41,17 @@ export const getFriends = infiniteQueryOptions({
     queryKey: ["friends"],
     queryFn: fetchFriends,
     getNextPageParam: (lastPage) => {
-        const date = lastPage[lastPage.length - 1].friendSince
-        return {
-            date: date,
-            direction: "before"
-        }
-    },
-    getPreviousPageParam: (firstPage) => {
-        const date = firstPage[0].friendSince
+        const date = lastPage[0].friendSince
         return {
             date: date,
             direction: "after"
+        }
+    },
+    getPreviousPageParam: (firstPage) => {
+        const date = firstPage[firstPage.length - 1].friendSince
+        return {
+            date: date,
+            direction: "before"
         }
     },
     initialPageParam: {date: new Date(), direction: "before"}
@@ -80,6 +80,7 @@ async function fetchFriendshipCodes(context: QueryFunctionContext) {
         }))
     }
 
+    result.friendshipCodesData?.sort((fc1, fc2) => fc1.id - fc2.id)
     return result.friendshipCodesData!
 }
 
@@ -102,6 +103,7 @@ async function fetchFriends(context: QueryFunctionContext) {
         }))
     }
 
+    result.friendsData?.sort((f1, f2) => f1.friendSince > f2.friendSince ? 1 : -1)
     return result.friendsData!
 }
 

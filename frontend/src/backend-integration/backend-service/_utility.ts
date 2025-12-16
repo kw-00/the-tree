@@ -18,6 +18,13 @@ export async function makePOSTRequest(endpointUrl: string, requestBody?: {[key: 
         }
     )
     const body = await response.json()
+    for (const [k, v] of Object.entries(body)) {
+        if (typeof v !== "string") continue
+        const time = Date.parse(v)
+        if (Number.isFinite(time)) {
+            body[k] = new Date(time)
+        }
+    }
     return body
 }
 

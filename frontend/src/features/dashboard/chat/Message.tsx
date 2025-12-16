@@ -8,7 +8,7 @@ interface MessageProps {
     content: string
 }
 
-export default function Message({userLogin, content, ...rest}: MessageProps & BoxProps) {
+export default function Message({userId, userLogin, content, ...rest}: MessageProps & BoxProps) {
     return (
         <PanelElement {...rest}>
             <Heading>{userLogin}</Heading>

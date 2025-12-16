@@ -1,4 +1,4 @@
-import { infiniteQueryOptions, mutationOptions, type QueryFunctionContext } from "@tanstack/react-query"
+import { infiniteQueryOptions, mutationOptions, QueryClient, type InfiniteData, type QueryFunctionContext } from "@tanstack/react-query"
 import * as bs from "../backend-service/messages-service"
 import { throwErrorOnRequestFailure } from "./_utility"
 import { ServerConfig } from "../server-config"
@@ -10,21 +10,13 @@ export const createMessage = mutationOptions({
 })
 
 export const getMessages = (chatroomId: number | null) => infiniteQueryOptions({
-    queryKey: ["chatrooms", chatroomId],
+    queryKey: ["chatrooms", chatroomId, "messages"],
     queryFn: getFetchMessagesFunction(chatroomId!),
     getNextPageParam: (lastPage) => {
-        const date = lastPage[lastPage.length - 1].createdAt
-        return {
-            date: date,
-            direction: "before"
-        }
+        return lastPage.nextCursor
     },
     getPreviousPageParam: (firstPage) => {
-        const date = firstPage[0].createdAt
-        return {
-            date: date,
-            direction: "after"
-        }
+        return firstPage.prevCursor
     },
     initialPageParam: {date: new Date(), direction: "before"},
     enabled: !!chatroomId
@@ -39,19 +31,35 @@ const getFetchMessagesFunction = (chatroomId: number) => async function fetchMes
         result = await throwErrorOnRequestFailure(() => bs.getMessages({
             chatroomId: chatroomId,
             before: date,
-            descending: true,
+            descending: false,
             limit: limit
         }))
     } else {
         result = await throwErrorOnRequestFailure(() => bs.getMessages({
             chatroomId: chatroomId,
             after: date, 
-            descending: false,
+            descending: true,
             limit: limit
         }))
     }
-
-    return result.messagesData!
+    const messages = result.messagesData!
+    
+    let nextCursor: any = {
+        date: new Date(messages[0].createdAt.getTime() + 1),
+        direction: "after"
+    }
+    
+    let prevCursor: any = {
+        date: messages[messages.length - 1].createdAt,
+        direction: "before"
+    }
+    console.log(nextCursor)
+    messages.sort((m1, m2) => m1.id - m2.id)
+    return {
+        messages: messages,
+        nextCursor: nextCursor,
+        prevCursor: prevCursor
+    }
 }
 
 

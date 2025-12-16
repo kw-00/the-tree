@@ -11,6 +11,7 @@ export type MessageData = {
     content: string
     userId: number
     userLogin: string
+    chatroomId: number
     createdAt: Date
 }
 
