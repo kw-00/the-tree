@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, mutationOptions, type QueryFunctionContext } from "@tanstack/react-query"
-import * as bs from "../backendService/messages-service"
+import * as bs from "../backend-service/messages-service"
 import { throwErrorOnRequestFailure } from "./_utility"
 import { ServerConfig } from "../server-config"
 import type { InfiniteScrollPageParam } from "./types"

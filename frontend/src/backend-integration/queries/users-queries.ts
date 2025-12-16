@@ -1,5 +1,5 @@
 import { mutationOptions } from "@tanstack/react-query"
-import * as bs from "../backendService/users-service"
+import * as bs from "../backend-service/users-service"
 import { throwErrorOnRequestFailure } from "./_utility"
 
 
