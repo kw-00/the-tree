@@ -18,8 +18,8 @@ export async function createFriendshipCode(params: CreateFriendshipCodeParams): 
 }
 
 
-export type GetFriendshipCodesParams = AccessTokenParams<s.GetFriendshipCodesParams>
-export type GetFriendshipCodesResponse = ControllerResponse<s.GetFriendshipCodesResponse>
+export type GetFriendshipCodesParams = AccessTokenParams<s.GetNextFriendshipCodesParams>
+export type GetFriendshipCodesResponse = ControllerResponse<s.GetNextFriendshipCodesResponse>
 
 /**
  * Possible status values:

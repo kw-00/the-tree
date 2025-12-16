@@ -1,6 +1,6 @@
 import { pool } from "./_internal/pool"
 import { userDoesNotExist, chatroomDoesNotExist, userNotInChatroom, queryRowsToCamelCase } from "./_internal/utility"
-import type { DBServiceResponse, PaginationParams } from "./public/types"
+import type { DBServiceResponse } from "./public/types"
 
 
 export type MessageData = {
@@ -8,6 +8,7 @@ export type MessageData = {
     content: string
     userId: number
     userLogin: string
+    chatroomId: number
     createdAt: Date
 }
 
@@ -43,10 +44,10 @@ export async function createMessage(params: CreateMessageParams): Promise<Create
 
     // Create the message
     const query = await pool.query(`
-        WITTH inserted AS (
+        WITH inserted AS (
             INSERT INTO messages (user_id, chatroom_id, content)
             VALUES ($1, $2, $3)
-            RETURNING AT id, content, created_at
+            RETURNING id, content, created_at
         )
         SELECT i.id, i.content, u.login AS user_login, i.created_at
         FROM inserted i
@@ -58,33 +59,43 @@ export async function createMessage(params: CreateMessageParams): Promise<Create
 
     // Return message data
     return {
-        messageData: {id, content, userId: params.userId, userLogin: userLogin, createdAt},
+        messageData: {
+            id, 
+            content, 
+            userId: params.userId, 
+            userLogin: userLogin, 
+            chatroomId: params.chatroomId, 
+            createdAt
+        },
         status: "SUCCESS",
         message: "Message created."
     }
 }
 
-export type GetMessagesParams = {
+export type GetNextMessagesParams = {
     userId: number
     chatroomId: number
-} & PaginationParams
+    cursor: number
+    limit: number
+}
 
-export type GetMessagesResponse = {
+export type GetNextMessagesResponse = {
     messagesData?: MessageData[] 
+    hasNextPage?: boolean
+    hasPreviousPage?: boolean
 } & DBServiceResponse
 
 /**
  * Retrieves messages from a chatroom, on behalf of a user. That user must be in the chatroom.
  * 
- * Accepts ```PaginationParams```.
  * 
  * Possible status values:
  * - SUCCESS
  * - NOT_FOUND
  * - NOT_IN_CHATROOM
  */
-export async function getMessages(params: GetMessagesParams): Promise<GetMessagesResponse> {
-    const {userId, chatroomId, before, after, descending, limit} = params
+export async function getNextMessages(params: GetNextMessagesParams): Promise<GetNextMessagesResponse> {
+    const {userId, chatroomId, cursor, limit} = params
 
     // Make sure user and chatroom exist
     const userNotExists = await userDoesNotExist(userId)
@@ -105,18 +116,99 @@ export async function getMessages(params: GetMessagesParams): Promise<GetMessage
         INNER JOIN users u ON u.id = m.user_id
         WHERE
             c.id = $1
-            AND ($2::TIMESTAMPTZ IS NULL OR m.created_at < $2::TIMESTAMPTZ)
-            AND ($3::TIMESTAMPTZ IS NULL OR m.created_at > $3::TIMESTAMPTZ)
-        ORDER BY 
-            CASE WHEN $4 THEN m.id END DESC,
-            m.id ASC
-        LIMIT $5;
-    `, [chatroomId, before, after, descending, limit])
-    console.log(queryRowsToCamelCase(query.rows))
+            AND (m.id >= $2)
+        ORDER BY m.id ASC
+        LIMIT $3;
+    `, [chatroomId, cursor, limit + 2])
+
+    const result = queryRowsToCamelCase(query.rows)
+
+    const hasPreviousPage = result.find(value => value.id === cursor) !== undefined
+    let withoutNextOrPrev;
+    if (hasPreviousPage) {
+        withoutNextOrPrev = query.rows.slice(1)
+    } else {
+        withoutNextOrPrev = query.rows
+    }
+    const hasNextPage = withoutNextOrPrev.length > limit
+    withoutNextOrPrev.splice(limit)
 
     return {
-        messagesData: queryRowsToCamelCase(query.rows),
+        messagesData: withoutNextOrPrev,
+        hasNextPage: hasNextPage,
+        hasPreviousPage: hasPreviousPage,
         status: "SUCCESS",
-        message: `Successfully retrieved messages for chatroom with ID of ${chatroomId}.` 
+        message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
+    }
+}
+
+
+export type GetPreviousMessagesParams = {
+    userId: number
+    chatroomId: number
+    cursor: number
+    limit: number
+}
+
+export type GetPreviousMessagesResponse = {
+    messagesData?: MessageData[] 
+    hasNextPage?: boolean
+    hasPreviousPage?: boolean
+} & DBServiceResponse
+
+/**
+ * Retrieves messages from a chatroom, on behalf of a user. That user must be in the chatroom.
+ * 
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
+ * - NOT_IN_CHATROOM
+ */
+export async function getPreviousMessages(params: GetPreviousMessagesParams): Promise<GetPreviousMessagesResponse> {
+    const {userId, chatroomId, cursor, limit} = params
+
+    // Make sure user and chatroom exist
+    const userNotExists = await userDoesNotExist(userId)
+    if (userNotExists) return userNotExists
+
+    const chatroomNotExists = await chatroomDoesNotExist(chatroomId)
+    if (chatroomNotExists) return chatroomNotExists
+
+    // Make sure user is in the chatroom
+    const notInChatroom = await userNotInChatroom({userId, chatroomId})
+    if (notInChatroom) return notInChatroom
+
+    // Retrieve messages
+    const query = await pool.query(`
+        SELECT m.id, m.content, u.id AS user_id, u.login AS user_login, m.created_at
+        FROM chatrooms c
+        INNER JOIN messages m ON m.chatroom_id = c.id
+        INNER JOIN users u ON u.id = m.user_id
+        WHERE
+            c.id = $1
+            AND (m.id <= $2)
+        ORDER BY m.id DESC
+        LIMIT $3;
+    `, [chatroomId, cursor, limit + 2])
+
+    const result = queryRowsToCamelCase(query.rows).reverse()
+
+    const hasPreviousPage = result.find(value => value.id === cursor) !== undefined
+    let withoutNextOrPrev;
+    if (hasPreviousPage) {
+        withoutNextOrPrev = query.rows.slice(1)
+    } else {
+        withoutNextOrPrev = query.rows
+    }
+    const hasNextPage = withoutNextOrPrev.length > limit
+    withoutNextOrPrev.splice(limit)
+
+    return {
+        messagesData: withoutNextOrPrev,
+        hasNextPage: hasNextPage,
+        hasPreviousPage: hasPreviousPage,
+        status: "SUCCESS",
+        message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
     }
 }

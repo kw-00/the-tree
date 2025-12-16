@@ -17,8 +17,8 @@ export async function createChatroom(params: CreateChatroomParams): Promise<Crea
 }
 
 
-export type GetConnectedChatroomsParams = AccessTokenParams<s.GetConnectedChatroomsParams>
-export type GetConnectedChatroomsResponse = ControllerResponse<s.GetConnectedChatroomsResponse>
+export type GetConnectedChatroomsParams = AccessTokenParams<s.GetChatroomsParams>
+export type GetConnectedChatroomsResponse = ControllerResponse<s.GetChatroomsResponse>
 
 /**
  * Possible status values:
@@ -26,7 +26,7 @@ export type GetConnectedChatroomsResponse = ControllerResponse<s.GetConnectedCha
  * - NOT_FOUND
  */
 export async function getConnectedChatrooms(params: GetConnectedChatroomsParams): Promise<GetConnectedChatroomsResponse> {
-    return accessToIdThenCall(params, s.getConnectedChatrooms)
+    return accessToIdThenCall(params, s.getChatrooms)
 }
 
 

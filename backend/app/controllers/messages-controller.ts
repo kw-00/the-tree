@@ -17,8 +17,8 @@ export async function createMessage(params: CreateMessageParams): Promise<Create
 }
 
 
-export type GetMessagesParams = AccessTokenParams<s.GetMessagesParams>
-export type GetMessagesResponse = ControllerResponse<s.GetMessagesResponse>
+export type GetMessagesParams = AccessTokenParams<s.GetNextMessagesParams>
+export type GetMessagesResponse = ControllerResponse<s.GetNextMessagesResponse>
 
 /**
  * Possible status values:
@@ -27,5 +27,5 @@ export type GetMessagesResponse = ControllerResponse<s.GetMessagesResponse>
  * - NOT_IN_CHATROOM
  */
 export async function getMessages(params: GetMessagesParams): Promise<GetMessagesResponse> {
-    return accessToIdThenCall(params, s.getMessages)
+    return accessToIdThenCall(params, s.getNextMessages)
 }

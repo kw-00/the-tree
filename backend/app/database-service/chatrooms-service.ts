@@ -1,6 +1,6 @@
 import { pool } from "./_internal/pool"
 import { chatroomDoesNotExist, userNotInChatroom, userDoesNotExist, queryRowsToCamelCase } from "./_internal/utility"
-import { type DBServiceResponse, type PaginationParams } from "./public/types"
+import { type DBServiceResponse, } from "./public/types"
 
 export type ChatroomData = {
     id: number
@@ -60,25 +60,23 @@ export async function createChatroom(params: CreateChatroomParams): Promise<Crea
     }
 }
 
-export type GetConnectedChatroomsParams = {
+export type GetChatroomsParams = {
     userId: number
-} & PaginationParams
-
-export type GetConnectedChatroomsResponse = {
+}
+export type GetChatroomsResponse = {
     chatroomsData?: ChatroomData[]
 } & DBServiceResponse
 
 /**
  * Retrieves all chatrooms for a given user.
  * 
- * Accepts ```PaginationParams```.
  * 
  * Possible status values:
  * - SUCCESS
  * - NOT_FOUND
  */
-export async function getConnectedChatrooms(params: GetConnectedChatroomsParams): Promise<GetConnectedChatroomsResponse> {
-    const {userId, before, after, descending, limit} = params
+export async function getChatrooms(params: GetChatroomsParams): Promise<GetChatroomsResponse> {
+    const {userId} = params
     // Make sure user exists
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
@@ -89,15 +87,9 @@ export async function getConnectedChatrooms(params: GetConnectedChatroomsParams)
         FROM chatrooms c
         INNER JOIN chatrooms_users cu ON cu.chatroom_id = c.id
         INNER JOIN users u ON u.id = cu.user_id
-        WHERE
-            u.id = $1
-            AND ($2::TIMESTAMPTZ IS NULL OR c.created_at < $2::TIMESTAMPTZ)
-            AND ($3::TIMESTAMPTZ IS NULL OR c.created_at > $3::TIMESTAMPTZ)
-        ORDER BY 
-            CASE WHEN $4 THEN c.id END DESC,
-            c.id ASC
-        LIMIT $5;
-    `, [userId, before, after, descending, limit])
+        WHERE u.id = $1
+        ORDER BY c.name ASC;
+    `, [userId])
 
     return {
         chatroomsData: query.rows,

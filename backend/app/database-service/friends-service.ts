@@ -1,6 +1,6 @@
 import { pool } from "./_internal/pool"
 import { userDoesNotExist, recordDoesNotExist, queryRowsToCamelCase } from "./_internal/utility"
-import type { DBServiceResponse, PaginationParams } from "./public/types"
+import type { DBServiceResponse } from "./public/types"
 
 
 
@@ -57,23 +57,20 @@ export async function createFrienshipCode(params: CreateFriendshipCodeParams): P
 
 export type GetFriendshipCodesParams = {
     userId: number
-} & PaginationParams
+}
 
 export type GetFriendshipCodesResponse = {
     friendshipCodesData?: FriendshipCodeData[]
 } & DBServiceResponse
 
 /**
- * Retrieves friendship codes for a given user.
- * 
- * Accepts ```PaginationParams```.
  * 
  * Possible status values:
  * - SUCCESS
  * - NOT_FOUND
  */
 export async function getFriendshipCodes(params: GetFriendshipCodesParams): Promise<GetFriendshipCodesResponse> {
-    const {userId, before, after, descending, limit} = params
+    const {userId} = params
     // Make sure user exists
     const userNotExists = await userDoesNotExist(userId)
     if (userNotExists) return userNotExists
@@ -86,13 +83,9 @@ export async function getFriendshipCodes(params: GetFriendshipCodesParams): Prom
         WHERE
             u.id = $1
             AND fc.expires_at > now()
-            AND ($2::TIMESTAMPTZ IS NULL OR fc.created_at < $2::TIMESTAMPTZ)
-            AND ($3::TIMESTAMPTZ IS NULL OR fc.created_at > $3::TIMESTAMPTZ)
-        ORDER BY 
-            CASE WHEN $4 THEN fc.created_at END DESC,
-            fc.created_at ASC
-        LIMIT $5;
-    `, [userId, before, after, descending, limit])
+        ORDER BY fc.id DESC
+        LIMIT $3;
+    `, [userId])
 
     return {
         friendshipCodesData: queryRowsToCamelCase(query.rows),
@@ -263,49 +256,119 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
 }
 
 
-export type GetFriendsParams = {
+export type GetNextFriendsParams = {
     userId: number
-} & PaginationParams
+    cursor?: string
+    limit: number
+}
 
-export type GetFriendsResponse = {
+export type GetNextFriendsResponse = {
     friendsData?: FriendData[]
+    hasNextPage?: boolean
+    hasPreviousPage?: boolean
 } & DBServiceResponse
 
 /**
- * Retrieves all friends of a given user.
- * 
- * Accepts ```PaginationParams```.
  * 
  * Possible status values:
  * - SUCCESS
  * - NOT_FOUND
  */
-export async function getFriends(params: GetFriendsParams): Promise<GetFriendsResponse> {
-    const {userId, before, after, descending, limit} = params
-    // Make sure the user exists
+export async function getNextFriends(params: GetNextFriendsParams): Promise<GetNextFriendsResponse> {
+    const {userId, cursor, limit} = params
+    // Make sure user exists
     const userNotExists = await userDoesNotExist(userId)
     if (userNotExists) return userNotExists
     
-    // Retrieve friends
+    // Retrieve friendship codes
     const query = await pool.query(`
         SELECT u.id, u.login, f.created_at AS friend_since
         FROM users u
         INNER JOIN friends f ON u.id IN (f.user1_id, f.user2_id)
         WHERE
-            $1 IN (f.user1_id, f.user2_id)
-            AND u.id != $1
-            AND ($2::TIMESTAMPTZ IS NULL OR f.created_at < $2::TIMESTAMPTZ)
-            AND ($3::TIMESTAMPTZ IS NULL OR f.created_at > $3::TIMESTAMPTZ)
-        ORDER BY 
-            CASE WHEN $4 THEN f.created_at END DESC,
-            f.created_at ASC
-        LIMIT $5;
-    `, [userId, before, after, descending, limit])
+            u.id != $1
+            AND $1 IN (f.user1_id, f.user2_id)
+            AND $2::TEXT IS NULL OR u.login >= $2::TEXT
+        ORDER BY u.login ASC 
+        LIMIT $3;
+    `, [userId, cursor, limit + 2])
+
+    const result = queryRowsToCamelCase(query.rows)
+
+    const hasPreviousPage = result.find(value => value.login === cursor) !== undefined
+    let withoutNextOrPrev;
+    if (hasPreviousPage) {
+        withoutNextOrPrev = query.rows.slice(1)
+    } else {
+        withoutNextOrPrev = query.rows
+    }
+    const hasNextPage = withoutNextOrPrev.length > limit
+    withoutNextOrPrev.splice(limit)
 
     return {
-        friendsData: queryRowsToCamelCase(query.rows),
+        friendsData: withoutNextOrPrev,
+        hasNextPage: hasNextPage,
+        hasPreviousPage: hasPreviousPage,
         status: "SUCCESS",
-        message: `Successfully retrieved friends for user with ID of ${userId}.`
+        message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
+    }
+}
+
+export type GetPreviousFriendsParams = {
+    userId: number
+    cursor: string
+    limit: number
+}
+
+export type GetPreviousFriendsResponse = {
+    friendsData?: FriendData[]
+    hasNextPage?: boolean
+    hasPreviousPage?: boolean
+} & DBServiceResponse
+
+/**
+ * 
+ * Possible status values:
+ * - SUCCESS
+ * - NOT_FOUND
+ */
+export async function getPreviousFriends(params: GetPreviousFriendsParams): Promise<GetPreviousFriendsResponse> {
+    const {userId, cursor, limit} = params
+    // Make sure user exists
+    const userNotExists = await userDoesNotExist(userId)
+    if (userNotExists) return userNotExists
+    
+    // Retrieve friendship codes
+    const query = await pool.query(`
+        SELECT u.id, u.login, f.created_at AS friend_since
+        FROM users u
+        INNER JOIN friends f ON u.id IN (f.user1_id, f.user2_id)
+        WHERE
+            u.id != $1
+            AND $1 IN (f.user1_id, f.user2_id)
+            AND $2::TEXT IS NULL OR u.login <= $2::TEXT
+        ORDER BY u.login DESC 
+        LIMIT $3;
+    `, [userId, cursor, limit + 2])
+
+    const result = queryRowsToCamelCase(query.rows).reverse()
+
+    const hasPreviousPage = result.find(value => value.login === cursor) !== undefined
+    let withoutNextOrPrev;
+    if (hasPreviousPage) {
+        withoutNextOrPrev = query.rows.slice(1)
+    } else {
+        withoutNextOrPrev = query.rows
+    }
+    const hasNextPage = withoutNextOrPrev.length > limit
+    withoutNextOrPrev.splice(limit)
+
+    return {
+        friendsData: withoutNextOrPrev,
+        hasNextPage: hasNextPage,
+        hasPreviousPage: hasPreviousPage,
+        status: "SUCCESS",
+        message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
     }
 }
 
