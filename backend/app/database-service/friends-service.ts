@@ -288,7 +288,7 @@ export async function getNextFriends(params: GetNextFriendsParams): Promise<GetN
         WHERE
             u.id != $1
             AND $1 IN (f.user1_id, f.user2_id)
-            AND $2::TEXT IS NULL OR u.login >= $2::TEXT
+            AND ($2::TEXT IS NULL OR u.login >= $2::TEXT)
         ORDER BY u.login ASC 
         LIMIT $3;
     `, [userId, cursor, limit + 2])
@@ -296,21 +296,19 @@ export async function getNextFriends(params: GetNextFriendsParams): Promise<GetN
     const result = queryRowsToCamelCase(query.rows)
 
     const hasPreviousPage = result.find(value => value.login === cursor) !== undefined
-    let withoutNextOrPrev;
     if (hasPreviousPage) {
-        withoutNextOrPrev = query.rows.slice(1)
-    } else {
-        withoutNextOrPrev = query.rows
+        result.splice(0, 1)
     }
-    const hasNextPage = withoutNextOrPrev.length > limit
-    withoutNextOrPrev.splice(limit)
+    const hasNextPage = result.length > limit
+    result.splice(limit)
+
 
     return {
-        friendsData: withoutNextOrPrev,
+        friendsData: result,
         hasNextPage: hasNextPage,
         hasPreviousPage: hasPreviousPage,
         status: "SUCCESS",
-        message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
+        message: `Successfully retrieved friends for user with ID of ${userId}.`
     }
 }
 
@@ -346,29 +344,26 @@ export async function getPreviousFriends(params: GetPreviousFriendsParams): Prom
         WHERE
             u.id != $1
             AND $1 IN (f.user1_id, f.user2_id)
-            AND $2::TEXT IS NULL OR u.login <= $2::TEXT
+            AND ($2::TEXT IS NULL OR u.login <= $2::TEXT)
         ORDER BY u.login DESC 
         LIMIT $3;
     `, [userId, cursor, limit + 2])
 
     const result = queryRowsToCamelCase(query.rows).reverse()
 
-    const hasPreviousPage = result.find(value => value.login === cursor) !== undefined
-    let withoutNextOrPrev;
-    if (hasPreviousPage) {
-        withoutNextOrPrev = query.rows.slice(1)
-    } else {
-        withoutNextOrPrev = query.rows
+    const hasNextPage = result.find(value => value.login === cursor) !== undefined
+    if (hasNextPage) {
+        result.pop()
     }
-    const hasNextPage = withoutNextOrPrev.length > limit
-    withoutNextOrPrev.splice(limit)
+    const hasPreviousPage = result.length > limit
+    result.splice(0, result.length - limit)
 
     return {
-        friendsData: withoutNextOrPrev,
+        friendsData: result,
         hasNextPage: hasNextPage,
         hasPreviousPage: hasPreviousPage,
         status: "SUCCESS",
-        message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
+        message: `Successfully retrieved friends for user with ID of ${userId}.`
     }
 }
 

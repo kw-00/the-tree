@@ -123,18 +123,15 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
 
     const result = queryRowsToCamelCase(query.rows)
 
-    const hasPreviousPage = result.find(value => value.id === cursor) !== undefined
-    let withoutNextOrPrev;
+    const hasPreviousPage = result.find(value => value.login === cursor) !== undefined
     if (hasPreviousPage) {
-        withoutNextOrPrev = query.rows.slice(1)
-    } else {
-        withoutNextOrPrev = query.rows
+        result.splice(0, 1)
     }
-    const hasNextPage = withoutNextOrPrev.length > limit
-    withoutNextOrPrev.splice(limit)
+    const hasNextPage = result.length > limit
+    result.splice(limit)
 
     return {
-        messagesData: withoutNextOrPrev,
+        messagesData: result,
         hasNextPage: hasNextPage,
         hasPreviousPage: hasPreviousPage,
         status: "SUCCESS",
@@ -146,7 +143,7 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
 export type GetPreviousMessagesParams = {
     userId: number
     chatroomId: number
-    cursor: number
+    cursor?: number
     limit: number
 }
 
@@ -187,25 +184,22 @@ export async function getPreviousMessages(params: GetPreviousMessagesParams): Pr
         INNER JOIN users u ON u.id = m.user_id
         WHERE
             c.id = $1
-            AND (m.id <= $2)
+            AND ($2::INT IS NULL OR m.id <= $2::INT)
         ORDER BY m.id DESC
         LIMIT $3;
     `, [chatroomId, cursor, limit + 2])
 
     const result = queryRowsToCamelCase(query.rows).reverse()
 
-    const hasPreviousPage = result.find(value => value.id === cursor) !== undefined
-    let withoutNextOrPrev;
-    if (hasPreviousPage) {
-        withoutNextOrPrev = query.rows.slice(1)
-    } else {
-        withoutNextOrPrev = query.rows
+    const hasNextPage = result.find(value => value.login === cursor) !== undefined
+    if (hasNextPage) {
+        result.pop()
     }
-    const hasNextPage = withoutNextOrPrev.length > limit
-    withoutNextOrPrev.splice(limit)
+    const hasPreviousPage = result.length > limit
+    result.splice(0, result.length - limit)
 
     return {
-        messagesData: withoutNextOrPrev,
+        messagesData: result,
         hasNextPage: hasNextPage,
         hasPreviousPage: hasPreviousPage,
         status: "SUCCESS",
