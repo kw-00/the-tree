@@ -112,6 +112,7 @@ export async function getMessages(params: GetMessagesParams): Promise<GetMessage
             m.id ASC
         LIMIT $5;
     `, [chatroomId, before, after, descending, limit])
+    console.log(queryRowsToCamelCase(query.rows))
 
     return {
         messagesData: queryRowsToCamelCase(query.rows),

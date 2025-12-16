@@ -11,14 +11,16 @@ export function queryRowsToCamelCase(rows: any): any[] {
     const typedRows = rows as Record<string, any>[]
     let result = [] as Record<string, any>[]
     typedRows.forEach(r => {
+        const camelRow = {} as Record<string, any>
         Object.entries(r).forEach(([k, v]) => {
             const keyTokens = k.split("_")
             let newName = String(keyTokens[0])
             keyTokens.slice(1)
                 .map(t => `${(t[0] ?? "").toUpperCase()}${t.slice(1)}`)
                 .forEach(t => newName += t)
-            result.push({newName: v})
+            camelRow[newName] = v
         })
+        result.push(camelRow)
     })
     return result
 }
