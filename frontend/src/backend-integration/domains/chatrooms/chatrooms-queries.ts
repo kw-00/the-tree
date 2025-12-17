@@ -1,6 +1,6 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query"
 import * as bs from "./chatrooms-service"
-import { throwErrorOnRequestFailure } from "@/backend-integration/00-common/queries/utility"
+import { throwErrorOnRequestFailure } from "../00-common/queries/utility"
 
 
 

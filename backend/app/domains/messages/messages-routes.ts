@@ -52,8 +52,8 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
         body: z.object({
             chatroomId: validation.chatrooms.id,
             cursor: validation.messages.id,
-            limit: z.int().positive().lt(messagesConfig.getNextMessages.maxBatchSize),
-            boundary: validation.messages.id
+            limit: z.int().positive().lte(messagesConfig.getNextMessages.maxBatchSize),
+            boundary: validation.messages.id.nullable()
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
@@ -87,8 +87,8 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
     const getPreviousMessagesSchema = z.object({
         body: z.object({
             chatroomId: validation.chatrooms.id,
-            cursor: validation.messages.id.optional(),
-            limit: z.int().positive().lt(messagesConfig.getPreviousMessages.maxBatchSize),
+            cursor: validation.messages.id.nullable(),
+            limit: z.int().positive().lte(messagesConfig.getPreviousMessages.maxBatchSize),
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
@@ -99,6 +99,7 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
             await handleRequest(
                 req, rep,
                 async (req, rep) => {
+                    console.log(req.body)
                     const parsed = getPreviousMessagesSchema.parse(req)
                     const {chatroomId, cursor, limit} = parsed.body
                     const {accessToken} = parsed.cookies
@@ -110,7 +111,7 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
                     }
                     const userId = verificationResult.userId!
 
-                    const dbResult = await getPreviousMessages({chatroomId, userId, ...(cursor && {cursor: cursor}), limit})
+                    const dbResult = await getPreviousMessages({chatroomId, userId, cursor, limit})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )

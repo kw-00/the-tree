@@ -78,13 +78,13 @@ export type GetNextMessagesParams = {
     chatroomId: number
     cursor: number
     limit: number
-    boundary?: number
+    boundary: number | null
 }
 
 export type MessagesPage = {
     messagesData: MessageData[]
-    nextCursor: number | undefined
-    prevCursor: number | undefined
+    nextCursor: number | null
+    prevCursor: number | null
     hasNextPage: boolean
     hasPrevPage: boolean
 }
@@ -132,7 +132,7 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
 
     const result = queryRowsToCamelCase(query.rows)
 
-    const hasPreviousPage = result.find(value => value.login === cursor) !== undefined
+    const hasPreviousPage = result.find(value => value.id === cursor) !== undefined
     if (hasPreviousPage) {
         result.splice(0, 1)
     }
@@ -148,7 +148,7 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
             hasPrevPage: hasPreviousPage
         },
         status: "SUCCESS",
-        message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
+        message: `Successfully retrieved messages for chatroom with ID of ${chatroomId}.`
     }
 }
 
@@ -156,7 +156,7 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
 export type GetPreviousMessagesParams = {
     userId: number
     chatroomId: number
-    cursor?: number
+    cursor: number | null
     limit: number
 }
 
@@ -202,7 +202,7 @@ export async function getPreviousMessages(params: GetPreviousMessagesParams): Pr
 
     const result = queryRowsToCamelCase(query.rows).reverse()
 
-    const hasNextPage = result.find(value => value.login === cursor) !== undefined
+    const hasNextPage = result.find(value => value.id === cursor) !== undefined
     if (hasNextPage) {
         result.pop()
     }
@@ -212,12 +212,12 @@ export async function getPreviousMessages(params: GetPreviousMessagesParams): Pr
     return {
         page: {
             messagesData: result,
-            nextCursor: cursor,
-            prevCursor: result[0]?.id ?? cursor,
+            nextCursor: cursor ?? null,
+            prevCursor: result[0]?.id ?? cursor ?? null,
             hasNextPage: hasNextPage,
             hasPrevPage: hasPreviousPage
         },
         status: "SUCCESS",
-        message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
+        message: `Successfully retrieved messages for chatroom with ID of ${chatroomId}.`
     }
 }

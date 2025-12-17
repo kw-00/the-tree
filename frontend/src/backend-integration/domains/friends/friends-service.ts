@@ -1,6 +1,6 @@
-import type { StandardResponse } from "@/backend-integration/00-common/service/types"
+import type { StandardResponse } from "../00-common/service/types"
 import { ServerConfig } from "../../server-config"
-import { attemptAndRefreshToken } from "@/backend-integration/00-common/service/utility"
+import { attemptAndRefreshToken } from "../00-common/service/utility"
 
 
 const baseUrl = `${ServerConfig.baseUrl}${ServerConfig.api.path}${ServerConfig.api.friends.path}`

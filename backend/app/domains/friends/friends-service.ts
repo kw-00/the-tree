@@ -259,14 +259,14 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
 
 export type GetNextFriendsParams = {
     userId: number
-    cursor?: string
+    cursor: string | null
     limit: number
 }
 
 export type FriendsPage = {
     friendsData: FriendData[]
-    nextCursor: string | undefined
-    prevCursor: string | undefined
+    nextCursor: string | null
+    prevCursor: string | null
     hasNextPage: boolean
     hasPrevPage: boolean
 }
@@ -313,8 +313,8 @@ export async function getNextFriends(params: GetNextFriendsParams): Promise<GetN
     return {
         page: {
             friendsData: result,
-            nextCursor: result[result.length - 1]?.login ?? cursor,
-            prevCursor: cursor,
+            nextCursor: result[result.length - 1]?.login ?? cursor ?? null,
+            prevCursor: cursor ?? null,
             hasNextPage: hasNextPage,
             hasPrevPage: hasPreviousPage
         },
@@ -327,7 +327,7 @@ export type GetPreviousFriendsParams = {
     userId: number
     cursor: string
     limit: number
-    boundary?: string
+    boundary: string | null
 }
 
 export type GetPreviousFriendsResponse = {

@@ -1,5 +1,5 @@
-import { makePOSTRequest } from "@/backend-integration/00-common/service/utility"
-import type { StandardResponse } from "@/backend-integration/00-common/service/types"
+import { makePOSTRequest } from "../00-common/service/utility"
+import type { StandardResponse } from "../00-common/service/types"
 import { ServerConfig } from "../../server-config"
 
 

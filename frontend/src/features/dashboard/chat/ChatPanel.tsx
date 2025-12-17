@@ -6,7 +6,7 @@ import Panel from "@/components/panel/Panel"
 import PanelElement from "@/components/panel/PanelElement"
 import Message from "./Message"
 import { createMessage, getMessages } from "@/backend-integration/domains/messages/messages-queries"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { MessageData } from "@/backend-integration/domains/messages/messages-service"
 import { getChatrooms } from "@/backend-integration/domains/chatrooms/chatrooms-queries"
 
@@ -14,8 +14,11 @@ import { getChatrooms } from "@/backend-integration/domains/chatrooms/chatrooms-
 
 
 export default function ChatPanel(props: BoxProps) {
+    const selfRef = useRef<HTMLDivElement>(null)
+
     const {selectedChatroomId: chatroomId} = useChatContext()
-    const [isAtBottom, setIsAtBottom] = useState(false)
+    const [isNearBottom, setIsNearBottom] = useState(true)
+    const [isAtBottom, setIsAtBottom] = useState(true)
 
     // Make queries
     const queryClient = useQueryClient()
@@ -24,7 +27,7 @@ export default function ChatPanel(props: BoxProps) {
     const sendMessageMutation = useMutation({
         ...createMessage,
         onSuccess: (response) => {
-            if (isAtBottom) {
+            if (isNearBottom) {
                 queryClient.setQueryData(["chatrooms", chatroomId, "messages"],
                     (oldData: {pages: MessageData[][], pageParams: {date: Date, direction: "before" | "after"}[]}) => {
                         if (oldData.pages.length === 0) return oldData
@@ -46,18 +49,33 @@ export default function ChatPanel(props: BoxProps) {
         if (messageQuery.isError) alert(messageQuery.error)
     }, [messageQuery.status, messageQuery.fetchStatus])
 
+    useEffect(() => {
+        if (selfRef.current !== null && isAtBottom) {
+            selfRef.current.scrollTop = selfRef.current?.scrollHeight - selfRef.current.clientHeight
+        }
+    }, [messageQuery.status, chatroomId])
+
+    useEffect(() => {
+        if (selfRef.current !== null && !isAtBottom) {
+            selfRef.current.scrollTop = selfRef.current?.scrollHeight - selfRef.current.clientHeight
+        }
+    }, [chatroomId])
+
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const el = e.currentTarget
-        const isTop = el.scrollTop <= 100
-        const isBottom = el.scrollHeight - el.scrollTop - el.clientHeight <= 100
-        if (isTop) messageQuery.fetchPreviousPage()
-        if (isBottom) messageQuery.fetchNextPage()
+        const scrollBottom = el.scrollHeight - el.scrollTop - el.clientHeight
 
-        setIsAtBottom(isBottom)
+        const nearTop = el.scrollTop <= 100
+        const nearBottom = scrollBottom <= 100
+        const atBottom = scrollBottom <= 1
+        if (nearTop) messageQuery.fetchPreviousPage()
+        if (nearBottom) messageQuery.fetchNextPage()
+        setIsNearBottom(nearBottom)
+        setIsAtBottom(atBottom)
     }
 
     return (
-        <Panel variant="primary" layout="vstack" {...props} overflowY="scroll" onScroll={handleScroll}>
+        <Panel variant="primary" layout="vstack" {...props} overflowY="scroll" onScroll={handleScroll} ref={selfRef}>
             <PanelElement variant="header">
                 <Heading size="xl" pb="2">
                     {chatroomsQuery.isSuccess 

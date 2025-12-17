@@ -42,11 +42,11 @@
             },
             "getNextFriends": {
                 "path": "/get_next_friends",
-                "maxBatchSize": 5
+                "maxBatchSize": 20
             },
             "getPreviousFriends": {
                 "path": "/get_previous_friends",
-                "maxBatchSize": 5
+                "maxBatchSize": 20
             },
             "removeFriend": {
                 "path": "/remove_friend"
@@ -74,11 +74,11 @@
             },
             "getNextMessages": {
                 "path": "/get_next_messages",
-                "maxBatchSize": 5
+                "maxBatchSize": 20
             },
             "getPreviousMessages": {
-                "path": "/get_next_messages",
-                "maxBatchSize": 5
+                "path": "/get_previous_messages",
+                "maxBatchSize": 20
             }
         }
     }
