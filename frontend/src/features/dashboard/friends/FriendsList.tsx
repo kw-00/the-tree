@@ -3,7 +3,7 @@
 import FriendListElement from "./FriendsListElement";
 import type { PanelElementProps } from "@/components/panel/PanelElement";
 import PanelElement from "@/components/panel/PanelElement";
-import { getFriends } from "@/backend-integration/queries/friends-queries";
+import { getFriends } from "@/backend-integration/domains/friends/friends-queries";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 
@@ -13,7 +13,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 
 export default function FriendList(props: PanelElementProps) {
 
-    const getFriendsQuery = useInfiniteQuery(getFriends)
+    const getFriendsQuery = useInfiniteQuery(getFriends(undefined))
 
     return (
         <PanelElement variant="container" {...props}>
@@ -25,7 +25,7 @@ export default function FriendList(props: PanelElementProps) {
                 "Error: " + getFriendsQuery.error
                 :
                 getFriendsQuery.isSuccess ?
-                getFriendsQuery.data.pages.flat().map((friend) => {
+                getFriendsQuery.data.pages.flatMap(page => page.friendsData).map((friend) => {
                     return (
                         <FriendListElement user={friend}/>
                     )

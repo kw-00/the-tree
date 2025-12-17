@@ -1,5 +1,5 @@
 import CredentiaPage from "@/features/auth/CredentialPage"
-import { logIn } from "@/backend-integration/queries/auth-queries"
+import { logIn } from "@/backend-integration/domains/auth/auth-queries"
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 

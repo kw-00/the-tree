@@ -1,90 +1,85 @@
 {
     "baseUrl": "https://localhost:3000",
     "api": {
-        "basePath": "/api",
+        "path": "/api",
         "auth": {
-            "basePath": "/auth",
-            "logIn": "/log_in",
-            "refreshToken": "/refresh_token",
-            "logOut": "/log_out"
-        },
-        "users": {
-            "basePath": "/users",
-            "registerUser": "/register_user",
-            "changeLogin": "/change_login",
-            "changePassword": "/change_password"
-        },
-        "friends": {
-            "basePath": "/friends",
-            "createFriendshipCode": "/create_friendship_code",
-            "getFriendshipCodes": "/get_friendship_codes",
-            "revokeFriendshipCode": "/revoke_friendship_code",
-            "addFriend": "/add_friend",
-            "getFriends": "/get_friends",
-            "removeFriend": "/remove_friend"
-        },
-        "chatrooms": {
-            "basePath": "/chatrooms",
-            "createChatroom": "/create_chatroom",
-            "getConnectedChatrooms": "/get_connected_chatrooms",
-            "addFriendsToChatroom": "/add_friends_to_chatroom",
-            "leaveChatroom": "/leave_chatroom"
-        },
-        "messages": {
-            "basePath": "/messages",
-            "createMessage": "/create_message",
-            "getMessages": "/get_messages"
-        }
-    },
-    "tokens": {
-        "access": {
-            "validityPeriod": 1000
-        },
-        "refresh": {
-            "validityPeriod": 100000
-        }
-    },
-    "dataRules": {
-        "users": {
-            "login": {
-                "minLength": 3,
-                "maxLength": 50
+            "path": "/auth",
+            "logIn": {
+                "path": "/log_in"
             },
-            "password": {
-                "minLength": 3,
-                "maxLength": 50
+            "refreshToken": {
+                "path": "/refresh_token"
+            },
+            "logOut": {
+                "path": "/log_out"
+            }
+        },
+        "users": {
+            "path": "/users",
+            "registerUser": {
+                "path": "/register_user"
+            },
+            "changeLogin": {
+                "path": "/change_login"
+            },
+            "changePassword": {
+                "path": "/change_password"
             }
         },
         "friends": {
-            "friendshipCode": {
-                "minLength": 1,
-                "maxLength": 20
+            "path": "/friends",
+            "createFriendshipCode": {
+                "path": "/create_friendship_code"
+            },
+            "getFriendshipCodes": {
+                "path": "/get_friendship_codes"
+            },
+            "revokeFriendshipCode": {
+                "path": "/revoke_friendship_code"
+            },
+            "addFriend": {
+                "path": "/add_friend"
+            },
+            "getNextFriends": {
+                "path": "/get_next_friends",
+                "maxBatchSize": 5
+            },
+            "getPreviousFriends": {
+                "path": "/get_previous_friends",
+                "maxBatchSize": 5
+            },
+            "removeFriend": {
+                "path": "/remove_friend"
             }
         },
         "chatrooms": {
-            "name": {
-                "minLength": 1,
-                "maxLength": 50
+            "path": "/chatrooms",
+            "createChatroom": {
+                "path": "/create_chatroom"
+            },
+            "getChatrooms": {
+                "path": "/get_chatrooms"
+            },
+            "addFriendsToChatroom": {
+                "path": "/add_friends_to_chatroom"
+            },
+            "leaveChatroom": {
+                "path": "/leave_chatroom"
             }
         },
         "messages": {
-            "content": {
-                "minLength": 1,
-                "maxLength": 2000
+            "path": "/messages",
+            "createMessage": {
+                "path": "/create_message"
+            },
+            "getNextMessages": {
+                "path": "/get_next_messages",
+                "maxBatchSize": 5
+            },
+            "getPreviousMessages": {
+                "path": "/get_next_messages",
+                "maxBatchSize": 5
             }
-        }
-    },
-    "fetchingRules": {
-        "friends": {
-            "friendshipCodes": {
-                "limit": 20
-            }
-        },
-        "chatrooms": {
-            "limit": 20
-        },
-        "messages": {
-            "limit": 20
         }
     }
 }

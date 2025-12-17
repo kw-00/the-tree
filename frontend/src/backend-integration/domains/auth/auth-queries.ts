@@ -1,6 +1,6 @@
+import { throwErrorOnRequestFailure } from "@/backend-integration/00-common/queries/utility"
 import { mutationOptions } from "@tanstack/react-query"
-import * as bs from "../backend-service/auth-service"
-import { throwErrorOnRequestFailure } from "./_utility"
+import * as bs from "./auth-service"
 
 
 export const logIn = mutationOptions({

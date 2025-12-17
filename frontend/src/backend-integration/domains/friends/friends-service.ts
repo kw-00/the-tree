@@ -1,9 +1,9 @@
-import { ServerConfig } from "../server-config"
-import { attemptAndRefreshToken } from "./_utility"
-import type { PaginationParams, StandardResponse } from "./types"
+import type { StandardResponse } from "@/backend-integration/00-common/service/types"
+import { ServerConfig } from "../../server-config"
+import { attemptAndRefreshToken } from "@/backend-integration/00-common/service/utility"
 
 
-const baseUrl = `${ServerConfig.baseUrl}${ServerConfig.api.basePath}${ServerConfig.api.friends.basePath}`
+const baseUrl = `${ServerConfig.baseUrl}${ServerConfig.api.path}${ServerConfig.api.friends.path}`
 const friendsPaths = ServerConfig.api.friends
 
 export type FriendshipCodeData = {
@@ -29,17 +29,17 @@ export type CreateFriendshipCodeResponse = {
 
 
 export async function createFriendshipCode(params: CreateFriendshipCodeParams): Promise<CreateFriendshipCodeResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.createFriendshipCode}`, params)
+    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.createFriendshipCode.path}`, params)
 }
 
 
-export type GetFriendshipCodesParams = PaginationParams
+export type GetFriendshipCodesParams = {}
 export type GetFriendshipCodesResponse = {
     friendshipCodesData?: FriendshipCodeData[]
 } & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
 export async function getFriendshipCodes(params: GetFriendshipCodesParams): Promise<GetFriendshipCodesResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getFriendshipCodes}`, params)
+    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getFriendshipCodes.path}`, params)
 }
 
 export type RevokeFriendshipCodeParams = {
@@ -53,7 +53,7 @@ export type RevokeFriendshipCodeResponse = StandardResponse<
 >
 
 export async function revokeFriendshipCode(params: RevokeFriendshipCodeParams): Promise<RevokeFriendshipCodeResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.revokeFriendshipCode}`, params)
+    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.revokeFriendshipCode.path}`, params)
 }
 
 
@@ -71,17 +71,39 @@ export type AddFriendResponse = {
 >
 
 export async function addFriend(params: AddFriendParams): Promise<AddFriendResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.addFriend}`, params)
+    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.addFriend.path}`, params)
 }
 
 
-export type GetFriendsParams = PaginationParams
+export type GetNextFriendsParams = {
+    cursor?: string
+    limit: number
+}
+
+export type FriendsPage = {
+    friendsData: FriendData[]
+    nextCursor: string | undefined
+    prevCursor: string | undefined
+    hasNextPage: boolean
+    hasPrevPage: boolean
+}
+
 export type GetFriendsResponse = {
-    friendsData?: FriendData[]
+    page?: FriendsPage
 } & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
-export async function getFriends(params: GetFriendsParams): Promise<GetFriendsResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getFriends}`, params)
+export async function getNextFriends(params: GetNextFriendsParams): Promise<GetFriendsResponse> {
+    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getNextFriends.path}`, params)
+}
+
+export type GetPreviousFriendsParams = {
+    cursor: string
+    limit: number
+    boundary?: string
+}
+
+export async function getPreviousFriends(params: GetPreviousFriendsParams): Promise<GetFriendsResponse> {
+    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getPreviousFriends.path}`, params)
 }
 
 
@@ -91,5 +113,5 @@ export type RemoveFriendParams = {
 export type RemoveFriendResponse = StandardResponse<"SUCCESS" | "SUCCESS_REDUNDANT" | "NOT_FOUND">
 
 export async function removeFriend(params: RemoveFriendParams): Promise<RemoveFriendResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.removeFriend}`, params)
+    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.removeFriend.path}`, params)
 }

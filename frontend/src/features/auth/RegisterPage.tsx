@@ -1,4 +1,4 @@
-import { registerUser } from "@/backend-integration/queries/users-queries"
+import { registerUser } from "@/backend-integration/domains/users/users-queries"
 import CredentiaPage from "@/features/auth/CredentialPage"
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"

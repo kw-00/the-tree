@@ -1,4 +1,4 @@
-import { refreshToken } from "./auth-service"
+import { refreshToken } from "../../domains/auth/auth-service"
 import type { StandardResponse } from "./types"
 
 

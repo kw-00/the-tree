@@ -1,5 +1,5 @@
 
-import { logOut } from "@/backend-integration/backend-service/auth-service"
+import { logOut } from "@/backend-integration/domains/auth/auth-service"
 import { Button, type ButtonProps } from "@chakra-ui/react"
 import { useNavigate } from "react-router-dom"
 

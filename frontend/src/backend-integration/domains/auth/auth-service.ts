@@ -1,9 +1,9 @@
-import { ServerConfig } from "../server-config"
-import { makePOSTRequest } from "./_utility"
-import type { StandardResponse } from "./types"
+import { makePOSTRequest } from "@/backend-integration/00-common/service/utility"
+import type { StandardResponse } from "@/backend-integration/00-common/service/types"
+import { ServerConfig } from "../../server-config"
 
 
-const baseUrl = `${ServerConfig.baseUrl}${ServerConfig.api.basePath}${ServerConfig.api.auth.basePath}`
+const baseUrl = `${ServerConfig.baseUrl}${ServerConfig.api.path}${ServerConfig.api.auth.path}`
 const authPaths = ServerConfig.api.auth
 
 export type LogInParams = {
@@ -19,7 +19,7 @@ export type LogInResponse = StandardResponse<
 >
 
 export async function logIn(params: LogInParams): Promise<LogInResponse> {
-    return makePOSTRequest(`${baseUrl}${authPaths.logIn}`, params)
+    return makePOSTRequest(`${baseUrl}${authPaths.logIn.path}`, params)
 }
 
 export type RefreshTokenParams = {}
@@ -34,7 +34,7 @@ export type RefreshTokenResponse = StandardResponse<
 >
 
 export async function refreshToken(params: RefreshTokenParams): Promise<RefreshTokenResponse> {
-    return makePOSTRequest(`${baseUrl}${authPaths.refreshToken}`, params)
+    return makePOSTRequest(`${baseUrl}${authPaths.refreshToken.path}`, params)
 }
 
 export type LogOutParams = {}
@@ -45,5 +45,5 @@ export type LogOutResponse = StandardResponse<
 >
 
 export async function logOut(params: LogOutParams): Promise<LogOutResponse> {
-    return makePOSTRequest(`${baseUrl}${authPaths.logOut}`, params)
+    return makePOSTRequest(`${baseUrl}${authPaths.logOut.path}`, params)
 }

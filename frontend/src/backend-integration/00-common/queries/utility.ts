@@ -1,4 +1,4 @@
-import type { StandardResponse } from "../backendService/types"
+import type { StandardResponse } from "../service/types"
 
 
 export class ServerServiceError<T extends StandardResponse<S>, S extends string> extends Error {

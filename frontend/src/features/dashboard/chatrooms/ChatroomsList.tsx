@@ -1,16 +1,16 @@
 import { Text, type StackProps } from "@chakra-ui/react"
 import ChatroomsListElement from "./ChatroomsListElement"
-import { useInfiniteQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useChatContext } from "@/features/dashboard/ChatContext"
 import Panel from "@/components/panel/Panel"
-import { getConnectedChatrooms } from "@/backend-integration/queries/chatrooms-queries"
+import { getChatrooms } from "@/backend-integration/domains/chatrooms/chatrooms-queries"
 
 export default function ChatroomsList(props: StackProps) {
 
     const {setSelectedChatroomId} = useChatContext()
 
     // Query for fetching chatroom list
-    const {isLoading, isError, isSuccess, data, error} = useInfiniteQuery(getConnectedChatrooms)
+    const {isLoading, isError, isSuccess, data, error} = useQuery(getChatrooms)
 
     return (
         <Panel alignItems="stretch" {...props}>
@@ -19,7 +19,7 @@ export default function ChatroomsList(props: StackProps) {
             isError ? <Text>Error: {error.message}</Text>
             :
             isSuccess ? 
-            data.pages.flat()!.map((chatroom) => {
+            data.chatroomsData?.map((chatroom) => {
                 return <ChatroomsListElement chatroom={chatroom} onClick={() => setSelectedChatroomId(chatroom.id)}/>
             })
             :

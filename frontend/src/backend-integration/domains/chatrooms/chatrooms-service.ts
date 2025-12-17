@@ -1,9 +1,9 @@
-import { ServerConfig } from "../server-config"
-import { attemptAndRefreshToken } from "./_utility"
-import type { PaginationParams, StandardResponse } from "./types"
+import { attemptAndRefreshToken } from "@/backend-integration/00-common/service/utility"
+import type { StandardResponse } from "@/backend-integration/00-common/service/types"
+import { ServerConfig } from "../../server-config"
 
 
-const baseUrl = `${ServerConfig.baseUrl}${ServerConfig.api.basePath}${ServerConfig.api.chatrooms.basePath}`
+const baseUrl = `${ServerConfig.baseUrl}${ServerConfig.api.path}${ServerConfig.api.chatrooms.path}`
 const chatroomsPaths = ServerConfig.api.chatrooms
 
 export type ChatroomData = {
@@ -20,17 +20,17 @@ export type CreateChatroomResponse = {
 } & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
 export async function createChatroom(params: CreateChatroomParams): Promise<CreateChatroomResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${chatroomsPaths.createChatroom}`, params)
+    return attemptAndRefreshToken(`${baseUrl}${chatroomsPaths.createChatroom.path}`, params)
 }
 
 
-export type GetConnectedChatroomsParams = PaginationParams
+export type GetConnectedChatroomsParams = {}
 export type GetConnectedChatroomsResponse = {
     chatroomsData?: ChatroomData[]
 } & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
-export async function getConnectedChatrooms(params: GetConnectedChatroomsParams): Promise<GetConnectedChatroomsResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${chatroomsPaths.getConnectedChatrooms}`, params)
+export async function getChatrooms(params: GetConnectedChatroomsParams): Promise<GetConnectedChatroomsResponse> {
+    return attemptAndRefreshToken(`${baseUrl}${chatroomsPaths.getChatrooms.path}`, params)
 }
 
 
@@ -45,7 +45,7 @@ export type AddFriendsToChatroomResponse = {
 } & StandardResponse<"SUCCESS" | "NOT_FOUND" | "NOT_IN_CHATROOM">
 
 export async function addFriendsToChatroom(params: AddFriendsToChatroomParams): Promise<AddFriendsToChatroomResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${chatroomsPaths.addFriendsToChatroom}`, params)
+    return attemptAndRefreshToken(`${baseUrl}${chatroomsPaths.addFriendsToChatroom.path}`, params)
 }
 
 
@@ -55,5 +55,5 @@ export type LeaveChatroomParams = {
 export type LeaveChatroomResponse = StandardResponse<"SUCCESS" | "SUCCESS_REDUNDANT" | "NOT_FOUND">
 
 export async function leaveChatroom(params: LeaveChatroomParams): Promise<LeaveChatroomResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${chatroomsPaths.leaveChatroom}`, params)
+    return attemptAndRefreshToken(`${baseUrl}${chatroomsPaths.leaveChatroom.path}`, params)
 }

@@ -3,7 +3,7 @@ import { Button, HStack, Textarea, VStack, type StackProps } from "@chakra-ui/re
 import { useMutation } from "@tanstack/react-query"
 import { useState, type FormEvent } from "react"
 import { useChatContext } from "../ChatContext"
-import { createMessage } from "@/backend-integration/queries/messages-queries"
+import { createMessage } from "@/backend-integration/domains/messages/messages-queries"
 
 type MessageInputProps = {
     handleSubmit: (content: string) => void 

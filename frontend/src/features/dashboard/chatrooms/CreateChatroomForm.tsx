@@ -1,4 +1,4 @@
-import { createChatroom } from "@/backend-integration/queries/chatrooms-queries";
+import { createChatroom } from "@/backend-integration/domains/chatrooms/chatrooms-queries";
 import BoxForm, { type BoxFormProps } from "@/components/BoxForm";
 import { Button, Field, Fieldset, Input } from "@chakra-ui/react";
 import { useMutation } from "@tanstack/react-query";

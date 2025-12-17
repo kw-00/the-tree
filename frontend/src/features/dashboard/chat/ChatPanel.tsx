@@ -1,14 +1,14 @@
 import { Heading, type BoxProps } from "@chakra-ui/react"
 import MessageInput from "./MessageInput"
 import { useChatContext } from "@/features/dashboard/ChatContext"
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import Panel from "@/components/panel/Panel"
 import PanelElement from "@/components/panel/PanelElement"
 import Message from "./Message"
-import { getConnectedChatrooms } from "@/backend-integration/queries/chatrooms-queries"
-import { createMessage, getMessages } from "@/backend-integration/queries/messages-queries"
+import { createMessage, getMessages } from "@/backend-integration/domains/messages/messages-queries"
 import { useEffect, useState } from "react"
-import type { MessageData } from "@/backend-integration/backend-service/messages-service"
+import type { MessageData } from "@/backend-integration/domains/messages/messages-service"
+import { getChatrooms } from "@/backend-integration/domains/chatrooms/chatrooms-queries"
 
 
 
@@ -19,8 +19,8 @@ export default function ChatPanel(props: BoxProps) {
 
     // Make queries
     const queryClient = useQueryClient()
-    const chatroomsQuery = useInfiniteQuery(getConnectedChatrooms)
-    const messageQuery = useInfiniteQuery(getMessages(chatroomId))
+    const chatroomsQuery = useQuery(getChatrooms)
+    const messageQuery = useInfiniteQuery(getMessages(chatroomId, undefined))
     const sendMessageMutation = useMutation({
         ...createMessage,
         onSuccess: (response) => {
@@ -61,14 +61,14 @@ export default function ChatPanel(props: BoxProps) {
             <PanelElement variant="header">
                 <Heading size="xl" pb="2">
                     {chatroomsQuery.isSuccess 
-                    ?  chatroomsQuery.data.pages.flat().find(({id}) => id == chatroomId)?.name ?? "Loading..."
+                    ?  chatroomsQuery.data.chatroomsData?.find(({id}) => id == chatroomId)?.name ?? "Loading..."
                     : "Select chat or start a new one"}
                 </Heading>
             </PanelElement>
             <PanelElement flexGrow={1}>
                 {
                     messageQuery.isSuccess ?
-                    messageQuery.data.pages.flatMap(p => p.messages).map(({userId, userLogin, content}) => 
+                    messageQuery.data.pages.flatMap(p => p.messagesData).map(({userId, userLogin, content}) => 
                         <Message userId={userId} userLogin={userLogin} content={content} alignItems="stretch" p="2"/>)
                     :
                     <></>
