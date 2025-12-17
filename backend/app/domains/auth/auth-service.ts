@@ -1,8 +1,8 @@
 import { DatabaseError } from "pg"
-import { pool } from "./_internal/pool"
-import { queryRowsToCamelCase, userDoesNotExist } from "./_internal/utility"
-import { pgErrorCondition } from "./_internal/db-error-codes-mapping"
-import type { DBServiceResponse } from "./public/types"
+import { pgErrorCondition } from "../00-common/database-service/db-error-codes-mapping"
+import { pool } from "../00-common/database-service/pool"
+import type { DBServiceResponse } from "../00-common/database-service/types"
+import { queryRowsToCamelCase, userDoesNotExist } from "../00-common/database-service/utility"
 
 
 

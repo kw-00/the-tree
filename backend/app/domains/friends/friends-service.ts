@@ -1,6 +1,7 @@
-import { pool } from "./_internal/pool"
-import { userDoesNotExist, recordDoesNotExist, queryRowsToCamelCase } from "./_internal/utility"
-import type { DBServiceResponse } from "./public/types"
+import { pool } from "../00-common/database-service/pool"
+import type { DBServiceResponse } from "../00-common/database-service/types"
+import { userDoesNotExist, queryRowsToCamelCase, recordDoesNotExist } from "../00-common/database-service/utility"
+
 
 
 

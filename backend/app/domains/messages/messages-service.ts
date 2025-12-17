@@ -1,6 +1,7 @@
-import { pool } from "./_internal/pool"
-import { userDoesNotExist, chatroomDoesNotExist, userNotInChatroom, queryRowsToCamelCase } from "./_internal/utility"
-import type { DBServiceResponse } from "./public/types"
+import { pool } from "../00-common/database-service/pool"
+import type { DBServiceResponse } from "../00-common/database-service/types"
+import { userDoesNotExist, chatroomDoesNotExist, userNotInChatroom, queryRowsToCamelCase } from "../00-common/database-service/utility"
+
 
 
 export type MessageData = {

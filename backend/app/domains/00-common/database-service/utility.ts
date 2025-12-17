@@ -1,11 +1,6 @@
 import { pool } from "./pool"
-import type { DBServiceResponse } from "../public/types"
+import type { DBServiceResponse } from "./types"
 
-type RecordDoesNotExistParams<T> = {
-    value: T;
-    column: string;
-    table: string;
-};
 
 export function queryRowsToCamelCase(rows: any): any[] {
     const typedRows = rows as Record<string, any>[]
@@ -24,6 +19,9 @@ export function queryRowsToCamelCase(rows: any): any[] {
     })
     return result
 }
+
+
+
 
 /**
  * Checks whether a record with a given value at a given column exists, for a given table.
@@ -56,6 +54,11 @@ export async function recordDoesNotExist<T>(params: RecordDoesNotExistParams<T>)
         }
     }
     return false
+}
+type RecordDoesNotExistParams<T> = {
+    value: T;
+    column: string;
+    table: string;
 }
 
 
@@ -93,10 +96,6 @@ export async function chatroomDoesNotExist(id: number): Promise<DBServiceRespons
     return recordDoesNotExist({value: id, column: "id", table: "chatrooms"})
 }
 
-export type NotInChatroomParams = {
-    userId: number
-    chatroomId: number
-}
 
 
 /**
@@ -128,5 +127,10 @@ export async function userNotInChatroom(params: NotInChatroomParams): Promise<DB
     }
     return false
 
+}
+
+export type NotInChatroomParams = {
+    userId: number
+    chatroomId: number
 }
 
