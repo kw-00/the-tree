@@ -4,12 +4,11 @@ import fs from "fs"
 import Fastify from "fastify"
 import cors from "@fastify/cors"
 import cookie from "@fastify/cookie"
-import { sharedSchema } from "@/routes/shared-schema"
 import { authRoutes } from "@/domains/auth/auth-routes"
-import { usersRoutes } from "@/routes/users-routes"
-import { friendsRoutes } from "@/routes/friends-routes"
-import { chatroomsRoutes } from "@/routes/chatrooms-routes"
-import { messagesRoutes } from "@/routes/messages-routes"
+import { chatroomsRoutes } from "@/domains/chatrooms/chatrooms-routes"
+import { friendsRoutes } from "@/domains/friends/friends-routes"
+import { messagesRoutes } from "@/domains/messages/messages-routes"
+import { usersRoutes } from "@/domains/users/users-routes"
 
 
 
@@ -35,8 +34,6 @@ fastify.register(cors, {
 )
 fastify.register(cookie, {hook: "onRequest", parseOptions: {}})
 
-// Register shared schema
-fastify.addSchema(sharedSchema)
 
 // Register routes
 fastify.register(authRoutes)
