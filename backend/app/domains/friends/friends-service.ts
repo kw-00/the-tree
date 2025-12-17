@@ -317,6 +317,7 @@ export type GetPreviousFriendsParams = {
     userId: number
     cursor: string
     limit: number
+    boundary: string
 }
 
 export type GetPreviousFriendsResponse = {
@@ -332,7 +333,7 @@ export type GetPreviousFriendsResponse = {
  * - NOT_FOUND
  */
 export async function getPreviousFriends(params: GetPreviousFriendsParams): Promise<GetPreviousFriendsResponse> {
-    const {userId, cursor, limit} = params
+    const {userId, cursor, limit, boundary} = params
     // Make sure user exists
     const userNotExists = await userDoesNotExist(userId)
     if (userNotExists) return userNotExists
@@ -346,9 +347,10 @@ export async function getPreviousFriends(params: GetPreviousFriendsParams): Prom
             u.id != $1
             AND $1 IN (f.user1_id, f.user2_id)
             AND ($2::TEXT IS NULL OR u.login <= $2::TEXT)
+            AND u.login > $4
         ORDER BY u.login DESC 
         LIMIT $3;
-    `, [userId, cursor, limit + 2])
+    `, [userId, cursor, limit + 2, boundary])
 
     const result = queryRowsToCamelCase(query.rows).reverse()
 

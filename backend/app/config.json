@@ -19,7 +19,8 @@
             "getFriendshipCodes": "/get_friendship_codes",
             "revokeFriendshipCode": "/revoke_friendship_code",
             "addFriend": "/add_friend",
-            "getFriends": "/get_friends",
+            "getNextFriends": "/get_next_friends",
+            "getPreviousFriends": "/get_previous_friends",
             "removeFriend": "/remove_friend"
         },
         "chatrooms": {

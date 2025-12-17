@@ -25,7 +25,8 @@ const Schema = z.object({
             getFriendshipCodes: z.string().startsWith("/"),
             revokeFriendshipCode: z.string().startsWith("/"),
             addFriend: z.string().startsWith("/"),
-            getFriends: z.string().startsWith("/"),
+            getNextFriends: z.string().startsWith("/"),
+            getPreviousFriends: z.string().startsWith("/"),
             removeFriend: z.string().startsWith("/")
         }),
         chatrooms: z.object({
