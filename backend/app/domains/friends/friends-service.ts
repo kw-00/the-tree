@@ -267,6 +267,8 @@ export type FriendsPage = {
     friendsData: FriendData[]
     nextCursor: string | undefined
     prevCursor: string | undefined
+    hasNextPage: boolean
+    hasPrevPage: boolean
 }
 
 export type GetNextFriendsResponse = {
@@ -311,8 +313,10 @@ export async function getNextFriends(params: GetNextFriendsParams): Promise<GetN
     return {
         page: {
             friendsData: result,
-            nextCursor: hasNextPage ? result[result.length - 1]?.login : undefined,
-            prevCursor: hasPreviousPage ? cursor : undefined
+            nextCursor: result[result.length - 1]?.login ?? cursor,
+            prevCursor: cursor,
+            hasNextPage: hasNextPage,
+            hasPrevPage: hasPreviousPage
         },
         status: "SUCCESS",
         message: `Successfully retrieved friends for user with ID of ${userId}.`
@@ -323,7 +327,7 @@ export type GetPreviousFriendsParams = {
     userId: number
     cursor: string
     limit: number
-    boundary: string
+    boundary?: string
 }
 
 export type GetPreviousFriendsResponse = {
@@ -351,7 +355,7 @@ export async function getPreviousFriends(params: GetPreviousFriendsParams): Prom
             u.id != $1
             AND $1 IN (f.user1_id, f.user2_id)
             AND ($2::TEXT IS NULL OR u.login <= $2::TEXT)
-            AND u.login > $3
+            AND ($3::INT IS NULL OR u.login > $3::INT)
         ORDER BY u.login DESC 
         LIMIT $4;
     `, [userId, cursor, boundary, limit + 2])
@@ -368,8 +372,10 @@ export async function getPreviousFriends(params: GetPreviousFriendsParams): Prom
     return {
         page: {
             friendsData: result,
-            nextCursor: hasNextPage ? cursor : undefined,
-            prevCursor: hasPreviousPage ? result[0]?.login : undefined
+            nextCursor: cursor,
+            prevCursor: result[0]?.login ?? cursor,
+            hasNextPage: hasNextPage,
+            hasPrevPage: hasPreviousPage
         },
         status: "SUCCESS",
         message: `Successfully retrieved friends for user with ID of ${userId}.`

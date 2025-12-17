@@ -78,13 +78,15 @@ export type GetNextMessagesParams = {
     chatroomId: number
     cursor: number
     limit: number
-    boundary: number
+    boundary?: number
 }
 
 export type MessagesPage = {
     messagesData: MessageData[]
     nextCursor: number | undefined
     prevCursor: number | undefined
+    hasNextPage: boolean
+    hasPrevPage: boolean
 }
 
 export type GetNextMessagesResponse = {
@@ -123,7 +125,7 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
         WHERE
             c.id = $1
             AND m.id >= $2
-            AND m.id < $3
+            AND ($3::INT IS NULL OR m.id < $3::INT)
         ORDER BY m.id ASC
         LIMIT $4;
     `, [chatroomId, cursor, boundary, limit + 2])
@@ -140,8 +142,10 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
     return {
         page: {
             messagesData: result,
-            nextCursor: hasNextPage ? result[result.length - 1]?.id : undefined,
-            prevCursor: hasPreviousPage ? cursor : undefined
+            nextCursor: result[result.length - 1]?.id ?? cursor,
+            prevCursor: cursor,
+            hasNextPage: hasNextPage,
+            hasPrevPage: hasPreviousPage
         },
         status: "SUCCESS",
         message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
@@ -208,8 +212,10 @@ export async function getPreviousMessages(params: GetPreviousMessagesParams): Pr
     return {
         page: {
             messagesData: result,
-            nextCursor: hasNextPage ? cursor : undefined,
-            prevCursor: hasPreviousPage ? result[0]?.id : undefined
+            nextCursor: cursor,
+            prevCursor: result[0]?.id ?? cursor,
+            hasNextPage: hasNextPage,
+            hasPrevPage: hasPreviousPage
         },
         status: "SUCCESS",
         message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
