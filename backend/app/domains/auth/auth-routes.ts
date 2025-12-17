@@ -14,12 +14,20 @@ const basePath = Config.api.basePath + Config.api.auth.basePath
 const authPaths = Config.api.auth
 
 export async function authRoutes(fastify: FastifyInstance, options: object) {
-    const tokenCookieOptions = {
+    const accessCookieOptions = {
         httpOnly: true, 
         secure: true, 
         sameSite: "strict", 
         expires: new Date(new Date().getTime() + new Date("1971").getTime()),
         path: "/"
+    } as const
+
+    const refreshCookieOptions = {
+        httpOnly: true, 
+        secure: true, 
+        sameSite: "strict", 
+        expires: new Date(new Date().getTime() + new Date("1971").getTime()),
+        path: `${authPaths.basePath}`
     } as const
 
     // Log In
@@ -52,8 +60,8 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
                     const refreshToken = createRefreshTokenResult.refreshToken!
                     const accessToken = AccessTokenManagement.getToken(userId)
                     rep.status(200)
-                        .cookie("accessToken", accessToken, tokenCookieOptions)
-                        .cookie("refreshToken", refreshToken, tokenCookieOptions)
+                        .cookie("accessToken", accessToken, accessCookieOptions)
+                        .cookie("refreshToken", refreshToken, refreshCookieOptions)
                         .send(dbResponse)
                 }
             )
@@ -87,8 +95,8 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
                     const refreshToken = creationResult.refreshToken!
                     const accessToken = AccessTokenManagement.getToken(userId)
                     rep.status(200)
-                        .cookie("accessToken", accessToken, tokenCookieOptions)
-                        .cookie("refreshToken", refreshToken, tokenCookieOptions)
+                        .cookie("accessToken", accessToken, accessCookieOptions)
+                        .cookie("refreshToken", refreshToken, refreshCookieOptions)
                     
                 }
             )

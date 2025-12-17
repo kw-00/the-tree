@@ -39,7 +39,7 @@ export async function registerUser(params: RegisterUserParams): Promise<Register
             if (error.code !== undefined && pgErrorCondition(error.code) === "unique_violation") {
                 return {
                     status: "LOGIN_IN_USE",
-                    message: `Login of ${params.login} is already in use.`
+                    message: `Login of "${params.login}" is already in use.`
                 }
             }
         }
@@ -62,22 +62,33 @@ export type ChangeLoginResponse = ServiceResponse
  * Possible status values:
  * - SUCCESS
  * - NOT_FOUND
+ * - LOGIN_IN_USE
  */
 export async function changeLogin(params: ChangeLoginParams): Promise<ChangeLoginResponse> {
     // Make sure the user exists
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
 
-    // Update the user's login
-    await pool.query(`
-        UPDATE users
-        SET login = $1
-        WHERE id = $2;
-    `, [params.newLogin, params.userId])
+    try {
+        // Update the user's login
+        await pool.query(`
+            UPDATE users
+            SET login = $1
+            WHERE id = $2;
+        `, [params.newLogin, params.userId])
 
-    return {
-        status: "SUCCESS",
-        message: `Successfully changed login to ${params.newLogin} for user with ID of ${params.userId}.`
+        return {
+            status: "SUCCESS",
+            message: `Successfully changed login to "${params.newLogin}" for user with ID of ${params.userId}.`
+        }
+    } catch (error) {
+        if (error instanceof DatabaseError && error.code !== undefined && pgErrorCondition(error.code) === "unique_violation") {
+            return {
+                status: "LOGIN_IN_USE",
+                message: `Cannot change login. Login of "${params.newLogin}" is already in use.`
+            }
+        }
+        throw error
     }
 }
 

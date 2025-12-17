@@ -1,9 +1,12 @@
 import type { FastifyInstance } from "fastify/types/instance";
-import type { Rep, Req } from "./public/types";
-import { handleRequest } from "./_internal/utility";
-
-import * as controller from "@/controllers/users-controller"
 import { Config } from "@/config";
+import z from "zod";
+import type { Req, Rep } from "../00-common/route/types";
+import { handleRequest } from "../00-common/route/utility";
+import validation from "../00-common/route/validation";
+import { changeLogin, changePassword, registerUser } from "./users-service";
+import { stMap } from "@/utilities/status-mapping";
+import { authenticateUser } from "../auth/auth-service";
 
 
 const basePath = Config.api.basePath + Config.api.users.basePath
@@ -11,75 +14,77 @@ const usersPaths = Config.api.users
 
 export async function usersRoutes(fastify: FastifyInstance, options: object) {
     // Register User
-    fastify.post(`${basePath}${usersPaths.registerUser}`, {
-            schema: {
-                body: {
-                    type: "object",
-                    required: ["login", "password"],
-                    properties: {
-                        login: {$ref: "common#/properties/login"},
-                        password: {$ref: "common#/properties/password"}
-                    }
-                }
-            }
-        }, 
+    const registerUserSchema = z.object({
+        body: z.object({
+            login: validation.users.login,
+            password: validation.users.password
+        })
+    })
+
+    fastify.post(`${basePath}${usersPaths.registerUser}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
-                (req) => {
-                    return req.body as any
-                },
-                controller.registerUser
+                async (req, rep) => {
+                    const {login, password} = registerUserSchema.parse(req).body
+                    const result = await registerUser({login, password})
+                    rep.status(stMap[result.status]).send(result)
+                }
             )
         }
     )
 
     // Change Login
-    fastify.post(`${basePath}${usersPaths.changeLogin}`, {
-            schema: {
-                body: {
-                    type: "object",
-                    required: ["login", "password"],
-                    properties: {
-                        login: {$ref: "common#/properties/login"},
-                        password: {$ref: "common#/properties/password"},
-                        newLogin: {$ref: "common#/properties/login"}
-                    }
-                }
-            }
-        }, 
+    const changeLoginSchema = z.object({
+        body: z.object({
+            login: validation.users.login,
+            password: validation.users.password,
+            newLogin: validation.users.login
+        })
+    })
+
+    fastify.post(`${basePath}${usersPaths.changeLogin}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
-                (req) => {
-                    return req.body as any
-                }, 
-                controller.changeLogin
+                async (req, rep) => {
+                    const {login, password, newLogin} = changeLoginSchema.parse(req).body
+                    const authenticationResult = await authenticateUser({login, password})
+                    if (authenticationResult.status !== "SUCCESS") {
+                        rep.status(stMap[authenticationResult.status]).send(authenticationResult)
+                        return
+                    }
+                    const userId = authenticationResult.userId!
+                    const changeResult = await changeLogin({userId, newLogin})
+                    rep.status(stMap[changeResult.status]).send(changeResult)
+                }
             )
         }
     )
-
     // Change Password
-    fastify.post(`${basePath}${usersPaths.changePassword}`, {
-            schema: {
-                body: {
-                    type: "object",
-                    required: ["login", "password", "newPassword"],
-                    properties: {
-                        login: {$ref: "common#/properties/login"},
-                        password: {$ref: "common#/properties/password"},
-                        newPassword: {$ref: "common#/properties/password"}
-                    }
-                }
-            }
-        }, 
+    const changePasswordSchema = z.object({
+        body: z.object({
+            login: validation.users.login,
+            password: validation.users.password,
+            newPassword: validation.users.login
+        })
+    })
+
+    fastify.post(`${basePath}${usersPaths.changePassword}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
-                (req) => {
-                    return req.body as any
-                }, 
-                controller.changeLogin
+                async (req, rep) => {
+                    const {login, password, newPassword} = changePasswordSchema.parse(req).body
+                    const authenticationResult = await authenticateUser({login, password})
+                    if (authenticationResult.status !== "SUCCESS") {
+                        rep.status(stMap[authenticationResult.status]).send(authenticationResult)
+                        return
+                    }
+                    const userId = authenticationResult.userId!
+                    const changeResult = await changePassword({userId, newPassword})
+                    rep.status(stMap[changeResult.status]).send(changeResult)
+                }
             )
         }
     )

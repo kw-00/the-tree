@@ -78,6 +78,7 @@ export type GetNextMessagesParams = {
     chatroomId: number
     cursor: number
     limit: number
+    boundary: number
 }
 
 export type GetNextMessagesResponse = {
@@ -96,7 +97,7 @@ export type GetNextMessagesResponse = {
  * - NOT_IN_CHATROOM
  */
 export async function getNextMessages(params: GetNextMessagesParams): Promise<GetNextMessagesResponse> {
-    const {userId, chatroomId, cursor, limit} = params
+    const {userId, chatroomId, cursor, limit, boundary} = params
 
     // Make sure user and chatroom exist
     const userNotExists = await userDoesNotExist(userId)
@@ -117,10 +118,11 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
         INNER JOIN users u ON u.id = m.user_id
         WHERE
             c.id = $1
-            AND (m.id >= $2)
+            AND m.id >= $2
+            AND m.id < $3
         ORDER BY m.id ASC
-        LIMIT $3;
-    `, [chatroomId, cursor, limit + 2])
+        LIMIT $4;
+    `, [chatroomId, cursor, boundary, limit + 2])
 
     const result = queryRowsToCamelCase(query.rows)
 

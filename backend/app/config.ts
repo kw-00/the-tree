@@ -39,7 +39,8 @@ const Schema = z.object({
         messages: z.object({
             basePath: z.string().startsWith("/"),
             createMessage: z.string().startsWith("/"),
-            getMessages: z.string().startsWith("/")
+            getNextMessages: z.string().startsWith("/"),
+            getPreviousMessages: z.string().startsWith("/")
         })
     }),
     tokens: z.object({
