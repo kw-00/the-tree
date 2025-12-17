@@ -81,10 +81,14 @@ export type GetNextMessagesParams = {
     boundary: number
 }
 
+export type MessagesPage = {
+    messagesData: MessageData[]
+    nextCursor: number | undefined
+    prevCursor: number | undefined
+}
+
 export type GetNextMessagesResponse = {
-    messagesData?: MessageData[] 
-    hasNextPage?: boolean
-    hasPreviousPage?: boolean
+    page?: MessagesPage
 } & ServiceResponse
 
 /**
@@ -134,9 +138,11 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
     result.splice(limit)
 
     return {
-        messagesData: result,
-        hasNextPage: hasNextPage,
-        hasPreviousPage: hasPreviousPage,
+        page: {
+            messagesData: result,
+            nextCursor: hasNextPage ? result[result.length - 1]?.id : undefined,
+            prevCursor: hasPreviousPage ? cursor : undefined
+        },
         status: "SUCCESS",
         message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
     }
@@ -151,9 +157,7 @@ export type GetPreviousMessagesParams = {
 }
 
 export type GetPreviousMessagesResponse = {
-    messagesData?: MessageData[] 
-    hasNextPage?: boolean
-    hasPreviousPage?: boolean
+    page?: MessagesPage
 } & ServiceResponse
 
 /**
@@ -202,9 +206,11 @@ export async function getPreviousMessages(params: GetPreviousMessagesParams): Pr
     result.splice(0, result.length - limit)
 
     return {
-        messagesData: result,
-        hasNextPage: hasNextPage,
-        hasPreviousPage: hasPreviousPage,
+        page: {
+            messagesData: result,
+            nextCursor: hasNextPage ? cursor : undefined,
+            prevCursor: hasPreviousPage ? result[0]?.id : undefined
+        },
         status: "SUCCESS",
         message: `Successfully retrieved friendship codes for user with ID of ${userId}.`
     }

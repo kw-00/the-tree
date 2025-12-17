@@ -263,10 +263,14 @@ export type GetNextFriendsParams = {
     limit: number
 }
 
+export type FriendsPage = {
+    friendsData: FriendData[]
+    nextCursor: string | undefined
+    prevCursor: string | undefined
+}
+
 export type GetNextFriendsResponse = {
-    friendsData?: FriendData[]
-    hasNextPage?: boolean
-    hasPreviousPage?: boolean
+    page?: FriendsPage
 } & ServiceResponse
 
 /**
@@ -305,9 +309,11 @@ export async function getNextFriends(params: GetNextFriendsParams): Promise<GetN
 
 
     return {
-        friendsData: result,
-        hasNextPage: hasNextPage,
-        hasPreviousPage: hasPreviousPage,
+        page: {
+            friendsData: result,
+            nextCursor: hasNextPage ? result[result.length - 1]?.login : undefined,
+            prevCursor: hasPreviousPage ? cursor : undefined
+        },
         status: "SUCCESS",
         message: `Successfully retrieved friends for user with ID of ${userId}.`
     }
@@ -321,9 +327,7 @@ export type GetPreviousFriendsParams = {
 }
 
 export type GetPreviousFriendsResponse = {
-    friendsData?: FriendData[]
-    hasNextPage?: boolean
-    hasPreviousPage?: boolean
+    page?: FriendsPage
 } & ServiceResponse
 
 /**
@@ -362,9 +366,11 @@ export async function getPreviousFriends(params: GetPreviousFriendsParams): Prom
     result.splice(0, result.length - limit)
 
     return {
-        friendsData: result,
-        hasNextPage: hasNextPage,
-        hasPreviousPage: hasPreviousPage,
+        page: {
+            friendsData: result,
+            nextCursor: hasNextPage ? cursor : undefined,
+            prevCursor: hasPreviousPage ? result[0]?.login : undefined
+        },
         status: "SUCCESS",
         message: `Successfully retrieved friends for user with ID of ${userId}.`
     }
