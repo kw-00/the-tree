@@ -6,6 +6,7 @@ import z from "zod";
 import { authenticateUser, createRefreshToken, revokeRefreshToken, verifyRefreshToken } from "./auth-service";
 import { stMap } from "@/utilities/status-mapping";
 import { AccessTokenManagement } from "@/utilities/access-token-management";
+import validation from "../00-common/route/validation";
 
 
 
@@ -24,12 +25,8 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
     // Log In
     const logInSchema = z.object({
         body: z.object({
-            login: z.string()
-                .min(Config.dataRules.users.login.minLength)
-                .max(Config.dataRules.users.login.maxLength),
-            password: z.string()
-                .min(Config.dataRules.users.password.minLength)
-                .max(Config.dataRules.users.password.maxLength)
+            login: validation.users.login,
+            password: validation.users.password
         })
     })
     fastify.post(`${basePath}${authPaths.logIn}`, 
@@ -66,7 +63,7 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
     // Refresh Token
     const refreshTokenSchema = z.object({
         cookies: z.object({
-            refreshToken: z.uuidv4()
+            refreshToken: validation.auth.refreshToken
         })
     })
     fastify.post(`${basePath}${authPaths.refreshToken}`,
@@ -101,7 +98,7 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
     // Log Out
     const logOutSchema = z.object({
         cookies: z.object({
-            refreshToken: z.uuidv4()
+            refreshToken: validation.auth.refreshToken
         })
     })
     fastify.post(`${basePath}${authPaths.logOut}`, {

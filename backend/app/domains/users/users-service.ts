@@ -1,8 +1,8 @@
 import { DatabaseError } from "pg"
-import { pgErrorCondition } from "../00-common/database-service/db-error-codes-mapping"
-import { pool } from "../00-common/database-service/pool"
-import type { DBServiceResponse } from "../00-common/database-service/types"
-import { userDoesNotExist } from "../00-common/database-service/utility"
+import { pgErrorCondition } from "../00-common/service/db-error-codes-mapping"
+import { pool } from "../00-common/service/pool"
+import type { ServiceResponse } from "../00-common/service/types"
+import { userDoesNotExist } from "../00-common/service/utility"
 
 
 
@@ -12,7 +12,7 @@ export type RegisterUserParams = {
     password: string
 }
 
-export type RegisterUserResponse = DBServiceResponse
+export type RegisterUserResponse = ServiceResponse
 
 /**
  * Registers a user.
@@ -54,7 +54,7 @@ export type ChangeLoginParams = {
     newLogin: string
 }
 
-export type ChangeLoginResponse = DBServiceResponse
+export type ChangeLoginResponse = ServiceResponse
 
 /**
  * Changes a user's login.
@@ -86,7 +86,7 @@ export type ChangePasswordParams = {
     newPassword: string
 }
 
-export type ChangePasswordResponse = DBServiceResponse
+export type ChangePasswordResponse = ServiceResponse
 
 /**
  * Changes a user's password.

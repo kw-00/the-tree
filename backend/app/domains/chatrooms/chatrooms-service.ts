@@ -1,6 +1,6 @@
-import { pool } from "../00-common/database-service/pool"
-import type { DBServiceResponse } from "../00-common/database-service/types"
-import { userDoesNotExist, queryRowsToCamelCase, chatroomDoesNotExist, userNotInChatroom } from "../00-common/database-service/utility"
+import { pool } from "../00-common/service/pool"
+import type { ServiceResponse } from "../00-common/service/types"
+import { userDoesNotExist, queryRowsToCamelCase, chatroomDoesNotExist, userNotInChatroom } from "../00-common/service/utility"
 
 export type ChatroomData = {
     id: number
@@ -15,7 +15,7 @@ export type CreateChatroomParams = {
 
 export type CreateChatroomResponse = {
     chatroomData?: ChatroomData
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * Creates a chatroom on behalf of a given user. Adds that user into the chatroom immediately after.
@@ -65,7 +65,7 @@ export type GetChatroomsParams = {
 }
 export type GetChatroomsResponse = {
     chatroomsData?: ChatroomData[]
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * Retrieves all chatrooms for a given user.
@@ -109,7 +109,7 @@ export type AddFriendsToChatroomResponse = {
     added?: number[]
     skipped?: number[]
     notFound?: number[]
-} & DBServiceResponse
+} & ServiceResponse
 
 
 /**
@@ -158,9 +158,9 @@ export async function addFriendsToChatroom(params: AddFriendsToChatroomParams): 
         -- the IDs that do not exist
         SELECT 
             -- Store users who were auccessfully added in an array
-            (SELECT array_agg(inserted.id)) AS added, 
+            (SELECT array_agg(id) FROM inserted) AS added, 
             -- Store those who exist but were not added in another array
-            (SELECT array_agg(valid.id) FILTER (WHERE valid.id NOT IN (SELECT inserted.id FROM inserted))) AS skipped,
+            (SELECT array_agg(id) FROM valid WHERE id NOT IN (SELECT inserted.id FROM inserted)) AS skipped,
             -- Store the ones that do not exist in a separate one
             (
                 SELECT array_agg(id) FILTER (WHERE id NOT IN (SELECT valid.id FROM valid) )
@@ -186,7 +186,7 @@ export type LeaveChatroomParams = {
     chatroomId: number
 }
 
-export type LeaveChatroomResponse = DBServiceResponse
+export type LeaveChatroomResponse = ServiceResponse
 
 
 /**

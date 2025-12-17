@@ -31,7 +31,7 @@ const Schema = z.object({
         chatrooms: z.object({
             basePath: z.string().startsWith("/"),
             createChatroom: z.string().startsWith("/"),
-            getConnectedChatrooms: z.string().startsWith("/"),
+            getChatrooms: z.string().startsWith("/"),
             addFriendsToChatroom: z.string().startsWith("/"),
             leaveChatroom: z.string().startsWith("/")
         }),
@@ -47,36 +47,6 @@ const Schema = z.object({
         }),
         refresh: z.object({
             validityPeriod: z.int().positive()
-        })
-    }),
-    dataRules: z.object({
-        users: z.object({
-            login: z.object({
-                minLength: z.int().positive(),
-                maxLength: z.int().positive()
-            }),
-            password: z.object({
-                minLength: z.int().positive(),
-                maxLength: z.int().positive()
-            })
-        }),
-        friends: z.object({
-            friendshipCode: z.object({
-                minLength: z.int().positive(),
-                maxLength: z.int().positive()
-            })
-        }),
-        chatrooms: z.object({
-            name: z.object({
-                minLength: z.int().positive(),
-                maxLength: z.int().positive()
-            })
-        }),
-        messages: z.object({
-            content: z.object({
-                minLength: z.int().positive(),
-                maxLength: z.int().positive()
-            })
         })
     })
 })

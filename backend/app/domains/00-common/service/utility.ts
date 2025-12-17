@@ -1,5 +1,5 @@
 import { pool } from "./pool"
-import type { DBServiceResponse } from "./types"
+import type { ServiceResponse } from "./types"
 
 
 export function queryRowsToCamelCase(rows: any): any[] {
@@ -37,7 +37,7 @@ export function queryRowsToCamelCase(rows: any): any[] {
  * // Otherwise, move on
  * ```
  */
-export async function recordDoesNotExist<T>(params: RecordDoesNotExistParams<T>): Promise<DBServiceResponse | false> {
+export async function recordDoesNotExist<T>(params: RecordDoesNotExistParams<T>): Promise<ServiceResponse | false> {
     const {value, column, table} = params
     const query = await pool.query(`
         SELECT EXISTS (SELECT 1 FROM ${table} WHERE ${column} = $1) AS record_exists;
@@ -75,7 +75,7 @@ type RecordDoesNotExistParams<T> = {
  * // Otherwise, move on
  * ```
  */
-export async function userDoesNotExist(id: number): Promise<DBServiceResponse | false> {
+export async function userDoesNotExist(id: number): Promise<ServiceResponse | false> {
     return recordDoesNotExist({value: id, column: "id", table: "users"})
 }
 
@@ -92,7 +92,7 @@ export async function userDoesNotExist(id: number): Promise<DBServiceResponse | 
  * // Otherwise, move on
  * ```
  */
-export async function chatroomDoesNotExist(id: number): Promise<DBServiceResponse | false> {
+export async function chatroomDoesNotExist(id: number): Promise<ServiceResponse | false> {
     return recordDoesNotExist({value: id, column: "id", table: "chatrooms"})
 }
 
@@ -111,7 +111,7 @@ export async function chatroomDoesNotExist(id: number): Promise<DBServiceRespons
  * // Otherwise, move on
  * ```
  */
-export async function userNotInChatroom(params: NotInChatroomParams): Promise<DBServiceResponse | false> {
+export async function userNotInChatroom(params: NotInChatroomParams): Promise<ServiceResponse | false> {
     const inChatroom = (await pool.query(`
         SELECT EXISTS(
             SELECT 1 FROM users u

@@ -1,8 +1,9 @@
 import { DatabaseError } from "pg"
-import { pgErrorCondition } from "../00-common/database-service/db-error-codes-mapping"
-import { pool } from "../00-common/database-service/pool"
-import type { DBServiceResponse } from "../00-common/database-service/types"
-import { queryRowsToCamelCase, userDoesNotExist } from "../00-common/database-service/utility"
+import { pgErrorCondition } from "../00-common/service/db-error-codes-mapping"
+import { pool } from "../00-common/service/pool"
+import type { ServiceResponse as ServiceResponse } from "../00-common/service/types"
+import { queryRowsToCamelCase, userDoesNotExist } from "../00-common/service/utility"
+import { AccessTokenManagement } from "@/utilities/access-token-management"
 
 
 
@@ -13,7 +14,7 @@ export type AuthenticateUserParams = {
 
 export type AuthenticateUserResponse = {
     userId?: number
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * Authenticates a user with login and password
@@ -51,7 +52,7 @@ export type VerifyRefreshTokenParams = {
 
 export type VerifyRefreshTokenResponse = {
     userId?: number
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * Checks whether a refresh token is valid and marks it as used. 
@@ -142,7 +143,7 @@ export type CreateRefreshTokenParams = {
 
 export type CreateRefreshTokenResponse = {
     refreshToken?: string
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * Creates a refresh token for a specific user, with a mandatory validity period.
@@ -190,7 +191,7 @@ export type RevokeRefreshTokenParams = {
     refreshToken: string
 }
 
-export type RevokeRefreshTokenResponse = DBServiceResponse
+export type RevokeRefreshTokenResponse = ServiceResponse
 
 /**
  * Revokes a given refresh token.
@@ -219,5 +220,27 @@ export async function revokeRefreshToken(params: RevokeRefreshTokenParams): Prom
             status: "SUCCESS_REDUNDANT",
             message: "Refresh token does not exist. No need to revoke it."
         }
+    }
+}
+
+export type VerifyAccessTokenResponse = {
+    userId?: number
+} & ServiceResponse
+
+/**
+ * Possible status values:
+ * - SUCCESS
+ * - INVALID_ACCESS_TOKEN
+ */
+export function verifyAccessToken(accessToken: string): VerifyAccessTokenResponse {
+    const result = AccessTokenManagement.verifyToken(accessToken)
+    if (result !== null) return {
+        userId: result.sub,
+        status: "SUCCESS", 
+        message: "Access token is valid."
+    }
+    return {
+        status: "INVALID_ACCESS_TOKEN",
+        message: "Status token is not valid."
     }
 }

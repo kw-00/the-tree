@@ -1,6 +1,6 @@
-import { pool } from "../00-common/database-service/pool"
-import type { DBServiceResponse } from "../00-common/database-service/types"
-import { userDoesNotExist, queryRowsToCamelCase, recordDoesNotExist } from "../00-common/database-service/utility"
+import { pool } from "../00-common/service/pool"
+import type { ServiceResponse } from "../00-common/service/types"
+import { userDoesNotExist, queryRowsToCamelCase, recordDoesNotExist } from "../00-common/service/utility"
 
 
 
@@ -26,7 +26,7 @@ export type CreateFriendshipCodeParams = {
 
 export type CreateFriendshipCodeResponse = {
     friendshipCodeData?: FriendshipCodeData
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * Creates a friendship code for a given user. Expiry date is optional.
@@ -62,7 +62,7 @@ export type GetFriendshipCodesParams = {
 
 export type GetFriendshipCodesResponse = {
     friendshipCodesData?: FriendshipCodeData[]
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * 
@@ -100,7 +100,7 @@ export type RevokeFriendshipCodeParams = {
     friendshipCodeId: number
 }
 
-export type RevokeFriendshipCodeResponse = DBServiceResponse
+export type RevokeFriendshipCodeResponse = ServiceResponse
 
 /**
  * Revokes (invalidates) a friendship code on behalf of a given user.
@@ -172,7 +172,7 @@ export type AddFriendParams = {
 
 export type AddFriendResponse = {
     friendData?: FriendData
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * Establishes a friendship between two users, using a friendship code.
@@ -267,7 +267,7 @@ export type GetNextFriendsResponse = {
     friendsData?: FriendData[]
     hasNextPage?: boolean
     hasPreviousPage?: boolean
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * 
@@ -323,7 +323,7 @@ export type GetPreviousFriendsResponse = {
     friendsData?: FriendData[]
     hasNextPage?: boolean
     hasPreviousPage?: boolean
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * 
@@ -373,7 +373,7 @@ export type RemoveFriendParams = {
     friendId: number
 }
 
-export type RemoveFriendResponse = DBServiceResponse
+export type RemoveFriendResponse = ServiceResponse
 
 /**
  * Removes a friendship between user and their friend.

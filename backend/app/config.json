@@ -25,7 +25,7 @@
         "chatrooms": {
             "basePath": "/chatrooms",
             "createChatroom": "/create_chatroom",
-            "getConnectedChatrooms": "/get_connected_chatrooms",
+            "getChatrooms": "/get_chatrooms",
             "addFriendsToChatroom": "/add_friends_to_chatroom",
             "leaveChatroom": "/leave_chatroom"
         },
@@ -42,36 +42,5 @@
         "refresh": {
             "validityPeriod": 360000
         }
-    },
-    "dataRules": {
-        "users": {
-            "login": {
-                "minLength": 3,
-                "maxLength": 50
-            },
-            "password": {
-                "minLength": 3,
-                "maxLength": 50
-            }
-        },
-        "friends": {
-            "friendshipCode": {
-                "minLength": 1,
-                "maxLength": 20
-            }
-        },
-        "chatrooms": {
-            "name": {
-                "minLength": 1,
-                "maxLength": 50
-            }
-        },
-        "messages": {
-            "content": {
-                "minLength": 1,
-                "maxLength": 2000
-            }
-        }
-
     }
 }

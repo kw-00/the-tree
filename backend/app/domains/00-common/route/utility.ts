@@ -1,6 +1,5 @@
 
 
-import z from "zod"
 import type { Req, Rep } from "./types"
 
 
@@ -30,6 +29,4 @@ export async function handleRequest(
         } 
     }
 }
-
-export const accessTokenSchema = z.string()
 

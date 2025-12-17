@@ -1,6 +1,6 @@
-import { pool } from "../00-common/database-service/pool"
-import type { DBServiceResponse } from "../00-common/database-service/types"
-import { userDoesNotExist, chatroomDoesNotExist, userNotInChatroom, queryRowsToCamelCase } from "../00-common/database-service/utility"
+import { pool } from "../00-common/service/pool"
+import type { ServiceResponse } from "../00-common/service/types"
+import { userDoesNotExist, chatroomDoesNotExist, userNotInChatroom, queryRowsToCamelCase } from "../00-common/service/utility"
 
 
 
@@ -21,7 +21,7 @@ export type CreateMessageParams = {
 
 export type CreateMessageResponse = {
     messageData?: MessageData
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * Creates a message from a specific user, in a specific chatroom
@@ -84,7 +84,7 @@ export type GetNextMessagesResponse = {
     messagesData?: MessageData[] 
     hasNextPage?: boolean
     hasPreviousPage?: boolean
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * Retrieves messages from a chatroom, on behalf of a user. That user must be in the chatroom.
@@ -152,7 +152,7 @@ export type GetPreviousMessagesResponse = {
     messagesData?: MessageData[] 
     hasNextPage?: boolean
     hasPreviousPage?: boolean
-} & DBServiceResponse
+} & ServiceResponse
 
 /**
  * Retrieves messages from a chatroom, on behalf of a user. That user must be in the chatroom.
