@@ -5,7 +5,7 @@ import type { Req, Rep } from "./types"
 
 
 
-export async function handleRequest<P>(
+export async function handleRequest(
     req: Req, rep: Rep, 
     requestHandler: (req: Req, res: Rep) => Promise<void>
 ) {
