@@ -347,10 +347,10 @@ export async function getPreviousFriends(params: GetPreviousFriendsParams): Prom
             u.id != $1
             AND $1 IN (f.user1_id, f.user2_id)
             AND ($2::TEXT IS NULL OR u.login <= $2::TEXT)
-            AND u.login > $4
+            AND u.login > $3
         ORDER BY u.login DESC 
-        LIMIT $3;
-    `, [userId, cursor, limit + 2, boundary])
+        LIMIT $4;
+    `, [userId, cursor, boundary, limit + 2])
 
     const result = queryRowsToCamelCase(query.rows).reverse()
 
