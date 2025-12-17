@@ -10,8 +10,8 @@ import validation from "../00-common/route/validation";
 
 
 
-const basePath = Config.api.basePath + Config.api.auth.basePath
-const authPaths = Config.api.auth
+const basePath = Config.api.path + Config.api.auth.path
+const authConfig = Config.api.auth
 
 export async function authRoutes(fastify: FastifyInstance, options: object) {
     const accessCookieOptions = {
@@ -27,7 +27,7 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
         secure: true, 
         sameSite: "strict", 
         expires: new Date(new Date().getTime() + new Date("1971").getTime()),
-        path: `${authPaths.basePath}`
+        path: `${Config.api.auth.path}`
     } as const
 
     // Log In
@@ -37,7 +37,7 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
             password: validation.users.password
         })
     })
-    fastify.post(`${basePath}${authPaths.logIn}`, 
+    fastify.post(`${basePath}${authConfig.logIn.path}`, 
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
@@ -74,7 +74,7 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
             refreshToken: validation.auth.refreshToken
         })
     })
-    fastify.post(`${basePath}${authPaths.refreshToken}`,
+    fastify.post(`${basePath}${authConfig.refreshToken.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
@@ -109,7 +109,7 @@ export async function authRoutes(fastify: FastifyInstance, options: object) {
             refreshToken: validation.auth.refreshToken
         })
     })
-    fastify.post(`${basePath}${authPaths.logOut}`, {
+    fastify.post(`${basePath}${authConfig.logOut.path}`, {
         }, 
         async (req: Req, rep: Rep) => {
             await handleRequest(

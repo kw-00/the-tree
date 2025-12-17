@@ -6,41 +6,85 @@ import z from "zod"
 
 const Schema = z.object({
     api: z.object({
-        basePath: z.string().startsWith("/"),
+        path: z.string().startsWith("/"),
         auth: z.object({
-            basePath: z.string().startsWith("/"),
-            logIn: z.string().startsWith("/"),
-            refreshToken: z.string().startsWith("/"),
-            logOut: z.string().startsWith("/")
+            path: z.string().startsWith("/"),
+            logIn: z.object({
+                path: z.string().startsWith("/")
+            }),
+            refreshToken: z.object({
+                path: z.string().startsWith("/")
+            }),
+            logOut: z.object({
+                path: z.string().startsWith("/")
+            })
         }),
         users: z.object({
-            basePath: z.string().startsWith("/"),
-            registerUser: z.string().startsWith("/"),
-            changeLogin: z.string().startsWith("/"),
-            changePassword: z.string().startsWith("/")
+            path: z.string().startsWith("/"),
+            registerUser: z.object({
+                path: z.string().startsWith("/")
+            }),
+            changeLogin: z.object({
+                path: z.string().startsWith("/")
+            }),
+            changePassword: z.object({
+                path: z.string().startsWith("/")
+            })
         }),
         friends: z.object({
-            basePath: z.string().startsWith("/"),
-            createFriendshipCode: z.string().startsWith("/"),
-            getFriendshipCodes: z.string().startsWith("/"),
-            revokeFriendshipCode: z.string().startsWith("/"),
-            addFriend: z.string().startsWith("/"),
-            getNextFriends: z.string().startsWith("/"),
-            getPreviousFriends: z.string().startsWith("/"),
-            removeFriend: z.string().startsWith("/")
+            path: z.string().startsWith("/"),
+            createFriendshipCode: z.object({
+                path: z.string().startsWith("/")
+            }),
+            getFriendshipCodes: z.object({
+                path: z.string().startsWith("/")
+            }),
+            revokeFriendshipCode: z.object({
+                path: z.string().startsWith("/")
+            }),
+            addFriend: z.object({
+                path: z.string().startsWith("/")
+            }),
+            getNextFriends: z.object({
+                path: z.string().startsWith("/"),
+                maxBatchSize: z.int().positive()
+            }),
+            getPreviousFriends: z.object({
+                path: z.string().startsWith("/"),
+                maxBatchSize: z.int().positive()
+            }),
+            removeFriend: z.object({
+                path: z.string().startsWith("/")
+            })
         }),
         chatrooms: z.object({
-            basePath: z.string().startsWith("/"),
-            createChatroom: z.string().startsWith("/"),
-            getChatrooms: z.string().startsWith("/"),
-            addFriendsToChatroom: z.string().startsWith("/"),
-            leaveChatroom: z.string().startsWith("/")
+            path: z.string().startsWith("/"),
+            createChatroom: z.object({
+                path: z.string().startsWith("/")
+            }),
+            getChatrooms: z.object({
+                path: z.string().startsWith("/")
+            }),
+            addFriendsToChatroom: z.object({
+                path: z.string().startsWith("/")
+            }),
+            leaveChatroom: z.object({
+                path: z.string().startsWith("/")
+            })
         }),
         messages: z.object({
-            basePath: z.string().startsWith("/"),
-            createMessage: z.string().startsWith("/"),
-            getNextMessages: z.string().startsWith("/"),
-            getPreviousMessages: z.string().startsWith("/")
+            path: z.string().startsWith("/"),
+            createMessage: z.object({
+                path: z.string().startsWith("/")
+            }),
+            getNextMessages: z.object({
+                path: z.string().startsWith("/"),
+                maxBatchSize: z.int().positive()
+            }),
+            getPreviousMessages: z.object({
+                path: z.string().startsWith("/"),
+                maxBatchSize: z.int().positive()
+            })
         })
     }),
     tokens: z.object({

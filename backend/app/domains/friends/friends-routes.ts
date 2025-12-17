@@ -8,8 +8,8 @@ import { verifyAccessToken } from "../auth/auth-service";
 import { stMap } from "@/utilities/status-mapping";
 import { addFriend, createFrienshipCode, getFriendshipCodes, getNextFriends, getPreviousFriends, removeFriend, revokeFriendshipCode } from "./friends-service";
 
-const basePath = Config.api.basePath + Config.api.friends.basePath
-const friendsPaths = Config.api.friends
+const basePath = Config.api.path + Config.api.friends.path
+const friendsConfig = Config.api.friends
 
 export async function friendsRoutes(fastify: FastifyInstance, options: object) {
 
@@ -23,7 +23,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${friendsPaths.createFriendshipCode}`,
+    fastify.post(`${basePath}${friendsConfig.createFriendshipCode.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
@@ -51,7 +51,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${friendsPaths.getFriendshipCodes}`,
+    fastify.post(`${basePath}${friendsConfig.getFriendshipCodes.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
@@ -79,7 +79,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
             accessToken: validation.auth.accessToken
         }) 
     })
-    fastify.post(`${basePath}${friendsPaths.revokeFriendshipCode}`,
+    fastify.post(`${basePath}${friendsConfig.revokeFriendshipCode.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
@@ -112,7 +112,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${friendsPaths.addFriend}`,
+    fastify.post(`${basePath}${friendsConfig.addFriend.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
@@ -138,13 +138,13 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
     const getNextFriendsSchema = z.object({
         body: z.object({
             cursor: validation.users.login.optional(),
-            limit: z.int().positive().lt(30)
+            limit: z.int().positive().lt(friendsConfig.getNextFriends.maxBatchSize)
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${friendsPaths.getNextFriends}`,
+    fastify.post(`${basePath}${friendsConfig.getNextFriends.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
@@ -171,14 +171,14 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
     const getPreviousFriendsSchema = z.object({
         body: z.object({
             cursor: validation.users.login,
-            limit: z.int().positive().lt(30),
+            limit: z.int().positive().lt(friendsConfig.getPreviousFriends.maxBatchSize),
             boundary: validation.users.login
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${friendsPaths.getNextFriends}`,
+    fastify.post(`${basePath}${friendsConfig.getPreviousFriends.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
@@ -210,7 +210,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${friendsPaths.removeFriend}`,
+    fastify.post(`${basePath}${friendsConfig.removeFriend.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,

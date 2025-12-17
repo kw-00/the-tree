@@ -9,8 +9,8 @@ import { verifyAccessToken } from "../auth/auth-service";
 import { createMessage, getNextMessages, getPreviousMessages } from "./messages-service";
 
 
-const basePath = Config.api.basePath + Config.api.messages.basePath
-const messagesPaths = Config.api.messages
+const basePath = Config.api.path + Config.api.messages.path
+const messagesConfig = Config.api.messages
 
 export async function messagesRoutes(fastify: FastifyInstance, options: object) {
 
@@ -24,7 +24,7 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${messagesPaths.createMessage}`,
+    fastify.post(`${basePath}${messagesConfig.createMessage.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
@@ -52,14 +52,14 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
         body: z.object({
             chatroomId: validation.chatrooms.id,
             cursor: validation.messages.id,
-            limit: z.int().positive().lt(30),
+            limit: z.int().positive().lt(messagesConfig.getNextMessages.maxBatchSize),
             boundary: validation.messages.id
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${messagesPaths.getNextMessages}`,
+    fastify.post(`${basePath}${messagesConfig.getNextMessages.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
@@ -88,13 +88,13 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
         body: z.object({
             chatroomId: validation.chatrooms.id,
             cursor: validation.messages.id.optional(),
-            limit: z.int().positive().lt(30),
+            limit: z.int().positive().lt(messagesConfig.getPreviousMessages.maxBatchSize),
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${messagesPaths.getNextMessages}`,
+    fastify.post(`${basePath}${messagesConfig.getPreviousMessages.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,

@@ -9,8 +9,8 @@ import { stMap } from "@/utilities/status-mapping";
 import { authenticateUser } from "../auth/auth-service";
 
 
-const basePath = Config.api.basePath + Config.api.users.basePath
-const usersPaths = Config.api.users
+const basePath = Config.api.path + Config.api.users.path
+const usersConfig = Config.api.users
 
 export async function usersRoutes(fastify: FastifyInstance, options: object) {
     // Register User
@@ -21,7 +21,7 @@ export async function usersRoutes(fastify: FastifyInstance, options: object) {
         })
     })
 
-    fastify.post(`${basePath}${usersPaths.registerUser}`,
+    fastify.post(`${basePath}${usersConfig.registerUser.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
@@ -43,7 +43,7 @@ export async function usersRoutes(fastify: FastifyInstance, options: object) {
         })
     })
 
-    fastify.post(`${basePath}${usersPaths.changeLogin}`,
+    fastify.post(`${basePath}${usersConfig.changeLogin.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 
@@ -70,7 +70,7 @@ export async function usersRoutes(fastify: FastifyInstance, options: object) {
         })
     })
 
-    fastify.post(`${basePath}${usersPaths.changePassword}`,
+    fastify.post(`${basePath}${usersConfig.changePassword.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep, 

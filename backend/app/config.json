@@ -1,40 +1,84 @@
 {
     "api": {
-        "basePath": "/api",
+        "path": "/api",
         "auth": {
-            "basePath": "/auth",
-            "logIn": "/log_in",
-            "refreshToken": "/refresh_token",
-            "logOut": "/log_out"
+            "path": "/auth",
+            "logIn": {
+                "path": "/log_in"
+            },
+            "refreshToken": {
+                "path": "/refresh_token"
+            },
+            "logOut": {
+                "path": "/log_out"
+            }
         },
         "users": {
-            "basePath": "/users",
-            "registerUser": "/register_user",
-            "changeLogin": "/change_login",
-            "changePassword": "/change_password"
+            "path": "/users",
+            "registerUser": {
+                "path": "/register_user"
+            },
+            "changeLogin": {
+                "path": "/change_login"
+            },
+            "changePassword": {
+                "path": "/change_password"
+            }
         },
         "friends": {
-            "basePath": "/friends",
-            "createFriendshipCode": "/create_friendship_code",
-            "getFriendshipCodes": "/get_friendship_codes",
-            "revokeFriendshipCode": "/revoke_friendship_code",
-            "addFriend": "/add_friend",
-            "getNextFriends": "/get_next_friends",
-            "getPreviousFriends": "/get_previous_friends",
-            "removeFriend": "/remove_friend"
+            "path": "/friends",
+            "createFriendshipCode": {
+                "path": "/create_friendship_code"
+            },
+            "getFriendshipCodes": {
+                "path": "/get_friendship_codes"
+            },
+            "revokeFriendshipCode": {
+                "path": "/revoke_friendship_code"
+            },
+            "addFriend": {
+                "path": "/add_friend"
+            },
+            "getNextFriends": {
+                "path": "/get_next_friends",
+                "maxBatchSize": 5
+            },
+            "getPreviousFriends": {
+                "path": "/get_previous_friends",
+                "maxBatchSize": 5
+            },
+            "removeFriend": {
+                "path": "/remove_friend"
+            }
         },
         "chatrooms": {
-            "basePath": "/chatrooms",
-            "createChatroom": "/create_chatroom",
-            "getChatrooms": "/get_chatrooms",
-            "addFriendsToChatroom": "/add_friends_to_chatroom",
-            "leaveChatroom": "/leave_chatroom"
+            "path": "/chatrooms",
+            "createChatroom": {
+                "path": "/create_chatroom"
+            },
+            "getChatrooms": {
+                "path": "/get_chatrooms"
+            },
+            "addFriendsToChatroom": {
+                "path": "/add_friends_to_chatroom"
+            },
+            "leaveChatroom": {
+                "path": "/leave_chatroom"
+            }
         },
         "messages": {
-            "basePath": "/messages",
-            "createMessage": "/create_message",
-            "getNextMessages": "/get_next_messages",
-            "getPreviousMessages": "/get_next_messages"
+            "path": "/messages",
+            "createMessage": {
+                "path": "/create_message"
+            },
+            "getNextMessages": {
+                "path": "/get_next_messages",
+                "maxBatchSize": 5
+            },
+            "getPreviousMessages": {
+                "path": "/get_next_messages",
+                "maxBatchSize": 5
+            }
         }
     },
     "tokens": {

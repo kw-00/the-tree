@@ -4,7 +4,7 @@ import z from "zod";
 
 const validation = {
     common: {
-        timestamptz: z.iso.datetime({offset: true})
+        timestamptz: z.iso.datetime({offset: true}),
     },
     auth: {
         accessToken: z.string(),

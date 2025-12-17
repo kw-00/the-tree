@@ -9,8 +9,8 @@ import { verifyAccessToken } from "../auth/auth-service";
 import { stMap } from "@/utilities/status-mapping";
 
 
-const basePath = Config.api.basePath + Config.api.chatrooms.basePath
-const chatroomsPaths = Config.api.chatrooms
+const basePath = Config.api.path + Config.api.chatrooms.path
+const chatroomsConfig = Config.api.chatrooms
 
 export async function chatroomsRoutes(fastify: FastifyInstance, options: object) {
 
@@ -23,7 +23,7 @@ export async function chatroomsRoutes(fastify: FastifyInstance, options: object)
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${chatroomsPaths.createChatroom}`,
+    fastify.post(`${basePath}${chatroomsConfig.createChatroom.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
@@ -48,7 +48,7 @@ export async function chatroomsRoutes(fastify: FastifyInstance, options: object)
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${chatroomsPaths.getChatrooms}`, 
+    fastify.post(`${basePath}${chatroomsConfig.getChatrooms.path}`, 
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
@@ -77,7 +77,7 @@ export async function chatroomsRoutes(fastify: FastifyInstance, options: object)
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${chatroomsPaths.addFriendsToChatroom}`, 
+    fastify.post(`${basePath}${chatroomsConfig.addFriendsToChatroom.path}`, 
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
@@ -108,7 +108,7 @@ export async function chatroomsRoutes(fastify: FastifyInstance, options: object)
             accessToken: validation.auth.accessToken
         })
     })
-    fastify.post(`${basePath}${chatroomsPaths.leaveChatroom}`,
+    fastify.post(`${basePath}${chatroomsConfig.leaveChatroom.path}`,
         async (req: Req, rep: Rep) => {
             await handleRequest(
                 req, rep,
