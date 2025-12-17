@@ -17,12 +17,6 @@ const fastify = Fastify({
     https: {
         cert: fs.readFileSync("./cert/certificate.crt"),
         key: fs.readFileSync("./cert/key.pem")
-    },
-    ajv: {
-        customOptions: {
-            removeAdditional: true,
-            strictRequired: true
-        }
     }
 })
 
