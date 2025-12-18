@@ -12,7 +12,7 @@ import { getChatrooms } from "@/backend-integration/domains/chatrooms/chatrooms-
 
 
 
-
+// TODO - simplify, possibly with custom hook
 export default function ChatPanel(props: BoxProps) {
     const selfRef = useRef<HTMLDivElement>(null)
 
@@ -20,30 +20,21 @@ export default function ChatPanel(props: BoxProps) {
     const [isNearBottom, setIsNearBottom] = useState(true)
     const [isAtBottom, setIsAtBottom] = useState(true)
 
+    const [liveMessages, setLiveMessages] = useState<MessageData[]>([])
+
     // Make queries
-    const queryClient = useQueryClient()
     const chatroomsQuery = useQuery(getChatrooms)
     const messageQuery = useInfiniteQuery(getMessages(chatroomId, undefined))
     const sendMessageMutation = useMutation({
         ...createMessage,
         onSuccess: (response) => {
             if (isNearBottom) {
-                queryClient.setQueryData(["chatrooms", chatroomId, "messages"],
-                    (oldData: {pages: MessageData[][], pageParams: {date: Date, direction: "before" | "after"}[]}) => {
-                        if (oldData.pages.length === 0) return oldData
-                        const newPages = oldData.pages
-                        newPages[0].push(response.messageData!)
-                        const newPageParams = oldData.pageParams
-                        newPageParams[0] = {date: response.messageData?.createdAt!, direction: "before"}
-                        return {
-                            pages: newPages,
-                            pageParams: newPageParams
-                        }
-                    }
-                )
+                setLiveMessages(liveMessages.concat(response.messageData!))
             }
         }
     })
+
+    const messageData = [...messageQuery.data?.pages.flatMap(p => p.messagesData!) ?? [], ...liveMessages]
 
     useEffect(() => {
         if (messageQuery.isError) alert(messageQuery.error)
@@ -60,6 +51,12 @@ export default function ChatPanel(props: BoxProps) {
             selfRef.current.scrollTop = selfRef.current?.scrollHeight - selfRef.current.clientHeight
         }
     }, [chatroomId])
+
+    useEffect(() => {
+        if (isAtBottom && selfRef.current) {
+            selfRef.current.scrollTop = selfRef.current.scrollHeight - selfRef.current.clientHeight
+        }
+    }, [liveMessages])
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const el = e.currentTarget
@@ -85,11 +82,8 @@ export default function ChatPanel(props: BoxProps) {
             </PanelElement>
             <PanelElement flexGrow={1}>
                 {
-                    messageQuery.isSuccess ?
-                    messageQuery.data.pages.flatMap(p => p.messagesData).map(({userId, userLogin, content}) => 
+                    messageData.map(({userId, userLogin, content}) => 
                         <Message userId={userId} userLogin={userLogin} content={content} alignItems="stretch" p="2"/>)
-                    :
-                    <></>
                 }
             </PanelElement>
             {

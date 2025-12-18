@@ -1,17 +1,19 @@
 
 import { Button, HStack, Textarea, VStack, type StackProps } from "@chakra-ui/react"
-import { useMutation } from "@tanstack/react-query"
-import { useState, type FormEvent } from "react"
-import { useChatContext } from "../ChatContext"
-import { createMessage } from "@/backend-integration/domains/messages/messages-queries"
+import React, { useState, type FormEvent } from "react"
 
 type MessageInputProps = {
     handleSubmit: (content: string) => void 
 } & StackProps
 
 export default function MessageInput(props: MessageInputProps) {
-
     const [content, setContent] = useState("")
+
+    const handleKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (!e.shiftKey && e.code === "Enter") {
+            e.currentTarget.form?.requestSubmit()
+        }
+    }
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
@@ -24,6 +26,7 @@ export default function MessageInput(props: MessageInputProps) {
             <form onSubmit={handleSubmit}>
                 <HStack alignItems="end">
                     <Textarea 
+                        onKeyUp={handleKeyUp}
                         name="message" 
                         value={content}
                         placeholder="Type something..." 
