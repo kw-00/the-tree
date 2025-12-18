@@ -8,8 +8,8 @@ export const createMessage = mutationOptions({
     mutationFn: async (params: bs.CreateMessageParams) => throwErrorOnRequestFailure(() => bs.createMessage(params))
 })
 
-type GetFriendsPageParam = {cursor?: number, direction: "next" | "previous"} | undefined
-export const getMessages = (chatroomId: number | null, boundary: number | undefined) => infiniteQueryOptions({
+type GetFriendsPageParam = {cursor: number | null, direction: "next" | "previous"} | undefined
+export const getMessages = (chatroomId: number | null, boundary: number | null) => infiniteQueryOptions({
     queryKey: ["chatrooms", chatroomId, "messages"],
     queryFn: async (context) => {
         const pageParam = context.pageParam!

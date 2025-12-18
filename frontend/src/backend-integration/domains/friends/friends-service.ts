@@ -76,14 +76,14 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
 
 
 export type GetNextFriendsParams = {
-    cursor?: string
+    cursor: string | null
     limit: number
 }
 
 export type FriendsPage = {
     friendsData: FriendData[]
-    nextCursor: string | undefined
-    prevCursor: string | undefined
+    nextCursor: string | null
+    prevCursor: string | null
     hasNextPage: boolean
     hasPrevPage: boolean
 }
@@ -99,7 +99,7 @@ export async function getNextFriends(params: GetNextFriendsParams): Promise<GetF
 export type GetPreviousFriendsParams = {
     cursor: string
     limit: number
-    boundary?: string
+    boundary: string | null
 }
 
 export async function getPreviousFriends(params: GetPreviousFriendsParams): Promise<GetFriendsResponse> {

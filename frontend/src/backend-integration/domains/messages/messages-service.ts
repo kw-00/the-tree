@@ -34,13 +34,13 @@ export type GetNextMessagesParams = {
     chatroomId: number
     cursor: number
     limit: number
-    boundary?: number
+    boundary: number | null
 }
 
 export type MessagesPage = {
     messagesData: MessageData[]
-    nextCursor: number | undefined
-    prevCursor: number | undefined
+    nextCursor: number | null
+    prevCursor: number | null
     hasNextPage: boolean
     hasPrevPage: boolean
 }
@@ -55,7 +55,7 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
 
 export type GetPreviousMessagesParams = {
     chatroomId: number
-    cursor?: number
+    cursor: number | null
     limit: number
 }
 

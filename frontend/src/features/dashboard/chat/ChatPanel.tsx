@@ -1,12 +1,12 @@
 import { Heading, type BoxProps } from "@chakra-ui/react"
 import MessageInput from "./MessageInput"
 import { useChatContext } from "@/features/dashboard/ChatContext"
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { InfiniteQueryObserver, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import Panel from "@/components/panel/Panel"
 import PanelElement from "@/components/panel/PanelElement"
 import Message from "./Message"
 import { createMessage, getMessages } from "@/backend-integration/domains/messages/messages-queries"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useReducer, useRef, useState } from "react"
 import type { MessageData } from "@/backend-integration/domains/messages/messages-service"
 import { getChatrooms } from "@/backend-integration/domains/chatrooms/chatrooms-queries"
 
@@ -16,6 +16,10 @@ import { getChatrooms } from "@/backend-integration/domains/chatrooms/chatrooms-
 export default function ChatPanel(props: BoxProps) {
     const selfRef = useRef<HTMLDivElement>(null)
 
+    const [forced, forceUpdate] = useReducer(x => x + 1, 0)
+    const oldHeight = useRef<number | null>(null)
+    const captureHeight = () => oldHeight.current = selfRef.current?.scrollHeight ?? null
+
     const {selectedChatroomId: chatroomId} = useChatContext()
     const [isNearBottom, setIsNearBottom] = useState(true)
     const [isAtBottom, setIsAtBottom] = useState(true)
@@ -23,8 +27,16 @@ export default function ChatPanel(props: BoxProps) {
     const [liveMessages, setLiveMessages] = useState<MessageData[]>([])
 
     // Make queries
+    const queryClient = useQueryClient()
+    const observerRef = useRef(new InfiniteQueryObserver(queryClient, {
+        ...getMessages(chatroomId, null),
+    }))
+    observerRef.current.setOptions({
+        ...getMessages(chatroomId, null)
+    })
+    const messageQuery = observerRef.current.getCurrentResult()
+    
     const chatroomsQuery = useQuery(getChatrooms)
-    const messageQuery = useInfiniteQuery(getMessages(chatroomId, undefined))
     const sendMessageMutation = useMutation({
         ...createMessage,
         onSuccess: (response) => {
@@ -34,29 +46,46 @@ export default function ChatPanel(props: BoxProps) {
         }
     })
 
+    useEffect(() => {
+        const unsubscribe = observerRef.current.subscribe(() => {
+            captureHeight()
+            forceUpdate()
+        })
+        return unsubscribe
+    }, [chatroomId])
+
+    useLayoutEffect(() => {
+        if (selfRef.current && oldHeight.current) {
+            const delta = selfRef.current.scrollHeight - oldHeight.current
+            selfRef.current.scrollTop += delta
+            oldHeight.current = null
+        }
+    }, [forced])
+
     const messageData = [...messageQuery.data?.pages.flatMap(p => p.messagesData!) ?? [], ...liveMessages]
 
+    // Show errors 
     useEffect(() => {
         if (messageQuery.isError) alert(messageQuery.error)
     }, [messageQuery.status, messageQuery.fetchStatus])
 
-    useEffect(() => {
-        if (selfRef.current !== null && isAtBottom) {
-            selfRef.current.scrollTop = selfRef.current?.scrollHeight - selfRef.current.clientHeight
-        }
-    }, [messageQuery.status, chatroomId])
 
+
+    // Reset scroll to bottom when switching between chatrooms
     useEffect(() => {
+        if (chatroomId) messageQuery.fetchPreviousPage()
         if (selfRef.current !== null && !isAtBottom) {
             selfRef.current.scrollTop = selfRef.current?.scrollHeight - selfRef.current.clientHeight
         }
     }, [chatroomId])
 
+    // Set scroll back to bottom after message arrival if we are at bottom
     useEffect(() => {
         if (isAtBottom && selfRef.current) {
             selfRef.current.scrollTop = selfRef.current.scrollHeight - selfRef.current.clientHeight
         }
     }, [liveMessages])
+
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const el = e.currentTarget
@@ -89,6 +118,7 @@ export default function ChatPanel(props: BoxProps) {
             {
                 chatroomId !== null ?
                 <MessageInput position="sticky" bottom={0} handleSubmit={async (content) => {
+                    captureHeight()
                     await sendMessageMutation.mutateAsync({chatroomId: chatroomId, content: content})
                 }}/>
                 :

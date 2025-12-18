@@ -21,9 +21,9 @@ export const addFriend = mutationOptions({
     mutationFn: async (params: bs.AddFriendParams) => throwErrorOnRequestFailure(() => bs.addFriend(params))
 })
 
-type GetFriendsPageParam = {cursor: string | undefined, direction: "next" | "previous"} | undefined
+type GetFriendsPageParam = {cursor: string | null, direction: "next" | "previous"} | undefined
 
-export const getFriends = (boundary: string | undefined) => infiniteQueryOptions({
+export const getFriends = (boundary: string | null) => infiniteQueryOptions({
     queryKey: ["friends"],
     queryFn: async (context) => {
         const pageParam = context.pageParam!
@@ -50,7 +50,7 @@ export const getFriends = (boundary: string | undefined) => infiniteQueryOptions
         const cursor = lastPage.prevCursor
         return (cursor ? {cursor: cursor, direction: "previous"} : undefined) as GetFriendsPageParam
     },
-    initialPageParam: {cursor: undefined, direction: "next"} as GetFriendsPageParam
+    initialPageParam: {cursor: null, direction: "next"} as GetFriendsPageParam
 })
 
 export const removeFriend = mutationOptions({
