@@ -51,9 +51,8 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
     const getNextMessagesSchema = z.object({
         body: z.object({
             chatroomId: validation.chatrooms.id,
-            cursor: validation.messages.id,
-            limit: z.int().positive().lte(messagesConfig.getNextMessages.maxBatchSize),
-            boundary: validation.messages.id.nullable()
+            after: validation.messages.id,
+            limit: z.int().positive().lte(messagesConfig.getNextMessages.maxBatchSize)
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
@@ -65,7 +64,7 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
                 req, rep,
                 async (req, rep) => {
                     const parsed = getNextMessagesSchema.parse(req)
-                    const {chatroomId, cursor, limit, boundary} = parsed.body
+                    const {chatroomId, after, limit} = parsed.body
                     const {accessToken} = parsed.cookies
 
                     const verificationResult = verifyAccessToken(accessToken)
@@ -75,7 +74,7 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
                     }
                     const userId = verificationResult.userId!
 
-                    const dbResult = await getNextMessages({chatroomId, userId, cursor, limit, boundary})
+                    const dbResult = await getNextMessages({chatroomId, userId, after, limit})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )
@@ -87,7 +86,7 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
     const getPreviousMessagesSchema = z.object({
         body: z.object({
             chatroomId: validation.chatrooms.id,
-            cursor: validation.messages.id.nullable(),
+            before: validation.messages.id.nullable(),
             limit: z.int().positive().lte(messagesConfig.getPreviousMessages.maxBatchSize),
         }),
         cookies: z.object({
@@ -101,7 +100,7 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
                 async (req, rep) => {
                     console.log(req.body)
                     const parsed = getPreviousMessagesSchema.parse(req)
-                    const {chatroomId, cursor, limit} = parsed.body
+                    const {chatroomId, before, limit} = parsed.body
                     const {accessToken} = parsed.cookies
 
                     const verificationResult = verifyAccessToken(accessToken)
@@ -111,7 +110,7 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
                     }
                     const userId = verificationResult.userId!
 
-                    const dbResult = await getPreviousMessages({chatroomId, userId, cursor, limit})
+                    const dbResult = await getPreviousMessages({chatroomId, userId, before, limit})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )

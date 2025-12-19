@@ -76,17 +76,14 @@ export async function createMessage(params: CreateMessageParams): Promise<Create
 export type GetNextMessagesParams = {
     userId: number
     chatroomId: number
-    cursor: number
+    after: number
     limit: number
-    boundary: number | null
 }
 
 export type MessagesPage = {
     messagesData: MessageData[]
     nextCursor: number | null
     prevCursor: number | null
-    hasNextPage: boolean
-    hasPrevPage: boolean
 }
 
 export type GetNextMessagesResponse = {
@@ -103,7 +100,7 @@ export type GetNextMessagesResponse = {
  * - NOT_IN_CHATROOM
  */
 export async function getNextMessages(params: GetNextMessagesParams): Promise<GetNextMessagesResponse> {
-    const {userId, chatroomId, cursor, limit, boundary} = params
+    const {userId, chatroomId, after, limit} = params
 
     // Make sure user and chatroom exist
     const userNotExists = await userDoesNotExist(userId)
@@ -124,28 +121,18 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
         INNER JOIN users u ON u.id = m.user_id
         WHERE
             c.id = $1
-            AND m.id >= $2
-            AND ($3::INT IS NULL OR m.id < $3::INT)
+            AND m.id > $2
         ORDER BY m.id ASC
-        LIMIT $4;
-    `, [chatroomId, cursor, boundary, limit + 2])
+        LIMIT $3;
+    `, [chatroomId, after, limit])
 
     const result = queryRowsToCamelCase(query.rows)
-
-    const hasPreviousPage = result.find(value => value.id === cursor) !== undefined
-    if (hasPreviousPage) {
-        result.splice(0, 1)
-    }
-    const hasNextPage = result.length > limit
-    result.splice(limit)
 
     return {
         page: {
             messagesData: result,
-            nextCursor: result[result.length - 1]?.id ?? cursor,
-            prevCursor: cursor,
-            hasNextPage: hasNextPage,
-            hasPrevPage: hasPreviousPage
+            nextCursor: result[result.length - 1]?.id ?? null,
+            prevCursor: result[0] ?? null
         },
         status: "SUCCESS",
         message: `Successfully retrieved messages for chatroom with ID of ${chatroomId}.`
@@ -156,7 +143,7 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
 export type GetPreviousMessagesParams = {
     userId: number
     chatroomId: number
-    cursor: number | null
+    before: number | null
     limit: number
 }
 
@@ -174,7 +161,7 @@ export type GetPreviousMessagesResponse = {
  * - NOT_IN_CHATROOM
  */
 export async function getPreviousMessages(params: GetPreviousMessagesParams): Promise<GetPreviousMessagesResponse> {
-    const {userId, chatroomId, cursor, limit} = params
+    const {userId, chatroomId, before, limit} = params
 
     // Make sure user and chatroom exist
     const userNotExists = await userDoesNotExist(userId)
@@ -195,27 +182,18 @@ export async function getPreviousMessages(params: GetPreviousMessagesParams): Pr
         INNER JOIN users u ON u.id = m.user_id
         WHERE
             c.id = $1
-            AND ($2::INT IS NULL OR m.id <= $2::INT)
+            AND ($2::INT IS NULL OR m.id < $2::INT)
         ORDER BY m.id DESC
         LIMIT $3;
-    `, [chatroomId, cursor, limit + 2])
+    `, [chatroomId, before, limit])
 
     const result = queryRowsToCamelCase(query.rows).reverse()
-
-    const hasNextPage = result.find(value => value.id === cursor) !== undefined
-    if (hasNextPage) {
-        result.pop()
-    }
-    const hasPreviousPage = result.length > limit
-    result.splice(0, result.length - limit)
 
     return {
         page: {
             messagesData: result,
-            nextCursor: cursor ?? null,
-            prevCursor: result[0]?.id ?? cursor ?? null,
-            hasNextPage: hasNextPage,
-            hasPrevPage: hasPreviousPage
+            nextCursor: result[result.length - 1].id ?? null,
+            prevCursor: result[0]?.id ?? null
         },
         status: "SUCCESS",
         message: `Successfully retrieved messages for chatroom with ID of ${chatroomId}.`
