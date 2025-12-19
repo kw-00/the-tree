@@ -33,13 +33,12 @@ export async function createFriendshipCode(params: CreateFriendshipCodeParams): 
 }
 
 
-export type GetFriendshipCodesParams = {}
 export type GetFriendshipCodesResponse = {
     friendshipCodesData?: FriendshipCodeData[]
 } & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
-export async function getFriendshipCodes(params: GetFriendshipCodesParams): Promise<GetFriendshipCodesResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getFriendshipCodes.path}`, params)
+export async function getFriendshipCodes(): Promise<GetFriendshipCodesResponse> {
+    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getFriendshipCodes.path}`, {})
 }
 
 export type RevokeFriendshipCodeParams = {
@@ -74,38 +73,13 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
     return attemptAndRefreshToken(`${baseUrl}${friendsPaths.addFriend.path}`, params)
 }
 
-
-export type GetNextFriendsParams = {
-    cursor: string
-    limit: number
-    boundary: string | null
-}
-
-export type FriendsPage = {
-    friendsData: FriendData[]
-    nextCursor: string | null
-    prevCursor: string | null
-    hasNextPage: boolean
-    hasPrevPage: boolean
-}
-
 export type GetFriendsResponse = {
-    page?: FriendsPage
+    friends?: FriendData[]
 } & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
-export async function getNextFriends(params: GetNextFriendsParams): Promise<GetFriendsResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getNextFriends.path}`, params)
+export async function getFriends(): Promise<GetFriendsResponse> {
+    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getFriends.path}`, {})
 }
-
-export type GetPreviousFriendsParams = {
-    cursor: string | null
-    limit: number
-}
-
-export async function getPreviousFriends(params: GetPreviousFriendsParams): Promise<GetFriendsResponse> {
-    return attemptAndRefreshToken(`${baseUrl}${friendsPaths.getPreviousFriends.path}`, params)
-}
-
 
 export type RemoveFriendParams = {
     friendId: number

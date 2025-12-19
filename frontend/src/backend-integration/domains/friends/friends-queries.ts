@@ -10,7 +10,7 @@ export const createFriendshipCode = mutationOptions({
 
 export const getFriendshipCodes = queryOptions({
     queryKey: ["friendshipCodes"],
-    queryFn: () => throwErrorOnRequestFailure(() => bs.getFriendshipCodes({})),
+    queryFn: () => throwErrorOnRequestFailure(() => bs.getFriendshipCodes()),
 })
 
 export const revokeFriendshipCode = mutationOptions({
@@ -21,38 +21,9 @@ export const addFriend = mutationOptions({
     mutationFn: async (params: bs.AddFriendParams) => throwErrorOnRequestFailure(() => bs.addFriend(params))
 })
 
-type GetFriendsPageParam = {cursor: string | null, direction: "next" | "previous"} | undefined
-
-export const getFriends = (boundary: string | null) => infiniteQueryOptions({
+export const getFriends = queryOptions({
     queryKey: ["friends"],
-    queryFn: async (context) => {
-        const pageParam = context.pageParam!
-        if (pageParam.direction === "next") {
-            const res = await throwErrorOnRequestFailure(() => bs.getNextFriends({
-                cursor: pageParam.cursor!, 
-                limit: ServerConfig.api.messages.getNextMessages.maxBatchSize,
-                boundary: boundary
-            }))
-            return res.page!
-        } else {
-            const res = await throwErrorOnRequestFailure(() => bs.getPreviousFriends({
-                cursor: pageParam.cursor,
-                limit: ServerConfig.api.messages.getPreviousMessages.maxBatchSize,
-            }))
-            return res.page!
-        }
-    },
-    getNextPageParam: (lastPage) => {
-        const cursor = lastPage.nextCursor
-        const hasNextPage = lastPage.hasNextPage
-        return (hasNextPage ? {cursor: cursor, direction: "next"} : undefined) as GetFriendsPageParam
-    },
-    getPreviousPageParam: (firstPage) => {
-        const cursor = firstPage.prevCursor
-        const hasPrevPage = firstPage.hasPrevPage
-        return (hasPrevPage ? {cursor: cursor, direction: "previous"} : undefined) as GetFriendsPageParam
-    },
-    initialPageParam: {cursor: null, direction: "previous"} as GetFriendsPageParam
+    queryFn: () => throwErrorOnRequestFailure(() => bs.getFriends())
 })
 
 export const removeFriend = mutationOptions({
