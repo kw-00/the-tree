@@ -137,8 +137,9 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
     // Get Next Friends
     const getNextFriendsSchema = z.object({
         body: z.object({
-            cursor: validation.users.login.nullable(),
-            limit: z.int().positive().lte(friendsConfig.getNextFriends.maxBatchSize)
+            cursor: validation.users.login,
+            limit: z.int().positive().lte(friendsConfig.getNextFriends.maxBatchSize),
+            boundary: validation.users.login.nullable()
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
@@ -150,7 +151,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
                 req, rep,
                 async (req, rep) => {
                     const parsed = getNextFriendsSchema.parse(req)
-                    const {cursor, limit} = parsed.body
+                    const {cursor, limit, boundary} = parsed.body
                     const {accessToken} = parsed.cookies
 
                     const verificationResult = verifyAccessToken(accessToken)
@@ -160,7 +161,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
                     }
                     const userId = verificationResult.userId!
 
-                    const dbResult = await getNextFriends({userId, cursor, limit})
+                    const dbResult = await getNextFriends({userId, cursor, limit, boundary})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )
@@ -170,9 +171,8 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
         // Get Previous Friends
     const getPreviousFriendsSchema = z.object({
         body: z.object({
-            cursor: validation.users.login,
+            cursor: validation.users.login.nullable(),
             limit: z.int().positive().lte(friendsConfig.getPreviousFriends.maxBatchSize),
-            boundary: validation.users.login.nullable()
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
@@ -184,7 +184,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
                 req, rep,
                 async (req, rep) => {
                     const parsed = getPreviousFriendsSchema.parse(req)
-                    const {cursor, limit, boundary} = parsed.body
+                    const {cursor, limit} = parsed.body
                     const {accessToken} = parsed.cookies
 
                     const verificationResult = verifyAccessToken(accessToken)
@@ -194,7 +194,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
                     }
                     const userId = verificationResult.userId!
 
-                    const dbResult = await getPreviousFriends({userId, cursor, limit, boundary})
+                    const dbResult = await getPreviousFriends({userId, cursor, limit})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )

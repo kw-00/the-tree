@@ -29,28 +29,30 @@ export const getFriends = (boundary: string | null) => infiniteQueryOptions({
         const pageParam = context.pageParam!
         if (pageParam.direction === "next") {
             const res = await throwErrorOnRequestFailure(() => bs.getNextFriends({
-                cursor: pageParam.cursor, 
-                limit: ServerConfig.api.friends.getNextFriends.maxBatchSize
+                cursor: pageParam.cursor!, 
+                limit: ServerConfig.api.messages.getNextMessages.maxBatchSize,
+                boundary: boundary
             }))
             return res.page!
         } else {
             const res = await throwErrorOnRequestFailure(() => bs.getPreviousFriends({
-                cursor: pageParam.cursor!,
-                limit: ServerConfig.api.friends.getPreviousFriends.maxBatchSize,
-                boundary: boundary
+                cursor: pageParam.cursor,
+                limit: ServerConfig.api.messages.getPreviousMessages.maxBatchSize,
             }))
             return res.page!
         }
     },
     getNextPageParam: (lastPage) => {
         const cursor = lastPage.nextCursor
-        return (cursor ? {cursor: cursor, direction: "next"} : undefined) as GetFriendsPageParam
+        const hasNextPage = lastPage.hasNextPage
+        return (hasNextPage ? {cursor: cursor, direction: "next"} : undefined) as GetFriendsPageParam
     },
-    getPreviousPageParam: (lastPage) => {
-        const cursor = lastPage.prevCursor
-        return (cursor ? {cursor: cursor, direction: "previous"} : undefined) as GetFriendsPageParam
+    getPreviousPageParam: (firstPage) => {
+        const cursor = firstPage.prevCursor
+        const hasPrevPage = firstPage.hasPrevPage
+        return (hasPrevPage ? {cursor: cursor, direction: "previous"} : undefined) as GetFriendsPageParam
     },
-    initialPageParam: {cursor: null, direction: "next"} as GetFriendsPageParam
+    initialPageParam: {cursor: null, direction: "previous"} as GetFriendsPageParam
 })
 
 export const removeFriend = mutationOptions({

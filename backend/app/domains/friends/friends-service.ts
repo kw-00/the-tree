@@ -259,8 +259,9 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
 
 export type GetNextFriendsParams = {
     userId: number
-    cursor: string | null
+    cursor: string
     limit: number
+    boundary: string | null
 }
 
 export type FriendsPage = {
@@ -282,7 +283,7 @@ export type GetNextFriendsResponse = {
  * - NOT_FOUND
  */
 export async function getNextFriends(params: GetNextFriendsParams): Promise<GetNextFriendsResponse> {
-    const {userId, cursor, limit} = params
+    const {userId, cursor, limit, boundary} = params
     // Make sure user exists
     const userNotExists = await userDoesNotExist(userId)
     if (userNotExists) return userNotExists
@@ -295,10 +296,11 @@ export async function getNextFriends(params: GetNextFriendsParams): Promise<GetN
         WHERE
             u.id != $1
             AND $1 IN (f.user1_id, f.user2_id)
-            AND ($2::TEXT IS NULL OR u.login >= $2::TEXT)
+            AND u.login >= $2::TEXT
+            AND ($3::TEXT IS NULL OR u.login < $3::TEXt)
         ORDER BY u.login ASC 
-        LIMIT $3;
-    `, [userId, cursor, limit + 2])
+        LIMIT $4;
+    `, [userId, cursor, boundary, limit + 2])
 
     const result = queryRowsToCamelCase(query.rows)
 
@@ -325,9 +327,8 @@ export async function getNextFriends(params: GetNextFriendsParams): Promise<GetN
 
 export type GetPreviousFriendsParams = {
     userId: number
-    cursor: string
+    cursor: string | null
     limit: number
-    boundary: string | null
 }
 
 export type GetPreviousFriendsResponse = {
@@ -341,7 +342,7 @@ export type GetPreviousFriendsResponse = {
  * - NOT_FOUND
  */
 export async function getPreviousFriends(params: GetPreviousFriendsParams): Promise<GetPreviousFriendsResponse> {
-    const {userId, cursor, limit, boundary} = params
+    const {userId, cursor, limit} = params
     // Make sure user exists
     const userNotExists = await userDoesNotExist(userId)
     if (userNotExists) return userNotExists
@@ -355,10 +356,9 @@ export async function getPreviousFriends(params: GetPreviousFriendsParams): Prom
             u.id != $1
             AND $1 IN (f.user1_id, f.user2_id)
             AND ($2::TEXT IS NULL OR u.login <= $2::TEXT)
-            AND ($3::INT IS NULL OR u.login > $3::INT)
         ORDER BY u.login DESC 
-        LIMIT $4;
-    `, [userId, cursor, boundary, limit + 2])
+        LIMIT $3;
+    `, [userId, cursor, limit + 2])
 
     const result = queryRowsToCamelCase(query.rows).reverse()
 

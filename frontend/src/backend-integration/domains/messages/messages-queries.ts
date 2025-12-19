@@ -8,7 +8,7 @@ export const createMessage = mutationOptions({
     mutationFn: async (params: bs.CreateMessageParams) => throwErrorOnRequestFailure(() => bs.createMessage(params))
 })
 
-type GetFriendsPageParam = {cursor: number | null, direction: "next" | "previous"} | undefined
+type GetMessagesPageParam = {cursor: number | null, direction: "next" | "previous"} | undefined
 export const getMessages = (chatroomId: number | null, boundary: number | null) => infiniteQueryOptions({
     queryKey: ["chatrooms", chatroomId, "messages"],
     queryFn: async (context) => {
@@ -33,14 +33,14 @@ export const getMessages = (chatroomId: number | null, boundary: number | null) 
     getNextPageParam: (lastPage) => {
         const cursor = lastPage.nextCursor
         const hasNextPage = lastPage.hasNextPage
-        return (hasNextPage ? {cursor: cursor, direction: "next"} : undefined) as GetFriendsPageParam
+        return (hasNextPage ? {cursor: cursor, direction: "next"} : undefined) as GetMessagesPageParam
     },
     getPreviousPageParam: (firstPage) => {
         const cursor = firstPage.prevCursor
         const hasPrevPage = firstPage.hasPrevPage
-        return (hasPrevPage ? {cursor: cursor, direction: "previous"} : undefined) as GetFriendsPageParam
+        return (hasPrevPage ? {cursor: cursor, direction: "previous"} : undefined) as GetMessagesPageParam
     },
-    initialPageParam: {direction: "previous"} as GetFriendsPageParam,
+    initialPageParam: {cursor: null, direction: "previous"} as GetMessagesPageParam,
     enabled: !!chatroomId
 })
 
