@@ -45,11 +45,7 @@ const Schema = z.object({
             addFriend: z.object({
                 path: z.string().startsWith("/")
             }),
-            getNextFriends: z.object({
-                path: z.string().startsWith("/"),
-                maxBatchSize: z.int().positive()
-            }),
-            getPreviousFriends: z.object({
+            getFriends: z.object({
                 path: z.string().startsWith("/"),
                 maxBatchSize: z.int().positive()
             }),

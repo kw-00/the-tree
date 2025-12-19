@@ -39,12 +39,8 @@
             "addFriend": {
                 "path": "/add_friend"
             },
-            "getNextFriends": {
+            "getFriends": {
                 "path": "/get_next_friends",
-                "maxBatchSize": 20
-            },
-            "getPreviousFriends": {
-                "path": "/get_previous_friends",
                 "maxBatchSize": 20
             },
             "removeFriend": {
