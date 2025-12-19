@@ -40,7 +40,7 @@
                 "path": "/add_friend"
             },
             "getFriends": {
-                "path": "/get_next_friends",
+                "path": "/get_friends",
                 "maxBatchSize": 20
             },
             "removeFriend": {
