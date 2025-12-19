@@ -14,6 +14,7 @@ import { getChatrooms } from "@/backend-integration/domains/chatrooms/chatrooms-
 
 // TODO - simplify, possibly with custom hook
 export default function ChatPanel(props: BoxProps) {
+    const computedRem = useRef(parseFloat(getComputedStyle(document.documentElement).fontSize))
     const selfRef = useRef<HTMLDivElement>(null)
 
     const [forced, forceUpdate] = useReducer(x => x + 1, 0)
@@ -21,6 +22,7 @@ export default function ChatPanel(props: BoxProps) {
     const captureHeight = () => oldHeight.current = selfRef.current?.scrollHeight ?? null
 
     const {selectedChatroomId: chatroomId} = useChatContext()
+    const previousChatroomId = useRef(chatroomId)
     const [isNearBottom, setIsNearBottom] = useState(true)
     const [isAtBottom, setIsAtBottom] = useState(true)
 
@@ -29,12 +31,17 @@ export default function ChatPanel(props: BoxProps) {
     // Make queries
     const queryClient = useQueryClient()
     const observerRef = useRef(new InfiniteQueryObserver(queryClient, {
-        ...getMessages(chatroomId, null),
-    }))
-    observerRef.current.setOptions({
         ...getMessages(chatroomId, null)
-    })
+    }))
+
+
+    // Adapt message query options when chatroom or live message buffer changes
+    useEffect(() => observerRef.current.setOptions({
+        ...getMessages(chatroomId, liveMessages.length > 0 ? liveMessages[0].id : null),
+    }), [chatroomId, liveMessages])
+
     const messageQuery = observerRef.current.getCurrentResult()
+    type MessageQueryData = ReturnType<typeof observerRef.current.getCurrentResult>["data"]
     
     const chatroomsQuery = useQuery(getChatrooms)
     const sendMessageMutation = useMutation({
@@ -46,14 +53,17 @@ export default function ChatPanel(props: BoxProps) {
         }
     })
 
+    // Subscribe to new messages loaded from infinite query
     useEffect(() => {
         const unsubscribe = observerRef.current.subscribe(() => {
+            // Capture scrollHeight before DOM update for seamless scroll handling
             captureHeight()
             forceUpdate()
         })
         return unsubscribe
     }, [chatroomId])
 
+    // Keep view in place when new messages arrive and update is forced by query subscriber
     useLayoutEffect(() => {
         if (selfRef.current && oldHeight.current) {
             const delta = selfRef.current.scrollHeight - oldHeight.current
@@ -61,8 +71,6 @@ export default function ChatPanel(props: BoxProps) {
             oldHeight.current = null
         }
     }, [forced])
-
-    const messageData = [...messageQuery.data?.pages.flatMap(p => p.messagesData!) ?? [], ...liveMessages]
 
     // Show errors 
     useEffect(() => {
@@ -87,18 +95,24 @@ export default function ChatPanel(props: BoxProps) {
     }, [liveMessages])
 
 
+    // Fetch messages when scroll is near top or bottom
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const el = e.currentTarget
         const scrollBottom = el.scrollHeight - el.scrollTop - el.clientHeight
 
-        const nearTop = el.scrollTop <= 100
-        const nearBottom = scrollBottom <= 100
+        const nearTop = el.scrollTop <= 5 * computedRem.current
+        const nearBottom = scrollBottom <= 5 * computedRem.current
         const atBottom = scrollBottom <= 1
         if (nearTop) messageQuery.fetchPreviousPage()
         if (nearBottom) messageQuery.fetchNextPage()
+
         setIsNearBottom(nearBottom)
         setIsAtBottom(atBottom)
     }
+
+    
+    // Combine historical and live messages together
+    const messageData = [...messageQuery.data?.pages.flatMap(p => p.messagesData!) ?? [], ...liveMessages]
 
     return (
         <Panel variant="primary" layout="vstack" {...props} overflowY="scroll" onScroll={handleScroll} ref={selfRef}>

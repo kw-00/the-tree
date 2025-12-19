@@ -4,7 +4,7 @@ import FriendListElement from "./FriendsListElement";
 import type { PanelElementProps } from "@/components/panel/PanelElement";
 import PanelElement from "@/components/panel/PanelElement";
 import { getFriends } from "@/backend-integration/domains/friends/friends-queries";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { InfiniteQueryObserver, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 
 
 
@@ -12,8 +12,8 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 
 
 export default function FriendList(props: PanelElementProps) {
-
-    const getFriendsQuery = useInfiniteQuery(getFriends(undefined))
+    const queryClient = useQueryClient()
+    const getFriendsQuery = new InfiniteQueryObserver(queryClient, getFriends(null))
 
     return (
         <PanelElement variant="container" {...props}>
