@@ -1,70 +1,97 @@
 import { Heading, type BoxProps } from "@chakra-ui/react"
 import MessageInput from "./MessageInput"
 import { useChatContext } from "@/features/dashboard/ChatContext"
-import { InfiniteQueryObserver, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import Panel from "@/components/panel/Panel"
 import PanelElement from "@/components/panel/PanelElement"
 import Message from "./Message"
-import { createMessage, getMessages } from "@/backend-integration/domains/messages/messages-queries"
-import { useEffect, useLayoutEffect, useReducer, useRef, useState } from "react"
-import type { MessageData } from "@/backend-integration/domains/messages/messages-service"
+import { createMessage } from "@/backend-integration/domains/messages/messages-queries"
+import { useEffect, useLayoutEffect, useReducer, useRef } from "react"
 import { getChatrooms } from "@/backend-integration/domains/chatrooms/chatrooms-queries"
+import { useMessageStore } from "@/backend-integration/domains/messages/message-store"
 
 
 
 // TODO - simplify, possibly with custom hook
 export default function ChatPanel(props: BoxProps) {
+    const fetchLimit = 20
+
     const computedRem = useRef(parseFloat(getComputedStyle(document.documentElement).fontSize))
     const selfRef = useRef<HTMLDivElement>(null)
-
+    
     const [forced, forceUpdate] = useReducer(x => x + 1, 0)
     const oldHeight = useRef<number | null>(null)
     const captureHeight = () => oldHeight.current = selfRef.current?.scrollHeight ?? null
-
+    
     const {selectedChatroomId: chatroomId} = useChatContext()
-    const previousChatroomId = useRef(chatroomId)
-    const [isNearBottom, setIsNearBottom] = useState(true)
-    const [isAtBottom, setIsAtBottom] = useState(true)
+    const chatIdRef = useRef(chatroomId)
+    useEffect(() => {chatIdRef.current = chatroomId}, [chatroomId])
 
-    const [liveMessages, setLiveMessages] = useState<MessageData[]>([])
-
-    // Make queries
-    const queryClient = useQueryClient()
-    const observerRef = useRef(new InfiniteQueryObserver(queryClient, {
-        ...getMessages(chatroomId, null)
-    }))
-
-
-    // Adapt message query options when chatroom or live message buffer changes
-    useEffect(() => observerRef.current.setOptions({
-        ...getMessages(chatroomId, liveMessages.length > 0 ? liveMessages[0].id : null),
-    }), [chatroomId, liveMessages])
-
-    const messageQuery = observerRef.current.getCurrentResult()
-    type MessageQueryData = ReturnType<typeof observerRef.current.getCurrentResult>["data"]
+    const messageStore = useMessageStore()
     
     const chatroomsQuery = useQuery(getChatrooms)
     const sendMessageMutation = useMutation({
         ...createMessage,
         onSuccess: (response) => {
-            if (isNearBottom) {
-                setLiveMessages(liveMessages.concat(response.messageData!))
+            if (chatroomId) {
+                messageStore.functions.appendMessages(chatroomId, response.messageData!)
             }
         }
     })
 
-    // Subscribe to new messages loaded from infinite query
-    useEffect(() => {
-        const unsubscribe = observerRef.current.subscribe(() => {
-            // Capture scrollHeight before DOM update for seamless scroll handling
-            captureHeight()
-            forceUpdate()
-        })
-        return unsubscribe
-    }, [chatroomId])
+    
+    // Fetch messages when scroll is near top or bottom
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const el = e.currentTarget
 
+        const nearTop = el.scrollTop <= 5 * computedRem.current
+        if (nearTop && chatroomId) {
+            messageStore.functions.fetchPreviousMessages(chatroomId, fetchLimit)
+        }
+    }
+    
+    
+    // Reset scroll to bottom when switching between chatrooms
+    useEffect(() => {
+        if (chatIdRef.current) {
+            messageStore.functions.fetchNextMessages(chatIdRef.current, fetchLimit)
+        }
+
+        if (selfRef.current && chatIdRef.current) {
+                selfRef.current.scrollTop = 
+                messageStore.data.get(chatIdRef.current)?.scrollPosition 
+                ?? selfRef.current.scrollHeight - selfRef.current.clientHeight
+        }
+    }, [chatroomId])
+    
+    
+    // Set scroll back to bottom after message arrival if we are at bottom
+    useEffect(() => {
+        messageStore.functions.addErrorListener((error) => {
+            if (error instanceof Error) {
+                
+            } else {
+                
+            }
+        })
+        messageStore.functions.subscribe(() => {
+            
+            
+            
+            
+            if (selfRef.current) {
+                captureHeight()
+                forceUpdate()
+            }
+        })
+    }, [])
+
+    useEffect(() => {
+        
+    }, [forced])
     // Keep view in place when new messages arrive and update is forced by query subscriber
     useLayoutEffect(() => {
+        
         if (selfRef.current && oldHeight.current) {
             const delta = selfRef.current.scrollHeight - oldHeight.current
             selfRef.current.scrollTop += delta
@@ -72,47 +99,8 @@ export default function ChatPanel(props: BoxProps) {
         }
     }, [forced])
 
-    // Show errors 
-    useEffect(() => {
-        if (messageQuery.isError) alert(messageQuery.error)
-    }, [messageQuery.status, messageQuery.fetchStatus])
-
-
-
-    // Reset scroll to bottom when switching between chatrooms
-    useEffect(() => {
-        if (chatroomId) messageQuery.fetchPreviousPage()
-        if (selfRef.current !== null && !isAtBottom) {
-            selfRef.current.scrollTop = selfRef.current?.scrollHeight - selfRef.current.clientHeight
-        }
-    }, [chatroomId])
-
-    // Set scroll back to bottom after message arrival if we are at bottom
-    useEffect(() => {
-        if (isAtBottom && selfRef.current) {
-            selfRef.current.scrollTop = selfRef.current.scrollHeight - selfRef.current.clientHeight
-        }
-    }, [liveMessages])
-
-
-    // Fetch messages when scroll is near top or bottom
-    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-        const el = e.currentTarget
-        const scrollBottom = el.scrollHeight - el.scrollTop - el.clientHeight
-
-        const nearTop = el.scrollTop <= 5 * computedRem.current
-        const nearBottom = scrollBottom <= 5 * computedRem.current
-        const atBottom = scrollBottom <= 1
-        if (nearTop) messageQuery.fetchPreviousPage()
-        if (nearBottom) messageQuery.fetchNextPage()
-
-        setIsNearBottom(nearBottom)
-        setIsAtBottom(atBottom)
-    }
 
     
-    // Combine historical and live messages together
-    const messageData = [...messageQuery.data?.pages.flatMap(p => p.messagesData!) ?? [], ...liveMessages]
 
     return (
         <Panel variant="primary" layout="vstack" {...props} overflowY="scroll" onScroll={handleScroll} ref={selfRef}>
@@ -125,8 +113,10 @@ export default function ChatPanel(props: BoxProps) {
             </PanelElement>
             <PanelElement flexGrow={1}>
                 {
-                    messageData.map(({userId, userLogin, content}) => 
-                        <Message userId={userId} userLogin={userLogin} content={content} alignItems="stretch" p="2"/>)
+                    chatroomId ?
+                    messageStore.data.get(chatroomId)?.messages.map(({userId, userLogin, content}, n) => 
+                        <Message key={n} userId={userId} userLogin={userLogin} content={content} alignItems="stretch" p="2"/>)
+                    : "What in frick"
                 }
             </PanelElement>
             {
