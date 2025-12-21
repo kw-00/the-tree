@@ -62,6 +62,7 @@ export async function createChatroom(params: CreateChatroomParams): Promise<Crea
 
 export type GetChatroomsParams = {
     userId: number
+    after: Date | null
 }
 export type GetChatroomsResponse = {
     chatroomsData?: ChatroomData[]
@@ -76,20 +77,20 @@ export type GetChatroomsResponse = {
  * - NOT_FOUND
  */
 export async function getChatrooms(params: GetChatroomsParams): Promise<GetChatroomsResponse> {
-    const {userId} = params
+    const {userId, after} = params
     // Make sure user exists
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
     
     // Retrieve chatrooms
     const query = await pool.query(`
-        SELECT c.id, c.name, c.created_at AS joined_at
+        SELECT c.id, c.name, cu.created_at AS joined_at
         FROM chatrooms c
         INNER JOIN chatrooms_users cu ON cu.chatroom_id = c.id
         INNER JOIN users u ON u.id = cu.user_id
-        WHERE u.id = $1
+        WHERE u.id = $1 AND ($2::TIMESTAMPTZ IS NULL OR cu.created_at > $2::TIMESTAMPTZ)
         ORDER BY c.name ASC;
-    `, [userId])
+    `, [userId, after])
 
     return {
         chatroomsData: query.rows,
