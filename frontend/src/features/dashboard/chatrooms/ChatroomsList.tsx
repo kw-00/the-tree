@@ -19,8 +19,8 @@ export default function ChatroomsList(props: StackProps) {
             isError ? <Text>Error: {error.message}</Text>
             :
             isSuccess ? 
-            data.chatroomsData?.map((chatroom) => {
-                return <ChatroomsListElement chatroom={chatroom} onClick={() => setSelectedChatroomId(chatroom.id)}/>
+            data.chatroomsData?.map((chatroom, n) => {
+                return <ChatroomsListElement key={n} chatroom={chatroom} onClick={() => setSelectedChatroomId(chatroom.id)}/>
             })
             :
             <Text>What the Fudge Is Happening?!</Text>

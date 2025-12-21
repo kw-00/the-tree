@@ -10,21 +10,13 @@ export type Room = {
     hasNext: boolean
 }
 
-
-
-export type MessageCacheError = 
-    {state: string, data: any} 
-    | Error
-
-class ChatroomNotFound {
-    state: "CHATROOM_NOT_FOUND" = "CHATROOM_NOT_FOUND"
-    data
+class ChatroomNotFoundError extends Error {
     constructor(chatroomId: number) {
-        this.data = {chatroomId: chatroomId}
+        super(`Chatroom with ID of ${chatroomId} not found.`)
     }
 }
 
-export type ErrorListener = (state: MessageCacheError) => void
+export type ErrorListener = (state: Error) => void
 export type MessageListener = (messages: MessageData[], chatroomId: number) => void
 export type ResizedListener = (newSize: number, chatroomId: number) => void
 export type ChatroomListener = (chatroomId: number) => void
@@ -65,6 +57,10 @@ class MessageStore {
         this.#store.emitListeners.delete(listener)
     }
 
+    #error(error: Error) {
+        this.#store.errorListeners.forEach(l => l(error))
+    }
+
     #emitChange() {
         this.#dataSnapshot = new Map(this.#store.data)
         this.#store.emitListeners.forEach(l => l())
@@ -88,7 +84,6 @@ class MessageStore {
 
     // Prepending messages
     prependMessages(chatroomId: number, ...messages: MessageData[]) {
-        console.log("Prepending ", messages.length)
         if (messages.length === 0) return
         let entry = this.#store.data.get(chatroomId)
         if (!entry) {
@@ -101,7 +96,6 @@ class MessageStore {
 
     // Appending messages
     appendMessages(chatroomId: number, ...messages: MessageData[]) {
-        console.log("Appending ", messages.length)
         if (messages.length === 0) return
         let entry = this.#store.data.get(chatroomId)
         if (!entry) {
@@ -115,7 +109,7 @@ class MessageStore {
     resize(chatroomId: number, newSize: number, keep: "new" | "old" = "new") {
         const entry = this.#store.data.get(chatroomId)
         if (!entry) {
-            this.#store.errorListeners.forEach(l => l(new ChatroomNotFound(chatroomId)))
+            this.#error(new ChatroomNotFoundError(chatroomId))
             return
         }
         if (entry.messages.length <= newSize) return 
@@ -132,7 +126,7 @@ class MessageStore {
     setScrollPosition (chatroomId: number, newPosition: number) {
         const entry = this.#store.data.get(chatroomId)
         if (!entry) {
-            this.#store.errorListeners.forEach(l => l(new ChatroomNotFound(chatroomId)))
+            this.#error(new ChatroomNotFoundError(chatroomId))
             return
         }
         entry.scrollPosition = newPosition
@@ -152,7 +146,7 @@ class MessageStore {
             this.prependMessages(chatroomId, ...result.page!.messagesData)
         } catch (error) {
             if (error instanceof Error) {
-                this.#store.errorListeners.forEach(l => l(error))
+                this.#error(error)
             } else {
                 throw error
             }
@@ -177,7 +171,7 @@ class MessageStore {
             this.appendMessages(chatroomId, ...result.page!.messagesData)
         } catch (error) {
             if (error instanceof Error) {
-                this.#store.errorListeners.forEach(l => l(error))
+                this.#error(error)
             } else {
                 throw error
             }
@@ -187,7 +181,7 @@ class MessageStore {
     invalidate(chatroomId: number) {
         const entry = this.#store.data.get(chatroomId)
         if (!entry) {
-            this.#store.errorListeners.forEach(l => l({state: "CHATROOM_NOT_FOUND", data: {chatroomId: chatroomId}}))
+            this.#error(new ChatroomNotFoundError(chatroomId))
             return
         }
         entry.hasNext = true

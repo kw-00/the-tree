@@ -68,17 +68,9 @@ export default function ChatPanel(props: BoxProps) {
     // Set scroll back to bottom after message arrival if we are at bottom
     useEffect(() => {
         messageStore.functions.addErrorListener((error) => {
-            if (error instanceof Error) {
-                
-            } else {
-                
-            }
+            alert(error.message)
         })
         messageStore.functions.subscribe(() => {
-            
-            
-            
-            
             if (selfRef.current) {
                 captureHeight()
                 forceUpdate()
