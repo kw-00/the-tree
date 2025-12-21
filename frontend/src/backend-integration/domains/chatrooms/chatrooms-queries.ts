@@ -8,9 +8,9 @@ export const createChatroom = mutationOptions({
     mutationFn: async (params: bs.CreateChatroomParams) => throwErrorOnRequestFailure(() => bs.createChatroom(params))
 })
 
-export const getChatrooms = queryOptions({
+export const getChatrooms = (after: Date | null) => queryOptions({
     queryKey: ["chatrooms"],
-    queryFn: () => throwErrorOnRequestFailure(() => bs.getChatrooms({})),
+    queryFn: () => throwErrorOnRequestFailure(() => bs.getChatrooms({after})),
 })
 
 

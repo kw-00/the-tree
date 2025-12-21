@@ -24,12 +24,14 @@ export async function createChatroom(params: CreateChatroomParams): Promise<Crea
 }
 
 
-export type GetConnectedChatroomsParams = {}
-export type GetConnectedChatroomsResponse = {
+export type GetChatroomsParams = {
+    after: Date | null
+}
+export type GetChatroomsResponse = {
     chatroomsData?: ChatroomData[]
 } & StandardResponse<"SUCCESS" | "NOT_FOUND">
 
-export async function getChatrooms(params: GetConnectedChatroomsParams): Promise<GetConnectedChatroomsResponse> {
+export async function getChatrooms(params: GetChatroomsParams): Promise<GetChatroomsResponse> {
     return attemptAndRefreshToken(`${baseUrl}${chatroomsPaths.getChatrooms.path}`, params)
 }
 

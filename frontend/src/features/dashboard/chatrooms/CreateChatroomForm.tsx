@@ -8,19 +8,19 @@ import { useState, type FormEvent } from "react";
 
 
 
+export type CreateChatroomFormProps = {
+    handleSubmit: (name: string) => void
+} & BoxFormProps
 
-
-export default function CreateChatroomForm(props: BoxFormProps) {
+export default function CreateChatroomForm({handleSubmit, onSubmit, ...rest}: CreateChatroomFormProps) {
     const [name, setName] = useState("")
 
-    const mutation = useMutation(createChatroom)
-
-    const onSubmit = async (e: FormEvent) => {
+    const handleSubmitWrapper = async (e: FormEvent) => {
         e.preventDefault()
-        await mutation.mutateAsync({chatroomName: name})
+        handleSubmit(name)
     }
     return (
-        <BoxForm onSubmit={onSubmit} {...props}>
+        <BoxForm {...rest} onSubmit={handleSubmitWrapper}>
             <Fieldset.Root>
                 <Fieldset.Legend>
                     Create new chatroom
