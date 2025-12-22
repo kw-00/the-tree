@@ -40,6 +40,7 @@ export async function createFrienshipCode(params: CreateFriendshipCodeParams): P
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
 
+    console.log(params)
     // Create friendship code
     const query = await pool.query(`
         INSERT INTO friendship_codes (user_id, code, expires_at)
@@ -199,16 +200,16 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
     // about how the attempt went and potentially about the friendship itself
 
     const query = await pool.query(`
-        WITH matches(id, login) AS (
-            SELECT u.id u.login FROM friendship_codes fc
+        WITH matches AS (
+            SELECT u.id, u.login FROM friendship_codes fc
             INNER JOIN users u ON u.id = fc.user_id
             WHERE 
                 fc.code = $1
                 AND u.login = $2
-                AND fc.expires_at > now()
+                AND (fc.expires_at > now() OR fc.expires_at IS NULL)
             LIMIT 1
         ),
-        inserted(created_at) AS (
+        inserted AS (
             INSERT INTO friends (user1_id, user2_id)
                 SELECT LEAST(id, $3), GREATEST(id, $3)
                 FROM matches
