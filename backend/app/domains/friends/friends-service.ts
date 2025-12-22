@@ -58,6 +58,7 @@ export async function createFrienshipCode(params: CreateFriendshipCodeParams): P
 
 export type GetFriendshipCodesParams = {
     userId: number
+    after: Date | null
 }
 
 export type GetFriendshipCodesResponse = {
@@ -71,7 +72,7 @@ export type GetFriendshipCodesResponse = {
  * - NOT_FOUND
  */
 export async function getFriendshipCodes(params: GetFriendshipCodesParams): Promise<GetFriendshipCodesResponse> {
-    const {userId} = params
+    const {userId, after} = params
     // Make sure user exists
     const userNotExists = await userDoesNotExist(userId)
     if (userNotExists) return userNotExists
@@ -84,9 +85,9 @@ export async function getFriendshipCodes(params: GetFriendshipCodesParams): Prom
         WHERE
             u.id = $1
             AND fc.expires_at > now()
-        ORDER BY fc.id DESC
-        LIMIT $3;
-    `, [userId])
+            AND ($2::TIMESTAMPTZ IS NULL OR fc.created_at > $2::TIMESTAMPTZ)
+        ORDER BY fc.id DESC;
+    `, [userId, after])
 
     return {
         friendshipCodesData: queryRowsToCamelCase(query.rows),

@@ -47,6 +47,9 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
 
     // Get Friendship Codes
     const getFriendshipCodesSchema = z.object({
+        body: z.object({
+            after: z.iso.datetime({offset: true})
+        }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
         })
@@ -56,14 +59,16 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
             await handleRequest(
                 req, rep,
                 async (req, rep) => {
-                    const {accessToken} = getFriendshipCodesSchema.parse(req).cookies
+                    const parsed = getFriendshipCodesSchema.parse(req)
+                    const {after} = parsed.body
+                    const {accessToken} = parsed.cookies
                     const verificationResult = verifyAccessToken(accessToken)
                     if (verificationResult.status !== "SUCCESS") {
                         rep.status(stMap[verificationResult.status]).send(verificationResult)
                         return
                     }
                     const userId = verificationResult.userId!
-                    const dbResult = await getFriendshipCodes({userId})
+                    const dbResult = await getFriendshipCodes({userId,  after: after ? new Date(after) : null})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )

@@ -44,7 +44,7 @@ export async function chatroomsRoutes(fastify: FastifyInstance, options: object)
         }
     )  
 
-    // Get Connected Chatrooms
+    // Get Chatrooms
     const getChatroomsSchema = z.object({
         body: z.object({
             after: z.iso.datetime({offset: true}).nullable()
