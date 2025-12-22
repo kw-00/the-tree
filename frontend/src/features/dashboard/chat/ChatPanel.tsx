@@ -1,13 +1,13 @@
 import { Heading, type BoxProps } from "@chakra-ui/react"
 import MessageInput from "./MessageInput"
 import { useChatContext } from "@/features/dashboard/ChatContext"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import Panel from "@/components/panel/Panel"
 import PanelElement from "@/components/panel/PanelElement"
 import Message from "./Message"
 import { createMessage } from "@/backend-integration/domains/messages/messages-queries"
 import { useEffect, useLayoutEffect, useReducer, useRef } from "react"
-import { getChatrooms } from "@/backend-integration/domains/chatrooms/chatrooms-queries"
+import { _getChatroomsOptions, useChatroomQuery } from "@/backend-integration/domains/chatrooms/chatrooms-queries"
 import { useMessageStore } from "@/backend-integration/domains/messages/message-store"
 
 
@@ -29,7 +29,7 @@ export default function ChatPanel(props: BoxProps) {
 
     const messageStore = useMessageStore()
     
-    const chatroomsQuery = useQuery(getChatrooms)
+    const chatroomsQuery = useChatroomQuery()
     const sendMessageMutation = useMutation({
         ...createMessage,
         onSuccess: (response) => {

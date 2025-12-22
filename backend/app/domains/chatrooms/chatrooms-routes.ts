@@ -17,7 +17,7 @@ export async function chatroomsRoutes(fastify: FastifyInstance, options: object)
     // Create Chatroom
     const createChatroomSchema = z.object({
         body: z.object({
-            name: validation.chatrooms.name
+            chatroomName: validation.chatrooms.name
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
@@ -29,13 +29,15 @@ export async function chatroomsRoutes(fastify: FastifyInstance, options: object)
                 req, rep,
                 async (req, rep) => {
                     const parsed = createChatroomSchema.parse(req)
-                    const jwtVerification = verifyAccessToken(parsed.cookies.accessToken)
+                    const {chatroomName} = parsed.body
+                    const {accessToken} = parsed.cookies
+                    const jwtVerification = verifyAccessToken(accessToken)
                     if (jwtVerification.status !== "SUCCESS") {
                         rep.status(stMap[jwtVerification.status]).send(jwtVerification)
                         return
                     }
                     const userId = jwtVerification.userId!
-                    const dbResult = await createChatroom({userId, chatroomName: parsed.body.name})
+                    const dbResult = await createChatroom({userId, chatroomName: chatroomName})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )

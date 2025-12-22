@@ -86,12 +86,11 @@ export async function verifyRefreshToken(params: VerifyRefreshTokenParams): Prom
         (SELECT 1) AS dummy
         LEFT JOIN updated ON TRUE;
     `, [params.refreshToken, now])
-
     const {status, expired, userId} = queryRowsToCamelCase(query.rows)[0]
 
     // If no matching token was found, or it is expired, 
     // or has been revoked, then the token in question is invalid
-    if (status === undefined) {
+    if (!status) {
         return {
             status: "REFRESH_TOKEN_INVALID",
             message: "Refresh token does not exist in database."

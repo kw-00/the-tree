@@ -38,11 +38,11 @@ export async function createChatroom(params: CreateChatroomParams): Promise<Crea
         ),
         cu AS (
             INSERT INTO chatrooms_users (chatroom_id, user_id)
-            SELECT id, $2 FROM inserted
+            SELECT id, $2 FROM chatroom
             RETURNING created_at
         )
         SELECT c.id, c.name, cu.created_at AS joined_at
-        FROM chatroom
+        FROM chatroom c
         LEFT JOIN cu ON TRUE;
     `, [params.chatroomName, params.userId])
 

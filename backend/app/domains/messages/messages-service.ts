@@ -132,7 +132,7 @@ export async function getNextMessages(params: GetNextMessagesParams): Promise<Ge
         page: {
             messagesData: result,
             nextCursor: result[result.length - 1]?.id ?? null,
-            prevCursor: result[0] ?? null
+            prevCursor: result[0]?.id ?? null
         },
         status: "SUCCESS",
         message: `Successfully retrieved messages for chatroom with ID of ${chatroomId}.`
@@ -192,7 +192,7 @@ export async function getPreviousMessages(params: GetPreviousMessagesParams): Pr
     return {
         page: {
             messagesData: result,
-            nextCursor: result[result.length - 1].id ?? null,
+            nextCursor: result[result.length - 1]?.id ?? null,
             prevCursor: result[0]?.id ?? null
         },
         status: "SUCCESS",
