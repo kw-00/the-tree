@@ -48,7 +48,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
     // Get Friendship Codes
     const getFriendshipCodesSchema = z.object({
         body: z.object({
-            after: z.iso.datetime({offset: true})
+            after: z.iso.datetime({offset: true}).nullable()
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
@@ -142,7 +142,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
     // Get Next Friends
     const getFriendsSchema = z.object({
         body: z.object({
-            after: z.iso.datetime({offset: true})
+            after: z.iso.datetime({offset: true}).nullable()
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken

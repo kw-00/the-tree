@@ -288,7 +288,7 @@ export async function getFriends(params: GetFriendsParams): Promise<GetFriendsRe
         WHERE
             u.id != $1
             AND $1 IN (f.user1_id, f.user2_id)
-            AND (after::TIMESTAMPTZ IS NULL OR $2 > after::TIMESTAMPTZ)
+            AND ($2::TIMESTAMPTZ IS NULL OR f.created_at > $2::TIMESTAMPTZ)
         ORDER BY u.login ASC;
     `, [userId, after])
 
