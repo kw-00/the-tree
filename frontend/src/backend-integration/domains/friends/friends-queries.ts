@@ -35,7 +35,7 @@ export function useFriendsQuery() {
 }
 
 export const _getFriendsOptions = (after: Date | null) => queryOptions({
-    queryKey: ["chatrooms"],
+    queryKey: ["friends"],
     queryFn: () => throwErrorOnRequestFailure(() => bs.getFriends({after})),
 })
 

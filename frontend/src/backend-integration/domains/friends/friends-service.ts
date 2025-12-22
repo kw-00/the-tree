@@ -21,7 +21,7 @@ export type FriendData = {
 
 export type CreateFriendshipCodeParams = {
     code: string
-    expiresAt?: Date
+    expiresAt: Date | null
 }
 export type CreateFriendshipCodeResponse = {
     friendshipCodeData?: FriendshipCodeData

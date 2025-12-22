@@ -29,7 +29,7 @@ export default function CreateChatroomForm({handleSubmit, onSubmit, ...rest}: Cr
                 <Fieldset.Content>
                     <Field.Root>
                         <Field.Label>Name</Field.Label>
-                        <Input name="Name" value={name} onChange={e => setName(e.target.value)}/>
+                        <Input name="chatroomName" required value={name} onChange={e => setName(e.target.value)}/>
                     </Field.Root>
                 </Fieldset.Content>
             </Fieldset.Root>

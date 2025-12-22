@@ -5,6 +5,7 @@ import { HStack, VStack } from "@chakra-ui/react"
 import { Provider } from "@/components/ui/provider"
 import ChatroomsPanel from "./chatrooms/ChatroomsPanel"
 import FriendsPanel from "./friends/FriendsPanel"
+import FriendshipCodePanel from "./friendship-code/FriendshipCodePanel"
 
 export default function Dashboard() {
 
@@ -12,6 +13,7 @@ export default function Dashboard() {
     <Provider>
       <ChatProvider>
         <HStack justifyContent="center" alignItems="start" flexGrow={1} onScroll={() => console.log("hello")}>
+          <FriendshipCodePanel/>
             <FriendsPanel/>
             <VStack flexGrow={1} alignItems="stretch">
               <ChatroomsPanel p="10"/>

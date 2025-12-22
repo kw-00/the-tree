@@ -7,17 +7,17 @@ import { useState, type FormEvent } from "react";
 
 
 
-export type AddFriendFormProps = {
-    handleSubmit: (login: string, friendshipCode: string) => void
+export type CreateFriendshipCodeFormProps = {
+    handleSubmit: (code: string, expiresAt: Date | null) => void
 } & BoxFormProps
 
-export default function AddFriendForm({handleSubmit, onSubmit, ...rest}: AddFriendFormProps) {
-    const [login, setLogin] = useState("")
-    const [friendshipCode, setFriendshipCode] = useState("")
+export default function CreateFriendshipCodeForm({handleSubmit, onSubmit, ...rest}: CreateFriendshipCodeFormProps) {
+    const [code, setCode] = useState("")
+    const [expiresAtString, setExpiresAtString] = useState("")
 
     const handleSubmitWrapper = async (e: FormEvent) => {
         e.preventDefault()
-        handleSubmit(login, friendshipCode)
+        handleSubmit(code, expiresAtString ? new Date(expiresAtString) : null)
     }
     return (
         <BoxForm {...rest} onSubmit={handleSubmitWrapper}>
@@ -30,10 +30,10 @@ export default function AddFriendForm({handleSubmit, onSubmit, ...rest}: AddFrie
                 </Fieldset.HelperText>
                 <Fieldset.Content>
                     <Field.Root>
-                        <Field.Label>Login (of user to befriend)</Field.Label>
-                        <Input name="userToBefriendLogin" required value={login} onChange={e => setLogin(e.target.value)}/>
-                        <Field.Label>Friendship Code</Field.Label>
-                        <Input name="friendshipCode" required value={friendshipCode} onChange={e => setFriendshipCode(e.target.value)}/>
+                        <Field.Label>Code</Field.Label>
+                        <Input name="code" required value={code} onChange={e => setCode(e.target.value)}/>
+                        <Field.Label>Expires At</Field.Label>
+                        <Input name="expiresAt" type="datetime-local" value={expiresAtString} onChange={e => setExpiresAtString(e.target.value)}/>
                     </Field.Root>
                 </Fieldset.Content>
             </Fieldset.Root>
