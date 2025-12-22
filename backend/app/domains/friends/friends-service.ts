@@ -260,6 +260,7 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
 
 export type GetFriendsParams = {
     userId: number
+    after: Date | null
 }
 
 
@@ -274,7 +275,7 @@ export type GetFriendsResponse = {
  * - NOT_FOUND
  */
 export async function getFriends(params: GetFriendsParams): Promise<GetFriendsResponse> {
-    const {userId} = params
+    const {userId, after} = params
     // Make sure user exists
     const userNotExists = await userDoesNotExist(userId)
     if (userNotExists) return userNotExists
@@ -287,8 +288,9 @@ export async function getFriends(params: GetFriendsParams): Promise<GetFriendsRe
         WHERE
             u.id != $1
             AND $1 IN (f.user1_id, f.user2_id)
+            AND (after::TIMESTAMPTZ IS NULL OR $2 > after::TIMESTAMPTZ)
         ORDER BY u.login ASC;
-    `, [userId])
+    `, [userId, after])
 
     const result = queryRowsToCamelCase(query.rows)
 
