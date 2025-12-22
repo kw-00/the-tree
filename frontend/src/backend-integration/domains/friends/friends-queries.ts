@@ -1,5 +1,4 @@
-import { infiniteQueryOptions, mutationOptions, queryOptions, useQuery } from "@tanstack/react-query"
-import { ServerConfig } from "../../server-config"
+import { mutationOptions, queryOptions, useQuery } from "@tanstack/react-query"
 import * as bs from "./friends-service"
 import { throwErrorOnRequestFailure } from "../00-common/queries/utility"
 import { useRef } from "react"
