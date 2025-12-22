@@ -17,7 +17,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
     const createFriendshipCodeSchema = z.object({
         body: z.object({
             code: validation.friends.friendshipCode.code,
-            expiresAt: validation.common.timestamptz.optional()
+            expiresAt: z.iso.datetime().nullable()
         }),
         cookies: z.object({
             accessToken: validation.auth.accessToken
@@ -38,7 +38,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
                         return
                     }
                     const userId = verificationResult.userId!
-                    const dbResult = await createFrienshipCode({userId, code, ...(expiresAt && {expiresAt: new Date(expiresAt)})})
+                    const dbResult = await createFrienshipCode({userId, code, expiresAt: expiresAt ? new Date(expiresAt) : null})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )
