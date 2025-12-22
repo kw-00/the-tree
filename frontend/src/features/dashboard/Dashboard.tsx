@@ -12,7 +12,7 @@ export default function Dashboard() {
     <Provider>
       <ChatProvider>
         <HStack justifyContent="center" alignItems="start" flexGrow={1} onScroll={() => console.log("hello")}>
-            {/* <FriendsPanel/> */}
+            <FriendsPanel/>
             <VStack flexGrow={1} alignItems="stretch">
               <ChatroomsPanel p="10"/>
             </VStack>
