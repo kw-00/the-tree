@@ -1,0 +1,26 @@
+#root[data-theme="dark"] {
+    --bg-1: rgb(53, 3, 2);
+    --bg-2: rgb(0, 37, 36);
+    --bg-3: rgb(0, 58, 55);
+}
+
+*[data-theme="dark"] {
+    color: rgb(175, 252, 255)
+}
+
+#root[data-theme="light"] {
+    --bg-1: rgb(182, 224, 215);
+    --bg-2: rgb(141, 185, 179);
+    --bg-3: rgb(183, 229, 235);
+}
+
+*[data-theme="light"] {
+    color: rgb(80, 80, 80);
+    font-weight:600;
+}
+
+
+@import "tailwindcss";
+
+
+
