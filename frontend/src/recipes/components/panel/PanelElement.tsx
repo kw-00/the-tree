@@ -5,7 +5,8 @@ import { defineRecipe } from "@chakra-ui/react";
 const panelElementRecipe = defineRecipe({
     base: {
         py: "1",
-        borderColor: "inherit"
+        borderColor: "inherit",
+        bg: "inherit"
     },
     variants: {
         variant: {
