@@ -1,0 +1,49 @@
+#root[data-theme="dark"] {
+    --bg-1: rgb(53, 3, 2);
+    --bg-2: rgb(0, 37, 36);
+    --bg-3: rgb(0, 58, 55);
+
+    --button-bg: rgb(0, 0, 0);
+    --button-border: rgb(173, 247, 0);
+    --button-outline-bg: rgb(0, 0, 0);
+
+    --button-warning-bg: rgb(0, 0, 0);
+    --button-warning-border: rgb(0, 0, 0);
+    
+    --button-danger-bg: rgb(0, 0, 0);
+    --button-danger-border: rgb(0, 0, 0);
+}
+
+*[data-theme="dark"] {
+    color: rgb(175, 252, 255)
+}
+
+#root[data-theme="light"] {
+    --bg-1: rgb(182, 224, 215);
+    --bg-2: rgb(141, 185, 179);
+    --bg-3: rgb(183, 229, 235);
+
+    --button-bg: rgb(240, 228, 177);
+    --button-border: rgb(15, 175, 187);
+
+    --button-bg-25: rgb(240, 228, 177, 0.25);
+    --button-bg-50: rgb(240, 228, 177, 0.5);
+    --button-bg-75: rgb(240, 228, 177, 0.75);
+
+    --button-warning-bg: rgb(0, 0, 0);
+    --button-warning-border: rgb(0, 0, 0);
+    
+    --button-danger-bg: rgb(0, 0, 0);
+    --button-danger-border: rgb(0, 0, 0);
+}
+
+*[data-theme="light"] {
+    color: rgb(80, 80, 80);
+    font-weight:600;
+}
+
+
+@import "tailwindcss";
+
+
+
