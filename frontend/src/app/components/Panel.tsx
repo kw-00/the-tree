@@ -22,6 +22,7 @@ export type PanelProps = {
 } & React.HTMLAttributes<HTMLDivElement>
 
 export default function Panel({variant, className, padding, ...rest}: PanelProps) {
+
     const classes = twMerge("", styling[variant], styling.padding[padding ?? "sm"], className)
     return (
         <div className={classes} {...rest}/>

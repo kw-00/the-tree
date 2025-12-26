@@ -42,7 +42,13 @@ export default function Playground() {
                     <br/>
                     Hmm
                 </Panel>
-                <Panel variant="3" className="flex-1"><Button variant="outline">Hello</Button></Panel>
+                <Panel variant="3" className="flex-1">
+                    <Button variant="primary">Hello</Button>
+                    <Button variant="secondary">Hello</Button>
+                    <Button variant="ghost">Hello</Button>
+                    <Button variant="warning">Hello</Button>
+                    <Button variant="danger">Hello</Button>
+                </Panel>
             </Panel>
             <Panel variant="2" className="flex-1"></Panel>
         </Panel>
