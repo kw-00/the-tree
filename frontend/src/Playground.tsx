@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Button from "./app/components/Button";
 import Panel from "./app/components/Panel";
 import { useTheme } from "./app/theme/theme";
+import Input from "./app/components/Input";
 
 
 
@@ -9,9 +10,9 @@ import { useTheme } from "./app/theme/theme";
 
 
 export default function Playground() {
-    const {setTheme} = useTheme()
+    const {theme, setTheme} = useTheme()
     useEffect(() => {
-        setTheme("light")
+        setTheme("dark")
     }, [])
     return (
         <Panel variant="1" className="flex flex-row justify-between size-full">
@@ -43,11 +44,21 @@ export default function Playground() {
                     Hmm
                 </Panel>
                 <Panel variant="3" className="flex-1">
-                    <Button variant="primary">Hello</Button>
+                    <Button variant="primary" onClick={() => theme === "light" ?  setTheme("dark") : setTheme("light")}>Hello</Button>
                     <Button variant="secondary">Hello</Button>
                     <Button variant="ghost">Hello</Button>
                     <Button variant="warning">Hello</Button>
                     <Button variant="danger">Hello</Button>
+                    <Panel variant="4" className="flex flex-1">
+                        Hello
+                        <Panel variant="5" className="flex-1">
+                            <form>
+                                <label>Password</label>
+                                <Input type="password"></Input>
+                            </form>
+                        </Panel>
+                        <Panel variant="5" className="flex-1"/>
+                    </Panel>
                 </Panel>
             </Panel>
             <Panel variant="2" className="flex-1"></Panel>

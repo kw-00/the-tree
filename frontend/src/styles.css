@@ -1,34 +1,37 @@
 #root[data-theme="dark"] {
-    --bg-1: rgb(53, 3, 2);
-    --bg-2: rgb(0, 37, 36);
-    --bg-3: rgb(0, 58, 55);
+    --bg-1: rgb(0, 0, 0);
+    --bg-2: rgb(16, 30, 36);
+    --bg-3: rgb(17, 32, 51);
+    --bg-4: rgb(0, 61, 110);
+    --bg-5: rgb(0, 87, 114);
 
-    --button-bg: rgb(0, 131, 136);
-    --button-secondary-bg: rgb(13, 90, 104);
-    --button-warning-bg: rgb(122, 110, 0);
-    --button-danger-bg: rgb(136, 0, 0);
+    --button-bg: rgb(52, 145, 106);
+    --button-secondary-bg: rgb(71, 74, 104);
+    --button-warning-bg: rgb(117, 0, 0);
+    --button-danger-bg: rgb(141, 127, 0);
 }
 
 *[data-theme="dark"] {
-    color: rgb(175, 252, 255)
+    color: rgb(146, 209, 211)
 }
 
 #root[data-theme="light"] {
-    --bg-1: rgb(182, 224, 215);
-    --bg-2: rgb(141, 185, 179);
-    --bg-3: rgb(183, 229, 235);
+    --bg-1: rgb(82, 105, 105);
+    --bg-2: rgb(99, 151, 129);
+    --bg-3: rgb(156, 228, 206);
+    --bg-4: rgb(255, 251, 194);
+    --bg-5: rgb(142, 219, 255);
 
-    --button-bg: rgb(219, 143, 0);
-    --button-secondary-bg: rgb(240, 228, 177);
+    --button-bg: rgb(209, 97, 166);
+    --button-secondary-bg: rgb(156, 155, 248);
     --button-warning-bg: rgb(224, 0, 0);
     --button-danger-bg: rgb(255, 238, 0);
 }
 
 *[data-theme="light"] {
-    color: rgb(80, 80, 80);
+    color: rgb(0, 0, 0);
     font-weight:600;
 }
-
 
 @import "tailwindcss";
 
