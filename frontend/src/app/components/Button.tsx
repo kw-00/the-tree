@@ -4,7 +4,7 @@ import { useTheme } from "../theme/theme"
 
 
 const styling = {
-    base: "px-6 py-2 font-bold",
+    base: "px-6 py-2 rounded-xs font-bold",
     theme: {
         dark: "hover:brightness-110 active:brightness-115",
         light: "hover:brightness-90 active:brightness-80"

@@ -3,6 +3,7 @@ import Button from "./app/components/Button";
 import Panel from "./app/components/Panel";
 import { useTheme } from "./app/theme/theme";
 import Input from "./app/components/Input";
+import TextInput from "./app/components/TextInput";
 
 
 
@@ -57,7 +58,9 @@ export default function Playground() {
                                 <Input type="password"></Input>
                             </form>
                         </Panel>
-                        <Panel variant="5" className="flex-1"/>
+                        <Panel variant="5" className="flex-1 h-100">
+                            <TextInput maxHeight={30}></TextInput>
+                        </Panel>
                     </Panel>
                 </Panel>
             </Panel>
