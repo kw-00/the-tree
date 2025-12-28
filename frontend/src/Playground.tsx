@@ -3,6 +3,7 @@ import Button from "./app/components/Button";
 import Panel from "./app/components/Panel";
 import { useTheme } from "./app/theme/theme";
 import Input from "./app/components/Input";
+import TextEditor from "./app/components/_internal/TextEditor";
 import TextInput from "./app/components/TextInput";
 
 
@@ -59,12 +60,13 @@ export default function Playground() {
                             </form>
                         </Panel>
                         <Panel variant="5" className="flex-1 h-100">
-                            <TextInput maxHeight={30}></TextInput>
+                            <TextInput maxHeight={20}></TextInput>
                         </Panel>
                     </Panel>
                 </Panel>
             </Panel>
-            <Panel variant="2" className="flex-1"></Panel>
+            <Panel variant="2" className="flex-1">
+            </Panel>
         </Panel>
     )
 }

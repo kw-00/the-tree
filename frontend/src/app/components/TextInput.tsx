@@ -1,15 +1,18 @@
 import { useEffect, useRef } from "react"
+import TextEditor from "./_internal/TextEditor"
 
 
 
 export type TextInputProps = {
     maxHeight: number
     minHeight?: number
-} & React.HTMLAttributes<HTMLTextAreaElement>
+    className: string
+    style: React.CSSProperties
+}
 
-export default function TextInput({maxHeight, minHeight, ...rest}: TextInputProps) {
+export default function TextInput({maxHeight, minHeight, className, style}: TextInputProps) {
     // Growth logic
-    const selfRef = useRef<HTMLTextAreaElement | null>(null)
+    const selfRef = useRef<HTMLDivElement | null>(null)
     const adjustHeight = () => {
         if (selfRef.current) {
             const self = selfRef.current
@@ -22,16 +25,15 @@ export default function TextInput({maxHeight, minHeight, ...rest}: TextInputProp
         }
     }
     useEffect(() => adjustHeight(), [])
-    useEffect(() => {
-        const resizeObserver = new ResizeObserver((_) => {
-            adjustHeight()
-        })
-        resizeObserver.observe(selfRef.current!)
-    }, [])
 
     return (
-        <textarea ref={selfRef} onChange={adjustHeight} style={{resize: "none"}} {...rest}>
-
-        </textarea>
+        <TextEditor 
+        ref={selfRef}
+        onChange={(_) => {
+            adjustHeight()
+        }}
+        className="h-full overflow-y-scroll"
+        placeholder="Type something..."
+        />
     )
 }
