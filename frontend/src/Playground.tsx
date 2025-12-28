@@ -65,7 +65,7 @@ export default function Playground() {
                                 <Input type="number"></Input>
                             </form>
                         </Panel>
-                        <Panel variant="5" className="flex-1">
+                        <Panel variant="5" className="flex-1 max-h-20">
                             <TextInput maxHeight={20}></TextInput>
                         </Panel>
                     </Panel>

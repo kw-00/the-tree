@@ -5,20 +5,18 @@ import { useTheme } from "../theme/theme"
 
 const styling = {
     base: `
-        my-1 appearance-none rounded-xs h-full overflow-y-auto bg-(--input-bg)
+        my-1 appearance-none rounded-xs max-h-full min-h-1 overflow-y-auto bg-(--input-bg)
         border-1 border-(--input-border) focus:ring-2 focus:ring-(--input-border)
     `
 }
 
 export type TextInputProps = {
-    maxHeight: number
-    minHeight?: number
     className?: string
     style?: React.CSSProperties
     onChange?: (text: string) => void
 }
 
-export default function TextInput({maxHeight, minHeight, className, style, onChange}: TextInputProps) {
+export default function TextInput({className, style, onChange}: TextInputProps) {
     const classes = twMerge(styling.base, className)
     // Growth logic
     const [scrollTop, setScrollTop] = useState<number | null>(null)
@@ -29,10 +27,7 @@ export default function TextInput({maxHeight, minHeight, className, style, onCha
             const self = selfRef.current
             self.style.height = "auto"
             const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-            self.style.height = `${Math.max(
-                Math.min(self.scrollHeight + 2, maxHeight * rem),
-                (minHeight ?? 1) * rem
-            )}px`
+            self.style.height = `${self.scrollHeight + 2}px`
 
             // Set scroll height
             if (scrollTop !== null) {
