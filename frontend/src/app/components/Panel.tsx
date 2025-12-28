@@ -1,4 +1,3 @@
-import { useTheme } from "../theme/theme"
 import { twMerge } from "tailwind-merge"
 
 
