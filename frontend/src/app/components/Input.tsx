@@ -7,7 +7,7 @@ import type { InputHTMLAttributes } from "react"
 
 
 const styling = {
-    base: "my-1 appearance-none rounded-xs",
+    base: "my-1 appearance-none rounded-xs bg-(--input-bg)",
     theme: {
         dark: "border-1 border-white/30 has-focus:ring-2 has-focus:ring-white/30",
         light: "border-1 border-black/30 has-focus:ring-2 has-focus:ring-black/30"

@@ -9,6 +9,8 @@
     --button-secondary-bg: rgb(71, 74, 104);
     --button-warning-bg: rgb(117, 0, 0);
     --button-danger-bg: rgb(141, 127, 0);
+
+    --input-bg: rgb(59, 59, 59);
 }
 
 *[data-theme="dark"] {
@@ -26,6 +28,8 @@
     --button-secondary-bg: rgb(156, 155, 248);
     --button-warning-bg: rgb(224, 0, 0);
     --button-danger-bg: rgb(255, 238, 0);
+
+    --input-bg: rgb(236, 236, 227);
 }
 
 *[data-theme="light"] {

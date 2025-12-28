@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge"
 import { useTheme } from "../theme/theme"
 
 const styling = {
-    base: "my-1 appearance-none rounded-xs h-full overflow-y-auto",
+    base: "my-1 appearance-none rounded-xs h-full overflow-y-auto bg-(--input-bg)",
     theme: {
         dark: "border-1 border-white/30 focus:ring-2 focus:ring-white/30",
         light: "border-1 border-black/30 focus:ring-2 focus:ring-black/30"
