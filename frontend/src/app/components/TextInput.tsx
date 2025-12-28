@@ -4,11 +4,10 @@ import { twMerge } from "tailwind-merge"
 import { useTheme } from "../theme/theme"
 
 const styling = {
-    base: "my-1 appearance-none rounded-xs h-full overflow-y-auto bg-(--input-bg)",
-    theme: {
-        dark: "border-1 border-white/30 focus:ring-2 focus:ring-white/30",
-        light: "border-1 border-black/30 focus:ring-2 focus:ring-black/30"
-    }
+    base: `
+        my-1 appearance-none rounded-xs h-full overflow-y-auto bg-(--input-bg)
+        border-1 border-(--input-border) focus:ring-2 focus:ring-(--input-border)
+    `
 }
 
 export type TextInputProps = {
@@ -20,8 +19,7 @@ export type TextInputProps = {
 }
 
 export default function TextInput({maxHeight, minHeight, className, style, onChange}: TextInputProps) {
-    const {theme} = useTheme()
-    const classes = twMerge(styling.base, styling.theme[theme], className)
+    const classes = twMerge(styling.base, className)
     // Growth logic
     const [scrollTop, setScrollTop] = useState<number | null>(null)
     const selfRef = useRef<HTMLDivElement | null>(null)

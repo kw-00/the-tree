@@ -57,6 +57,8 @@ export default function Playground() {
                             <form>
                                 <label>Password</label>
                                 <Input type="password"></Input>
+                                <label>Level</label>
+                                <Input type="number"></Input>
                             </form>
                         </Panel>
                         <Panel variant="5" className="flex-1 h-100">

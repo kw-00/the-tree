@@ -1,16 +1,24 @@
 #root[data-theme="dark"] {
+    /* Panels */
     --bg-1: rgb(0, 0, 0);
     --bg-2: rgb(16, 30, 36);
     --bg-3: rgb(17, 32, 51);
     --bg-4: rgb(0, 61, 110);
     --bg-5: rgb(0, 87, 114);
 
+    --border: rgb(255, 255, 255, 0.1);
+
+    /* Buttons */
     --button-bg: rgb(52, 145, 106);
     --button-secondary-bg: rgb(71, 74, 104);
     --button-warning-bg: rgb(117, 0, 0);
     --button-danger-bg: rgb(141, 127, 0);
+    --hover-brightness: 115%;
+    --active-brightness: 130%;
 
+    /* Inputs */
     --input-bg: rgb(59, 59, 59);
+    --input-border: rgba(255, 255, 255, 0.3);
 }
 
 *[data-theme="dark"] {
@@ -18,23 +26,59 @@
 }
 
 #root[data-theme="light"] {
+    /* Panels */
     --bg-1: rgb(82, 105, 105);
     --bg-2: rgb(99, 151, 129);
     --bg-3: rgb(156, 228, 206);
     --bg-4: rgb(255, 251, 194);
     --bg-5: rgb(142, 219, 255);
 
+    --border: transparent;
+
+    /* Buttons */
     --button-bg: rgb(209, 97, 166);
     --button-secondary-bg: rgb(156, 155, 248);
     --button-warning-bg: rgb(224, 0, 0);
     --button-danger-bg: rgb(255, 238, 0);
+    --hover-brightness: 90%;
+    --active-brightness: 80%;
 
+    /* Inputs */
     --input-bg: rgb(236, 236, 227);
+    --input-border: rgba(0, 0, 0, 0.3);
 }
 
 *[data-theme="light"] {
     color: rgb(0, 0, 0);
     font-weight:600;
+}
+
+.title {
+    font-weight: bold;
+    font-size: 2.5rem;
+}
+
+.heading-1 {
+    font-weight: bold;
+    font-size: 1.8rem;
+}
+
+.heading-2 {
+    font-weight: bold;
+    font-size: 1.5rem; 
+}
+
+.heading-3 {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.button-text {
+    font-weight: bold;
+}
+
+.label-text {
+    font-weight: 600;
 }
 
 @import "tailwindcss";

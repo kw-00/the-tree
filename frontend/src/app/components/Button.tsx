@@ -1,18 +1,17 @@
 import { twMerge } from "tailwind-merge"
-import { useTheme } from "../theme/theme"
 
 
 
 const styling = {
-    base: "px-6 py-2 rounded-xs font-bold",
-    theme: {
-        dark: "hover:brightness-110 active:brightness-115",
-        light: "hover:brightness-90 active:brightness-80"
-    },
+    base: `
+        px-6 py-2 rounded-xs button-text
+        hover:brightness-(--hover-brightness) 
+        active:brightness-(--active-brightness)
+    `,
     variant: {
         primary: "bg-(--button-bg)",
         secondary: "bg-(--button-secondary-bg)",
-        ghost: "hover:invert-40 hover:saturate-200 active:invert-50",
+        ghost: "hover:invert-40 active:invert-50",
         warning: "bg-(--button-warning-bg)",
         danger: "bg-(--button-danger-bg)"
     }
@@ -23,8 +22,7 @@ export type ButtonProps = {
 } & React.HTMLAttributes<HTMLButtonElement>
 
 export default function Button({variant, className, ...rest}: ButtonProps) {
-    const {theme} = useTheme()
-    const classes = twMerge(styling.base, styling.theme[theme], styling.variant[variant], className)
+    const classes = twMerge(styling.base, styling.variant[variant], className)
 
 
     return (

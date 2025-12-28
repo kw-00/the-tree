@@ -5,11 +5,7 @@ import { twMerge } from "tailwind-merge"
 
 
 const styling = {
-    base: "border-1", 
-    theme: {
-        dark: "border-white/10",
-        light: "border-transparent"
-    },
+    base: "border-1 border-(--border)", 
     variant: {
         "1": "bg-(--bg-1) m-0",
         "2": "bg-(--bg-2) m-2",
@@ -31,8 +27,7 @@ export type PanelProps = {
 } & React.HTMLAttributes<HTMLDivElement>
 
 export default function Panel({variant, className, padding, ...rest}: PanelProps) {
-    const {theme} = useTheme()
-    const classes = twMerge(styling.base, styling.theme[theme], styling.variant[variant], styling.padding[padding ?? "sm"], className)
+    const classes = twMerge(styling.base, styling.variant[variant], styling.padding[padding ?? "sm"], className)
     return (
         <div className={classes} {...rest}/>
     )
