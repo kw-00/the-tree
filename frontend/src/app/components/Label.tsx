@@ -1,5 +1,4 @@
 import { twMerge } from "tailwind-merge"
-import { useTheme } from "../theme/theme"
 
 
 const styling = {

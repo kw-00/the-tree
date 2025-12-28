@@ -19,10 +19,11 @@
     /* Inputs */
     --input-bg: rgb(59, 59, 59);
     --input-border: rgba(255, 255, 255, 0.3);
-}
 
-*[data-theme="dark"] {
-    color: rgb(146, 209, 211)
+    /* Text */
+    --color: rgb(146, 209, 211);
+    --color-highlighted: rgb(231, 224, 117);
+    --color-headings: rgb(68, 146, 150);
 }
 
 #root[data-theme="light"] {
@@ -46,31 +47,41 @@
     /* Inputs */
     --input-bg: rgb(236, 236, 227);
     --input-border: rgba(0, 0, 0, 0.3);
+
+    /* Text */
+    --color: rgb(0, 0, 0);
+    --color-highlighted: rgb(0, 46, 250);
+    --color-headings: rgb(77, 23, 0);
 }
 
-*[data-theme="light"] {
-    color: rgb(0, 0, 0);
-    font-weight:600;
+* {
+    font-family:Arial, Helvetica, sans-serif;
+    color: var(--color)
 }
 
+/* Text Styles */
 .title {
     font-weight: bold;
     font-size: 2.5rem;
+    color: var(--color-headings);
 }
 
 .heading-1 {
     font-weight: bold;
     font-size: 1.8rem;
+    color: var(--color-headings);
 }
 
 .heading-2 {
     font-weight: bold;
     font-size: 1.5rem; 
+    color: var(--color-headings);
 }
 
 .heading-3 {
     font-weight: bold;
     font-size: 1.2rem;
+    color: var(--color-headings);
 }
 
 .button-text {
@@ -79,6 +90,14 @@
 
 .label-text {
     font-weight: 600;
+}
+
+.bold-text {
+    font-weight: 700;
+}
+
+.highlighted-text {
+    color: var(--color-highlighted);
 }
 
 @import "tailwindcss";
