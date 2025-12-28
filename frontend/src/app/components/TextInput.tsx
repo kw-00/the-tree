@@ -1,20 +1,33 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import TextEditor from "./_internal/TextEditor"
+import { twMerge } from "tailwind-merge"
+import { useTheme } from "../theme/theme"
 
-
+const styling = {
+    base: "my-1 appearance-none rounded-xs h-full overflow-y-auto",
+    theme: {
+        dark: "border-1 border-white/30 focus:ring-2 focus:ring-white/30",
+        light: "border-1 border-black/30 focus:ring-2 focus:ring-black/30"
+    }
+}
 
 export type TextInputProps = {
     maxHeight: number
     minHeight?: number
-    className: string
-    style: React.CSSProperties
+    className?: string
+    style?: React.CSSProperties
+    onChange?: (text: string) => void
 }
 
-export default function TextInput({maxHeight, minHeight, className, style}: TextInputProps) {
+export default function TextInput({maxHeight, minHeight, className, style, onChange}: TextInputProps) {
+    const {theme} = useTheme()
+    const classes = twMerge(styling.base, styling.theme[theme], className)
     // Growth logic
+    const [scrollTop, setScrollTop] = useState<number | null>(null)
     const selfRef = useRef<HTMLDivElement | null>(null)
     const adjustHeight = () => {
         if (selfRef.current) {
+            // Set height
             const self = selfRef.current
             self.style.height = "auto"
             const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
@@ -22,6 +35,11 @@ export default function TextInput({maxHeight, minHeight, className, style}: Text
                 Math.min(self.scrollHeight + 2, maxHeight * rem),
                 (minHeight ?? 1) * rem
             )}px`
+
+            // Set scroll height
+            if (scrollTop !== null) {
+                self.scrollTop = scrollTop
+            }
         }
     }
     useEffect(() => adjustHeight(), [])
@@ -29,10 +47,20 @@ export default function TextInput({maxHeight, minHeight, className, style}: Text
     return (
         <TextEditor 
         ref={selfRef}
-        onChange={(_) => {
+        onChange={(text) => {
             adjustHeight()
+            if (onChange) {
+                onChange(text)
+            }
+
         }}
-        className="h-full overflow-y-scroll"
+        onScroll={() => {
+            if (selfRef.current) {
+                setScrollTop(selfRef.current.scrollTop)
+            }
+        }}
+        className={classes}
+        style={{outline: "none", ...style}}
         placeholder="Type something..."
         />
     )

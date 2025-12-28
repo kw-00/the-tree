@@ -39,10 +39,11 @@ export type TextEditorProps = {
   style?: React.CSSProperties
   placeholder: string
   onChange: (text: string) => void
+  onScroll?: React.UIEventHandler<HTMLDivElement> 
 }
 
 export default function TextEditor(props: TextEditorProps) {
-  const {ref, className, style, placeholder, onChange} = props
+  const {ref, className, style, placeholder, onChange, onScroll} = props
   const initialConfig = {
     namespace: 'MyEditor',
     theme,
@@ -55,10 +56,9 @@ export default function TextEditor(props: TextEditorProps) {
             contentEditable={
             <ContentEditable
                 ref={ref}
-                aria-placeholder={placeholder}
-                placeholder={<div>{placeholder}</div>}
                 className={`${className}`}
                 style={(style)}
+                onScroll={onScroll}
             />
             }
             ErrorBoundary={LexicalErrorBoundary}
