@@ -1,0 +1,53 @@
+
+@import "@/styles.css";
+
+/* Base Styling */
+.Button {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-radius: 0.125rem;
+
+}
+
+/* Hover */
+.Button:hover {
+    filter: brightness(var(--hover-brightness));
+}
+
+/* Active */
+.Button:active {
+    filter: brightness(var(--active-brightness));
+}
+
+/* VARIANT: Primary */
+.Button[variant="primary"] {
+    background-color: var(--button-primary-bg);
+}
+
+/* VARIANT: Secondary */
+.Button[variant="secondary"] {
+    background-color: var(--button-secondary-bg);
+}
+
+/* VARIANT: Ghost */
+.Button[variant="ghost"] {
+    background-color: var(--button-ghost-bg);
+}
+.Button[variant="ghost"]:hover {
+    filter: invert(40%);
+}
+.Button[variant="ghost"]:active {
+    filter: invert(50%);
+}
+
+/* VARIANT: Warning */
+.Button[variant="warning"] {
+    background-color: var(--button-warning-bg);
+}
+
+/* VARIANT: Danger */
+.Button[variant="danger"] {
+    background-color: var(--button-danger-bg);
+}
