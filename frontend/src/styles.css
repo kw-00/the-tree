@@ -95,14 +95,6 @@
     color: var(--color-headings);
 }
 
-.button-text {
-    font-weight: bold;
-}
-
-.label-text {
-    font-weight: 600;
-}
-
 .bold-text {
     font-weight: 700;
 }

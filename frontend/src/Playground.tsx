@@ -1,14 +1,14 @@
-import { useEffect } from "react";
-import Button from "./app/components/Button";
-import Panel from "./app/components/Panel";
-import { useTheme } from "./app/theme/theme";
-import Input from "./app/components/Input";
-import TextInput from "./app/components/TextInput";
-import Label from "./app/components/Label";
-import Title from "./app/components/text/Title";
-import Heading from "./app/components/text/Heading";
-import { twMerge } from "tailwind-merge";
-import Txt from "./app/components/text/Txt";
+import Label from "./app/components/label/Label"
+import { useEffect } from "react"
+import { twMerge } from "tailwind-merge"
+import Button from "./app/components/button/Button"
+import Input from "./app/components/input/Input"
+import Panel from "./app/components/panel/Panel"
+import TextInput from "./app/components/text-input/TextInput"
+import Heading from "./app/components/typography/Heading"
+import Title from "./app/components/typography/Title"
+import Txt from "./app/components/typography/Txt"
+import { useTheme } from "./app/theme/theme"
 
 
 

@@ -5,11 +5,9 @@ export type ButtonProps = {
     variant: "primary" | "secondary" | "ghost" | "danger" | "warning"
 } & React.HTMLAttributes<HTMLButtonElement>
 
-export default function Button({className, ...rest}: ButtonProps) {
-
-
+export default function Button({variant, className, ...rest}: ButtonProps) {
     return (
-        <button className={`Button ${className}`} {...rest}/>
+        <button data-variant={variant} className={`Button ${className}`} {...rest}/>
     )
 }
 

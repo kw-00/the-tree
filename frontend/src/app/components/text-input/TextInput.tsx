@@ -1,14 +1,9 @@
-import { useEffect, useRef, useState } from "react"
-import TextEditor from "./_internal/TextEditor"
-import { twMerge } from "tailwind-merge"
-import { useTheme } from "../theme/theme"
+import "./TextInput.css"
 
-const styling = {
-    base: `
-        my-1 appearance-none rounded-xs max-h-full min-h-1 overflow-y-auto bg-(--input-bg)
-        border-1 border-(--input-border) focus:ring-2 focus:ring-(--input-border)
-    `
-}
+import { useEffect, useRef, useState } from "react"
+import TextEditor from "../_internal/TextEditor"
+import { twMerge } from "tailwind-merge"
+
 
 export type TextInputProps = {
     className?: string
@@ -17,7 +12,6 @@ export type TextInputProps = {
 }
 
 export default function TextInput({className, style, onChange}: TextInputProps) {
-    const classes = twMerge(styling.base, className)
     // Growth logic
     const [scrollTop, setScrollTop] = useState<number | null>(null)
     const selfRef = useRef<HTMLDivElement | null>(null)
@@ -26,7 +20,6 @@ export default function TextInput({className, style, onChange}: TextInputProps) 
             // Set height
             const self = selfRef.current
             self.style.height = "auto"
-            const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
             self.style.height = `${self.scrollHeight + 2}px`
 
             // Set scroll height
@@ -52,7 +45,7 @@ export default function TextInput({className, style, onChange}: TextInputProps) 
                 setScrollTop(selfRef.current.scrollTop)
             }
         }}
-        className={classes}
+        className={twMerge("TextInput", className)}
         style={{outline: "none", ...style}}
         placeholder="Type something..."
         />
