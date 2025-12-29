@@ -1,7 +1,5 @@
 import "./Button.css"
 
-import { twMerge } from "tailwind-merge"
-
 
 export type ButtonProps = {
     variant: "primary" | "secondary" | "ghost" | "danger" | "warning"

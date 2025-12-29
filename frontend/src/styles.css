@@ -24,6 +24,9 @@
     --color: rgb(146, 209, 211);
     --color-highlighted: rgb(187, 181, 98);
     --color-headings: rgb(68, 146, 150);
+
+    /* Misc */
+    --highlight-color: rgba(255, 255, 255, 0.3);
 }
 
 #root[data-theme="light"] {
@@ -52,6 +55,9 @@
     --color: rgb(0, 8, 53);
     --color-highlighted: rgb(0, 46, 250);
     --color-headings: rgb(77, 23, 0);
+
+    /* Misc */
+    --highlight-color: rgba(3, 0, 167, 0.3);
 }
 
 /* Font defaults */
