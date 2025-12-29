@@ -1,4 +1,5 @@
 import { twMerge } from "tailwind-merge"
+import { Label as RadixLabel } from "radix-ui"
 
 
 const styling = {
@@ -10,6 +11,6 @@ export type LabelProps = React.HTMLAttributes<HTMLLabelElement>
 export default function Label({className, ...rest}: LabelProps) {
     const classes = twMerge(styling.base, className)
     return (
-        <label className={classes} {...rest}/>
+        <RadixLabel.Root className={classes} {...rest}/>
     )
 }
