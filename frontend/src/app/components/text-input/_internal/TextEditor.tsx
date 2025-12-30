@@ -34,16 +34,15 @@ function OnChangePlugin({onChange}: {onChange: (text: string) => void}) {
 }
 
 export type TextEditorProps = {
-  ref: React.Ref<HTMLDivElement | null>
-  className: string
+  ref?: React.Ref<HTMLDivElement | null>
+  className?: string
   style?: React.CSSProperties
-  placeholder: string
-  onChange: (text: string) => void
+  onChange?: (text: string) => void
   onScroll?: React.UIEventHandler<HTMLDivElement> 
 }
 
 export default function TextEditor(props: TextEditorProps) {
-  const {ref, className, style, placeholder, onChange, onScroll} = props
+  const {ref, className, style, onChange, onScroll} = props
   const initialConfig = {
     namespace: 'MyEditor',
     theme,
@@ -56,7 +55,7 @@ export default function TextEditor(props: TextEditorProps) {
             contentEditable={
             <ContentEditable
                 ref={ref}
-                className={`${className}`}
+                className={`${className ?? ""}`}
                 style={(style)}
                 onScroll={onScroll}
             />
@@ -65,7 +64,7 @@ export default function TextEditor(props: TextEditorProps) {
         />
         <HistoryPlugin />
         <AutoFocusPlugin />
-        <OnChangePlugin onChange={onChange}/>
+        <OnChangePlugin onChange={onChange ?? (() => {})}/>
     </LexicalComposer>
   );
 }

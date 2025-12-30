@@ -8,34 +8,30 @@
 /* VARIANT: 1 */
 .Panel[data-variant="1"] {
     background-color: var(--bg-1);
-    padding: 1rem;
+    padding: 0.4rem;
 }
 
 /* VARIANT: 2 */
 .Panel[data-variant="2"] {
     background-color: var(--bg-2);
-    margin: 1rem;
-    padding: 0.8rem;
+    padding: 0.4rem;
 }
 
 /* VARIANT: 3 */
 .Panel[data-variant="3"] {
     background-color: var(--bg-3);
-    margin: 0.75rem;
-    padding: 0.6rem;
+    padding: 0.4rem;
 }
 
 /* VARIANT: 4 */
 .Panel[data-variant="4"] {
     background-color: var(--bg-4);
-    margin: 0.5rem;
     padding: 0.4rem;
 }
 
 /* VARIANT: 5 */
 .Panel[data-variant="5"] {
     background-color: var(--bg-5);
-    margin: 0.25rem;
     padding: 0.4rem;
 }
 

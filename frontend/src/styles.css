@@ -60,14 +60,20 @@
     --highlight-color: rgba(3, 0, 167, 0.3);
 }
 
+body {
+    overflow-x: hidden;
+}
+
 /* Font defaults */
 * {
     font-family:Arial, Helvetica, sans-serif;
-    color: var(--color)
+    color: var(--color);
+    box-sizing: border-box;
 }
 
 #root {
     background-color: var(--bg-1);
+    height: 100svh;
 }
 
 /* Text styles */
