@@ -1,19 +1,17 @@
 
-@layer components {
-    .TextInput {
-        max-height: 100%;
-        min-height: 1rem;
-        overflow-y: auto;
 
-        background-color: var(--input-bg);
-        border: 0.25rem solid var(--input-border);
-        border-radius: 0.25rem;
-    }
-    .TextInput:focus {
-        box-shadow: 0 0 1rem 0.125rem var(--highlight-color);
-        outline: none;
-    }
+.TextInput {
+    overflow-y: auto;
+
+    background-color: var(--input-bg);
+    border: 0.25rem solid var(--input-border);
+    border-radius: 0.25rem;
 }
+.TextInput:focus {
+    box-shadow: 0 0 1rem 0.125rem var(--highlight-color);
+    outline: none;
+}
+
 
 
 

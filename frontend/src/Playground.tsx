@@ -49,14 +49,16 @@ export default function Playground() {
                     <br/>
                     Hmm
                 </Panel>
-                <Panel variant="3" className="flex-1">
-                    <Button variant="primary" onClick={() => theme === "light" ?  setTheme("dark") : setTheme("light")}>Hello</Button>
-                    <Button variant="secondary">Hello</Button>
-                    <Button variant="ghost">Hello</Button>
-                    <Button variant="warning">Hello</Button>
-                    <Button variant="danger">Hello</Button>
+                <Panel variant="3" className="flex flex-1 flex-col justify-evenly gap-5">
+                    <div className="flex flex-row justify-evenly align-center gap-2">
+                        <Button variant="primary" onClick={() => theme === "light" ?  setTheme("dark") : setTheme("light")}>Hello</Button>
+                        <Button variant="secondary">Hello</Button>
+                        <Button variant="ghost">Hello</Button>
+                        <Button variant="warning">Hello</Button>
+                        <Button variant="danger">Hello</Button>
+                    </div>
+
                     <Panel variant="4" className="flex flex-1">
-                        Hello
                         <Panel variant="5" className="flex-1">
                             <form>
                                 <Label>Password</Label>
@@ -65,8 +67,8 @@ export default function Playground() {
                                 <Input type="number"></Input>
                             </form>
                         </Panel>
-                        <Panel variant="5" className="flex-1 max-h-20">
-                            <TextInput></TextInput>
+                        <Panel variant="5" className="flex-1 max-h-50">
+                            <TextInput className="min-h-1 max-h-full"></TextInput>
                         </Panel>
                     </Panel>
                 </Panel>

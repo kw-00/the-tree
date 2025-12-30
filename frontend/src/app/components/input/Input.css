@@ -1,15 +1,13 @@
 
-@layer components {
-    .Input {
-        background-color: var(--input-bg);
+.Input {
+    background-color: var(--input-bg);
 
-        border: 0.25rem solid var(--input-border);
-        border-radius: 0.25rem;
-    }
-    .Input:focus {
-        box-shadow: 0 0 1rem 0.125rem var(--highlight-color);
-        outline: none;
-    }
+    border: 0.25rem solid var(--input-border);
+    border-radius: 0.25rem;
+}
+.Input:focus {
+    box-shadow: 0 0 1rem 0.125rem var(--highlight-color);
+    outline: none;
 }
 
 

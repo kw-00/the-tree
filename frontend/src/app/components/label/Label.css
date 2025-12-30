@@ -1,7 +1,5 @@
 
 
-@layer components {
-    .Label {
-        font-weight: 600;
-    }
+.Label {
+    font-weight: 600;
 }

@@ -1,49 +1,48 @@
 
-@layer components {
-    /* Base Styling */
-    .Button {
-        padding: 0.5rem 1.5rem;
-        border-radius: 0.125rem;
+/* Base Styling */
+.Button {
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.125rem;
 
-        font-weight: bold;
-    }
-
-    .Button:hover {
-        filter: brightness(var(--hover-brightness));
-    }
-    .Button:active {
-        filter: brightness(var(--active-brightness));
-    }
-
-    /* VARIANT: Primary */
-    .Button[data-variant="primary"] {
-        background-color: var(--button-primary-bg);
-    }
-
-    /* VARIANT: Secondary */
-    .Button[data-variant="secondary"] {
-        background-color: var(--button-secondary-bg);
-    }
-
-    /* VARIANT: Ghost */
-    .Button[data-variant="ghost"] {
-        background-color: var(--button-ghost-bg);
-    }
-    .Button[data-variant="ghost"]:hover {
-        filter: invert(40%);
-    }
-    .Button[data-variant="ghost"]:active {
-        filter: invert(50%);
-    }
-
-    /* VARIANT: Warning */
-    .Button[data-variant="warning"] {
-        background-color: var(--button-warning-bg);
-    }
-
-    /* VARIANT: Danger */
-    .Button[data-variant="danger"] {
-        background-color: var(--button-danger-bg);
-    }
+    font-weight: bold;
 }
+
+.Button:hover {
+    filter: brightness(var(--hover-brightness));
+}
+.Button:active {
+    filter: brightness(var(--active-brightness));
+}
+
+/* VARIANT: Primary */
+.Button[data-variant="primary"] {
+    background-color: var(--button-primary-bg);
+}
+
+/* VARIANT: Secondary */
+.Button[data-variant="secondary"] {
+    background-color: var(--button-secondary-bg);
+}
+
+/* VARIANT: Ghost */
+.Button[data-variant="ghost"] {
+    background-color: var(--button-ghost-bg);
+}
+.Button[data-variant="ghost"]:hover {
+    filter: invert(40%);
+}
+.Button[data-variant="ghost"]:active {
+    filter: invert(50%);
+}
+
+/* VARIANT: Warning */
+.Button[data-variant="warning"] {
+    background-color: var(--button-warning-bg);
+}
+
+/* VARIANT: Danger */
+.Button[data-variant="danger"] {
+    background-color: var(--button-danger-bg);
+}
+
 

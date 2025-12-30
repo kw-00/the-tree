@@ -11,10 +11,15 @@ export type TextInputProps = {
     onChange?: (text: string) => void
 }
 
+/**
+ * Make sure to specify max-height through Tailwind or style, so that the TextInput
+ * does not grow indefinitely instead of becoming scrollable when content expands.
+ */
 export default function TextInput({className, style, onChange}: TextInputProps) {
     // Growth logic
     const [scrollTop, setScrollTop] = useState<number | null>(null)
     const selfRef = useRef<HTMLDivElement | null>(null)
+
     const adjustHeight = () => {
         if (selfRef.current) {
             // Set height
