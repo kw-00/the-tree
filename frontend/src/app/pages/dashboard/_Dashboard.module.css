@@ -1,0 +1,8 @@
+
+.Dashboard {
+    --header-h: 4rem;
+}
+
+.HeaderBar {
+    height: var(--header-height);
+}

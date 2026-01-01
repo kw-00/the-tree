@@ -71,9 +71,11 @@ body {
     box-sizing: border-box;
 }
 
-#root {
+html, body, #root {
     background-color: var(--bg-1);
     height: 100svh;
+    width: 100svw;
+    overflow: hidden;
 }
 
 /* Text styles */

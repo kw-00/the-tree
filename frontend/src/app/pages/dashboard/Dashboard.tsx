@@ -1,5 +1,6 @@
 import Button from "@/app/components/button/Button";
 import Panel from "@/app/components/panel/Panel";
+import PanelWithHeader from "@/app/components/panel/PanelWithHeader";
 
 
 
@@ -14,24 +15,26 @@ export default function Dashboard() {
     while (l.length < 100) {
         l.push("What is up")
     }
-    const headerHeight = 12
     return (
         <>
-            {/* header */}
-            <Panel variant="2" className={`h-${headerHeight} w-full flex justify-end fixed top-0`}>
-                <Button variant="secondary">Log out</Button>
+            <Panel variant="1" className="h-svh flex">
+                <Panel variant="5" className="w-40"></Panel>
+                <PanelWithHeader className="flex-1">
+                    <PanelWithHeader.Header>
+                        <Panel variant="2">
+                            <Button variant="secondary">Log out</Button>
+                        </Panel>
+                    </PanelWithHeader.Header>
+                    <PanelWithHeader.Content>
+                        Hellofsdfsdfs
+                    </PanelWithHeader.Content>
+                    <PanelWithHeader.Footer>
+                        <Panel variant="2">
+                            <Button variant="primary">Log out</Button>
+                        </Panel>
+                    </PanelWithHeader.Footer>
+                </PanelWithHeader>
             </Panel>
-            {/* Contents */}
-            <div className={`pt-${headerHeight} h-svh w-full flex flex-row`}>
-                <Panel variant="1" className="flex flex-1 flex-row">
-                    <Panel variant="2" className="overflow-y-auto">
-                        {l.map((el) => <Panel variant="5">{el}</Panel>)}
-                    </Panel>
-                    <Panel variant="3" className="overflow-y-auto">
-                        {l.map((el) => <Panel variant="4">{el}</Panel>)}
-                    </Panel>
-                </Panel>
-            </div>
         </>
     )
 }
