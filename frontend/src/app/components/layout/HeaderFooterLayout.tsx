@@ -23,7 +23,6 @@ export default function PanelWithHeader(props: Omit<React.HTMLAttributes<HTMLDiv
 
     useLayoutEffect(() => {
         if (selfRef.current) {
-            console.log("Ran")
             const self = selfRef.current
             
             const header = self.querySelector('[data-slot="header"]') ?? undefined
