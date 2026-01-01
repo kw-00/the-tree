@@ -1,7 +1,12 @@
+import { getRem } from "@/utils/DocumentUtils"
 import React, { useLayoutEffect, useRef } from "react"
 
+export type HeaderFooterLayoutProps = {
+    headerGap?: number
+    footerGap?: number
+} & Omit<React.HTMLAttributes<HTMLDivElement>, "style">
 
-export default function HeaderFooterLayout(props: Omit<React.HTMLAttributes<HTMLDivElement>, "style">) {
+export default function HeaderFooterLayout({headerGap, footerGap, ...rest}: HeaderFooterLayoutProps) {
     const selfRef = useRef<HTMLDivElement | null>(null)
 
     const setBoundaries = (el: HTMLElement, targetIs: "header" | "footer") => {
@@ -34,7 +39,11 @@ export default function HeaderFooterLayout(props: Omit<React.HTMLAttributes<HTML
                 if (header instanceof HTMLElement) {
                     // Set content padding in order to account for header
                     const observer = new ResizeObserver(() => {
-                        content.style.paddingTop = `${header.clientHeight}px`
+                        content.style.paddingTop = 
+                            headerGap ? 
+                            `${header.clientHeight + headerGap * getRem()}px`
+                            :
+                            `${header.clientHeight}px`
                     })
                     observer.observe(header)
 
@@ -53,8 +62,12 @@ export default function HeaderFooterLayout(props: Omit<React.HTMLAttributes<HTML
                 if (footer instanceof HTMLElement) {
                     // Set content padding to account for footer
                     const observer = new ResizeObserver(() => {
-                        content.style.paddingBottom = `${footer.clientHeight}px`
-                    })
+                        content.style.paddingBottom = 
+                            footerGap ? 
+                            `${footer.clientHeight + footerGap * getRem()}px`
+                            :
+                            `${footer.clientHeight}px`
+                        })
                     observer.observe(footer)
 
                     // Anchor footer
@@ -83,7 +96,7 @@ export default function HeaderFooterLayout(props: Omit<React.HTMLAttributes<HTML
                 justifyContent: "stretch",
                 alignItems: "stretch"
             }}
-            {...props}
+            {...rest}
         />
     )
 }
@@ -112,6 +125,10 @@ HeaderFooterLayout.Footer = function Footer(props: Omit<React.HTMLAttributes<HTM
 HeaderFooterLayout.Content = function Content(props: Omit<React.HTMLAttributes<HTMLDivElement>, "style">) {
     return (
         <div data-slot="content" 
+        style={{
+            flexGrow: 1,
+            minHeight: 0
+        }}
         {...props}/>
     )
 }
