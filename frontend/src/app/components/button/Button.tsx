@@ -1,13 +1,13 @@
-import "./Button.css"
+import styles from "./_Button.module.css"
 
 
 export type ButtonProps = {
     variant: "primary" | "secondary" | "ghost" | "danger" | "warning"
-} & React.HTMLAttributes<HTMLButtonElement>
+}
 
-export default function Button({variant, className, ...rest}: ButtonProps) {
+export default function Button({variant, className, ...rest}: ButtonProps & React.HTMLAttributes<HTMLButtonElement>) {
     return (
-        <button data-variant={variant} className={`Button ${className}`} {...rest}/>
+        <button data-variant={variant} className={`${styles.Button} ${className ?? ""}`} {...rest}/>
     )
 }
 

@@ -1,7 +1,6 @@
-import "./TextInput.css"
+import styles from "./_TextInput.module.css"
 
 import TextEditor from "./_internal/TextEditor"
-import { twMerge } from "tailwind-merge"
 
 
 export type TextInputProps = {
@@ -23,7 +22,7 @@ export default function TextInput({className, style, onChange}: TextInputProps) 
                 onChange(text)
             }
         }}
-        className={twMerge("TextInput", className)}
+        className={`${styles.TextInput} ${className ?? ""}`}
         style={{outline: "none", ...style}}
         />
     )

@@ -1,11 +1,9 @@
-import "./Label.css"
+import styles from "./_Label.module.css"
 
 import { Label as RadixLabel } from "radix-ui"
 
-export type LabelProps = React.HTMLAttributes<HTMLLabelElement>
-
-export default function Label({className, ...rest}: LabelProps) {
+export default function Label({className, ...rest}: React.HTMLAttributes<HTMLLabelElement>) {
     return (
-        <RadixLabel.Root className={`Label ${className}`} {...rest}/>
+        <RadixLabel.Root className={`${styles.Label} ${className ?? ""}`} {...rest}/>
     )
 }

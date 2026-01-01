@@ -1,16 +1,11 @@
-import "./Input.css"
+import styles from "./_Input.module.css"
 import type { InputHTMLAttributes } from "react"
 
 
 
 
-
-
-export type InputProps = {
-} & InputHTMLAttributes<HTMLInputElement>
-
-export default function Input({className, ...rest}: InputProps) {
+export default function Input({className, ...rest}: InputHTMLAttributes<HTMLInputElement>) {
     return (
-        <input className={`Input ${className}`} {...rest}/>
+        <input className={`${styles.Input} ${className ?? ""}`} {...rest}/>
     )
 }
