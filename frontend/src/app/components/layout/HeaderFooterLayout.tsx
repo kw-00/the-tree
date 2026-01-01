@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef } from "react"
 
 
-export default function PanelWithHeader(props: Omit<React.HTMLAttributes<HTMLDivElement>, "style">) {
+export default function HeaderFooterLayout(props: Omit<React.HTMLAttributes<HTMLDivElement>, "style">) {
     const selfRef = useRef<HTMLDivElement | null>(null)
 
     const setBoundaries = (el: HTMLElement, targetIs: "header" | "footer") => {
@@ -88,7 +88,7 @@ export default function PanelWithHeader(props: Omit<React.HTMLAttributes<HTMLDiv
     )
 }
 
-PanelWithHeader.Header = function Header(props: Omit<React.HTMLAttributes<HTMLDivElement>, "style">) {
+HeaderFooterLayout.Header = function Header(props: Omit<React.HTMLAttributes<HTMLDivElement>, "style">) {
     return (
         <div data-slot="header" 
         style={{
@@ -98,7 +98,7 @@ PanelWithHeader.Header = function Header(props: Omit<React.HTMLAttributes<HTMLDi
     )
 }
 
-PanelWithHeader.Footer = function Footer(props: Omit<React.HTMLAttributes<HTMLDivElement>, "style">) {
+HeaderFooterLayout.Footer = function Footer(props: Omit<React.HTMLAttributes<HTMLDivElement>, "style">) {
     return (
         <div data-slot="footer" 
         style={{
@@ -109,7 +109,7 @@ PanelWithHeader.Footer = function Footer(props: Omit<React.HTMLAttributes<HTMLDi
     )
 }
 
-PanelWithHeader.Content = function Content(props: Omit<React.HTMLAttributes<HTMLDivElement>, "style">) {
+HeaderFooterLayout.Content = function Content(props: Omit<React.HTMLAttributes<HTMLDivElement>, "style">) {
     return (
         <div data-slot="content" 
         {...props}/>
