@@ -1,6 +1,6 @@
 import Button from "@/app/components/button/Button";
 import Panel from "@/app/components/panel/Panel";
-import PanelWithHeader from "@/app/components/panel/PanelWithHeader";
+import PanelWithHeader from "@/app/components/layout/HeaderFooterLayout";
 
 
 
