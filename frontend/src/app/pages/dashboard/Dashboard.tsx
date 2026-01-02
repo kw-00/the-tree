@@ -2,7 +2,6 @@ import styles from "./_Dashboard.module.css"
 
 import Button from "@/app/components/button/Button";
 import Panel from "@/app/components/panel/Panel";
-import HeaderFooterLayout from "@/app/components/layout/HeaderFooterLayout";
 import Input from "@/app/components/input/Input";
 import Label from "@/app/components/label/Label";
 import TextInput from "@/app/components/text-input/TextInput";
