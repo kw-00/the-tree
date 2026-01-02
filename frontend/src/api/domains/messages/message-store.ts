@@ -218,7 +218,7 @@ class MessageStore {
     }
 
     getSnapshot = () => {
-        return this.#dataSnapshot
+        return this.#dataSnapshot as ReadonlyMap<number, Readonly<Room>>
     }
 }
 
