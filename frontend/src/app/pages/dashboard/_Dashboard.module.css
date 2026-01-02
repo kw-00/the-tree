@@ -8,51 +8,9 @@
     width: 100svw;
 }
 
-.header {
-    display: flex;
-    flex-direction: row-reverse;
-    gap: 1rem;
-}
-
 .content {
     display: flex;
     flex-grow: 1;
     min-height: 0;
 }
 
-/* Friends Section */
-.friends-container {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    flex-basis: 15%;
-}
-
-/* Chatrooms Section */
-.chatrooms-container {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    flex-basis: 15%;
-}
-
-/* Messages Section*/
-.messages-container {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    flex-basis: 70%;
-}
-
-
-.message-input {
-    flex-shrink: 0;
-    max-height: 30svh;
-    padding: 1rem 10rem 1rem 1rem;
-}
-
-.send-button {
-    position: absolute;
-    bottom: 1.5rem;
-    right: 3rem;
-}

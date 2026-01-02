@@ -1,0 +1,19 @@
+
+
+.messages-container {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.message-input {
+    flex-shrink: 0;
+    max-height: 30svh;
+    padding: 1rem 10rem 1rem 1rem;
+}
+
+.send-button {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 3rem;
+}
