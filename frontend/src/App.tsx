@@ -1,7 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import Dashboard from "./app/pages/dashboard/Dashboard"
 import Play from "./app/pages/Play"
 

@@ -1,0 +1,5 @@
+
+.friendship-codes-container {
+    display: flex;
+    flex-direction: column;
+}

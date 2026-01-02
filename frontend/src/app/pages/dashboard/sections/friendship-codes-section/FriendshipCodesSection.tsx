@@ -1,4 +1,4 @@
-import styles from "./_ChatroomsSection.module.css"
+import styles from "./_FriendshipCodesSection.module.css"
 
 import Input from "@/app/components/input/Input";
 import Panel from "@/app/components/panel/Panel";
@@ -9,12 +9,12 @@ import Heading from "@/app/components/typography/Heading";
 
 
 
-export default function ChatroomsSection({className, ...rest}: React.HTMLAttributes<HTMLDivElement>) {
+export default function FriendshipCodesSection({className, ...rest}: React.HTMLAttributes<HTMLDivElement>) {
 
     const [chatrooms,] = useState(() => {
         const cs = []
-        while (cs.length < 30) {
-            cs.push(["BBQ", "Reading club", "Project DataHoard", "Hog Rider Gang"][Math.floor(Math.random() * 4)])
+        while (cs.length < 10) {
+            cs.push(`#${Math.floor(Math.random() * 1000000)}`)
         }
         return cs
     })
@@ -22,7 +22,7 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
     return (
         <Panel variant="2" className={`${styles["chatrooms-container"]} ${className ?? ""}`} {...rest}>
             <Panel variant="4" className="flex flex-col gap-1">
-                <Heading variant="3">Chatrooms</Heading>
+                <Heading variant="3">Friendship codes</Heading>
                 {/* Search Bar */}
                 <form onSubmit={e => e.preventDefault()}>
                     <Input className="flex-1"></Input>

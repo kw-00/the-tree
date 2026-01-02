@@ -2,8 +2,8 @@ import styles from "./_FriendsSection.module.css"
 
 import Input from "@/app/components/input/Input";
 import Panel from "@/app/components/panel/Panel";
-import Label from "@/app/components/label/Label";
 import { useState } from "react";
+import Heading from "@/app/components/typography/Heading";
 
 
 
@@ -19,14 +19,12 @@ export default function FriendsSection({className, ...rest}: React.HTMLAttribute
     })
 
     return (
-        <Panel variant="2" className={`${styles["friends-container"]} ${className ?? ""}`} {...rest}>
-            {/* Search Bar */}
-            <Panel variant="4">
+        <Panel variant="3" className={`${styles["friends-container"]} ${className ?? ""}`} {...rest}>
+            <Panel variant="4" className="flex flex-col gap-1">
+                <Heading variant="3">Friends</Heading>
+                {/* Search Bar */}
                 <form onSubmit={e => e.preventDefault()}>
-                    <Label className="flex flex-col justify-between gap-2">
-                        Search friends:
-                        <Input className="basis-2/3"></Input>
-                    </Label>
+                    <Input className="flex-1"></Input>
                 </form>
             </Panel>
             {/* Friends */}
