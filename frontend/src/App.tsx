@@ -16,7 +16,7 @@ export default function App() {
           <Route path="/play" element={<Play/>}/>
         </Routes>
       </BrowserRouter>
-      <ReactQueryDevtools initialIsOpen={true}/>
+      {/* <ReactQueryDevtools initialIsOpen={true}/> */}
     </QueryClientProvider>
   )
 }

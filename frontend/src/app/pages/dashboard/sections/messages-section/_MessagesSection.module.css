@@ -5,15 +5,19 @@
     flex-direction: column;
 }
 
+.input-panel {
+    display: flex;
+    gap: 0.2rem;
+}
 
 .message-input {
+    box-sizing: content-box;
     flex-shrink: 0;
-    max-height: 30svh;
-    padding: 1rem 10rem 1rem 1rem;
+    max-height: 50svh;
+    min-height: 1rem;
+    padding: 0.3rem 7rem 0.3rem 0.3rem;
 }
 
 .send-button {
-    position: absolute;
-    bottom: 1.5rem;
-    right: 3rem;
+    align-self: end;
 }

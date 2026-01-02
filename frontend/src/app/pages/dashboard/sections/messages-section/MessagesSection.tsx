@@ -1,8 +1,9 @@
+import styles from "./_MessagesSection.module.css"
+
 import Button from "@/app/components/button/Button"
 import Panel from "@/app/components/panel/Panel"
 import TextInput from "@/app/components/text-input/TextInput"
 import Heading from "@/app/components/typography/Heading"
-import styles from "./_MessagesSection.module.css"
 
 import { useState } from "react"
 
@@ -30,10 +31,10 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
             <Panel variant="3" className="overflow-y-auto">
                 {messages.map((m, n) => <Panel key={n} variant="5">{m}</Panel>)}
             </Panel>
-            <div>
-                <TextInput className={styles["message-input"]}></TextInput>
+            <Panel variant="5" className={styles["input-panel"]}>
+                <TextInput className={`${styles["message-input"]} flex-1`}></TextInput>
                 <Button variant="primary" className={styles["send-button"]}>Send</Button>
-            </div>
+            </Panel>
         </Panel>
     )
 
