@@ -23,47 +23,65 @@ export type ChatroomListener = (chatroomId: number) => void
 
 export type Store = {
     data: Map<number, Room>
-    errorListeners: Set<ErrorListener>
-    emitListeners: Set<() => void>
+
 }
 
 class MessageStore {
 
     #store: Store = {
         data: new Map(),
-        errorListeners: new Set(),
-        emitListeners: new Set()
     }
 
     #dataSnapshot = new Map(this.#store.data)
 
+    #errorListeners: Set<ErrorListener> =  new Set()
+    #chatroomEmitListeners: Map<number, Set<() => void>> =  new Map()
+    #globalEmitListeners: Set<() => void> = new Set()
+
     // Error Event
     addErrorListener(listener: ErrorListener) {
-        this.#store.errorListeners.add(listener)
+        this.#errorListeners.add(listener)
         return () => this.removeErrorListener(listener)
     }
 
     removeErrorListener (listener: ErrorListener) {
-        this.#store.errorListeners.delete(listener)
+        this.#errorListeners.delete(listener)
+    }
+
+    // Data Mutated Event
+    #addChatroomEmitListener(listener: () => void, chatroomId: number) {
+        this.#chatroomEmitListeners.get(chatroomId)?.add(listener)
+        return () => this.#removeChatroomEmitListener(listener, chatroomId)
+    }
+
+    #removeChatroomEmitListener(listener: () => void, chatroomId: number) {
+        this.#chatroomEmitListeners.get(chatroomId)?.delete(listener)
     }
 
     // Message Prepended Event
-    #addEmitListener(listener: () => void) {
-        this.#store.emitListeners.add(listener)
-        return () => this.#removeEmitListener(listener)
+    #addGlobalEmitListener(listener: () => void) {
+        this.#globalEmitListeners.add(listener)
+        return () => this.#removeGlobalEmitListener(listener)
     }
 
-    #removeEmitListener(listener: () => void) {
-        this.#store.emitListeners.delete(listener)
+    #removeGlobalEmitListener(listener: () => void) {
+        this.#globalEmitListeners.delete(listener)
     }
 
     #error(error: Error) {
-        this.#store.errorListeners.forEach(l => l(error))
+        this.#errorListeners.forEach(l => l(error))
     }
 
-    #emitChange() {
+    #emitChange(chatroomId: number) {
+        const entry = this.#store.data.get(chatroomId)
+        if (!entry) {
+            this.#errorListeners.forEach(l => l(new Error("Emitting change for non-existent chatroom.")))
+            return 
+        }
+        this.#store.data.set(chatroomId, Object.assign({}, entry))
         this.#dataSnapshot = new Map(this.#store.data)
-        this.#store.emitListeners.forEach(l => l())
+        this.#chatroomEmitListeners.get(chatroomId)?.forEach(l => l())
+        this.#globalEmitListeners.forEach(l => l())
     }
 
 
@@ -78,7 +96,9 @@ class MessageStore {
         // Adding chatrooms
     removeChatrooms(...chatroomIds: number[]) {
         chatroomIds.forEach(id => {
+            this.#emitChange(id)
             this.#store.data.delete(id)
+            this.#chatroomEmitListeners.delete(id)
         })
     }
 
@@ -90,8 +110,8 @@ class MessageStore {
             this.addChatrooms(chatroomId)
             entry = this.#store.data.get(chatroomId)!
         }
-        entry.messages.unshift(...messages)
-        this.#emitChange()
+        entry.messages = [...messages, ...entry.messages]
+        this.#emitChange(chatroomId)
     }
 
     // Appending messages
@@ -102,8 +122,8 @@ class MessageStore {
             this.addChatrooms(chatroomId)
             entry = this.#store.data.get(chatroomId)!
         }
-        entry.messages.push(...messages)
-        this.#emitChange()
+        entry.messages = [...entry.messages, ...messages]
+        this.#emitChange(chatroomId)
     }
 
     resize(chatroomId: number, newSize: number, keep: "new" | "old" = "new") {
@@ -119,7 +139,8 @@ class MessageStore {
         } else {
             entry.messages.splice(newSize)
         }
-        this.#emitChange()
+        entry.messages = [...entry.messages]
+        this.#emitChange(chatroomId)
     }
 
 
@@ -188,10 +209,14 @@ class MessageStore {
     }
 
     // May be passed as callbacks
-    subscribe = (listener: () => void) => {
-        return this.#addEmitListener(listener)
+    subscribeChatroom = (listener: () => void, chatroomId: number) => {
+        return this.#addChatroomEmitListener(listener, chatroomId)
     }
-    
+
+    subscribeGlobal = (listener: () => void) => {
+        return this.#addGlobalEmitListener(listener)
+    }
+
     getSnapshot = () => {
         return this.#dataSnapshot
     }
