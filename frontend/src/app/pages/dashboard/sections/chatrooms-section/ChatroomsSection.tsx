@@ -13,7 +13,7 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
 
     const [chatrooms,] = useState(() => {
         const cs = []
-        while (cs.length < 100) {
+        while (cs.length < 30) {
             cs.push(["BBQ", "Reading club", "Project DataHoard", "Hog Rider Gang"][Math.floor(Math.random() * 4)])
         }
         return cs

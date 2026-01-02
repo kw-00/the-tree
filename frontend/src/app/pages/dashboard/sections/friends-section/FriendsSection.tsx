@@ -12,7 +12,7 @@ import { useState } from "react";
 export default function FriendsSection({className, ...rest}: React.HTMLAttributes<HTMLDivElement>) {
     const [friends,] = useState(() => {
         const fs = []
-        while (fs.length < 100) {
+        while (fs.length < 50) {
             fs.push(["Frank", "Bob", "Martin", "Chris", "Matt", "Elliot"][Math.floor(Math.random() * 6)])
         }
         return fs
