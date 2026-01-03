@@ -1,0 +1,74 @@
+#root {
+    /* Surface */
+    --surface-base-bg: unset;
+    --surface-base-border: unset;
+    --surface-elevated-bg: unset;
+    --surface-elevated-border: unset;
+    --surface-elevated-shadow: unset;
+    --surface-sunken-bg: unset;
+    --surface-sunken-shadow: unset;
+
+    /* Text */
+    --text-normal-color: unset;
+    --text-normal-font: unset;
+    --text-emphasized-color: unset;
+    --text-emphasized-font: unset;
+    --text-muted-color: unset;
+    --text-muted-font: unset;
+
+    /* Headings */
+    --text-heading-color: unset;
+    --text-heading-1-font: unset;
+    --text-heading-2-font: unset;
+    --text-heading-3-font: unset;
+
+}
+
+/* Surface */
+.surface-base {
+    background: var(--surface-base-bg);
+    border: var(--surface-base-border);
+}
+
+.surface-elevated {
+    background: var(--surface-elevated-bg);
+    border: var(--surface-elevated-border);
+    box-shadow: var(--surface-elevated-shadow);
+}
+
+.surface-sunken {
+    background: var(--surface-sunken-bg);
+    border: var(--surface-sunken-border);
+    box-shadow: var(--surface-sunken-shadow);
+}
+
+/* Text */
+.text-normal {
+    color: var(--text-normal-color);
+    font: var(--text-normal-font);
+}
+
+.text-emphasized {
+    color: var(--text-emphasized-color);
+    font: var(--text-emphasized-font);
+}
+
+.text-muted {
+    color: var(--text-muted-color);
+    font: var(--text-muted-font);
+}
+
+.heading-1 {
+    color: var(--text-heading-color);
+    font: var(--text-heading-1-font);
+}
+
+.heading-2 {
+    color: var(--text-heading-color);
+    font: var(--text-heading-2-font);
+}
+
+.heading-3 {
+    color: var(--text-heading-color);
+    font: var(--text-heading-3-font);
+}
