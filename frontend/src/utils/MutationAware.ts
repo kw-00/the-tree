@@ -7,7 +7,6 @@ export class MutationAware<T> {
 
     constructor(initialValue: T) {
         count++
-        console.log("Count", count)
         this.#value = initialValue
     }
 
@@ -16,9 +15,7 @@ export class MutationAware<T> {
     }
 
     set(newValue: T) {
-        console.log("Set", newValue)
         this.#value = newValue
-        console.log(this.#listeners.size)
         this.#listeners.forEach(l => l(newValue))
     }
 
