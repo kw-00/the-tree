@@ -1,31 +1,43 @@
-import { useRef } from "react"
+import { MutationAware } from "@/utils/MutationAware"
+import { useEffect, useReducer } from "react"
 
 
-type DashboardState = {
-    layout: {
-        show: {
-            friendshipCodesSection: boolean
-            friendsSection: boolean
-            chatroomsSection: boolean
-            usersInChatroom: boolean
-        }
-    }
-}
+type DashboardState = Readonly<{
+    layout: Readonly<{
+        show: Readonly<{
+            friendshipCodesSection: MutationAware<boolean>
+            friendsSection: MutationAware<boolean>
+            chatroomsSection: MutationAware<boolean>
+            usersInChatroom: MutationAware<boolean>
+        }>
+    }>
+}>
 
 class DashboardStateStore {
-    state: DashboardState = {
+    readonly state: DashboardState = {
         layout: {
             show: {
-                friendshipCodesSection: false,
-                friendsSection: false,
-                chatroomsSection: false,
-                usersInChatroom: false
+                friendshipCodesSection: new MutationAware(false),
+                friendsSection: new MutationAware(false),
+                chatroomsSection: new MutationAware(false),
+                usersInChatroom: new MutationAware(false)
             }
         }
     }
 }
 
-export function useDashboardState() {
-    const storeRef = useRef(new DashboardStateStore)
-    return storeRef.current
+const globalState = new DashboardStateStore()
+
+export function useDashboardState(selector: (state: DashboardState) => MutationAware<any>[]) {
+    const [, forceUpdate] = useReducer(x => x + 1, 0)
+
+    const state = globalState.state
+    const unsubFns: (() => void)[] = []
+    useEffect(() => {
+        selector(state).forEach(el => {
+            unsubFns.push(el.subscribe(() => forceUpdate()))
+        })
+        return () => unsubFns.forEach(unsub => unsub())
+    }, [])
+    return globalState.state
 }

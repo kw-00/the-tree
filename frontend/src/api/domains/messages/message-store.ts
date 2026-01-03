@@ -222,9 +222,10 @@ class MessageStore {
     }
 }
 
+const globalStore = new MessageStore()
 
 export function useMessageStore() {
-    const storeRef = useRef(new MessageStore())
+    const storeRef = useRef(globalStore)
 
     return {
         data: storeRef.current.getSnapshot(),
