@@ -1,3 +1,29 @@
+/*
+Classes:
+
+.surface-base 
+.surface-elevated 
+.surface-sunken 
+
+.button-primary  
+.button-secondary 
+.button-danger 
+.button-ghost 
+.button-text 
+
+.link
+
+.input
+
+.text-normal 
+.text-emphasized 
+.text-muted 
+
+.heading-1
+.heading-2
+.heading-3
+
+*/
 #root {
     /* Surfaces */
     --surface-radius: unset;
@@ -195,16 +221,6 @@
 .button-ghost:active {
     filter: var(--button-ghost-active-filter);
     box-shadow: var(--button-ghost-active-shadow);
-}
-
-.button-text {
-    padding: var(--button-padding);
-}
-.button-text:hover {
-    filter: var(--button-text-hover-filter);
-}
-.button-text:active {
-    filter: var(--button-text-active-filter);
 }
 
 .button-text {
