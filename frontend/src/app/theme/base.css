@@ -1,30 +1,33 @@
 /*
 Classes:
+    .background
 
-.surface-base 
-.surface-elevated 
-.surface-sunken 
+    .surface-base 
+    .surface-elevated 
+    .surface-sunken 
 
-.button-primary  
-.button-secondary 
-.button-danger 
-.button-ghost 
-.button-text 
+    .button-primary  
+    .button-secondary 
+    .button-danger 
+    .button-ghost 
+    .button-text 
 
-.link
+    .link
 
-.input
+    .input
 
-.text-normal 
-.text-emphasized 
-.text-muted 
+    .text-normal 
+    .text-emphasized 
+    .text-muted 
 
-.heading-1
-.heading-2
-.heading-3
+    .heading-1
+    .heading-2
+    .heading-3
 
 */
 #root {
+    --bg: unset;
+
     /* Surfaces */
     --surface-radius: unset;
     --surface-padding: unset;
@@ -130,8 +133,9 @@ Classes:
     --text-heading-3-font: unset;
 }
 
-
-
+#root {
+    background: var(--bg);
+}
 
 /* Surfaces */
 .surface-base {
