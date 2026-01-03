@@ -11,8 +11,8 @@
     /* Buttons */
     --button-primary-bg: rgb(52, 145, 106);
     --button-secondary-bg: rgb(71, 74, 104);
-    --button-warning-bg: rgb(117, 0, 0);
-    --button-danger-bg: rgb(141, 127, 0);
+    --button-warning-bg: rgb(141, 127, 0);
+    --button-danger-bg: rgb(117, 0, 0);
     --hover-brightness: 115%;
     --active-brightness: 130%;
 
@@ -42,8 +42,8 @@
     /* Buttons */
     --button-primary-bg: rgb(209, 97, 166);
     --button-secondary-bg: rgb(156, 155, 248);
-    --button-warning-bg: rgb(224, 0, 0);
-    --button-danger-bg: rgb(255, 238, 0);
+    --button-warning-bg: rgb(255, 238, 0);
+    --button-danger-bg: rgb(224, 0, 0);
     --hover-brightness: 90%;
     --active-brightness: 80%;
 

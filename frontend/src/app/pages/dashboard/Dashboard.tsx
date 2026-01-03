@@ -16,7 +16,10 @@ export default function Dashboard() {
     const state = useDashboardState((state) => {
         const show = state.layout.show
         return [
-            show.friendshipCodesSection
+            show.friendshipCodesSection,
+            show.friendsSection,
+            show.chatroomsSection,
+            show.usersInChatroom
         ]
     })
 

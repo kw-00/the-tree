@@ -5,7 +5,7 @@ import { Link, type LinkProps } from "react-router-dom"
 
 
 export type ButtonProps = {
-    variant: "primary" | "secondary" | "ghost" | "danger" | "warning"
+    variant: "primary" | "secondary" | "ghost" | "boundless" | "danger" | "warning"
 }
 
 export default function LinkButton({variant, className, ...rest}: ButtonProps & LinkProps) {
