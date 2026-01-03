@@ -25,8 +25,10 @@ Classes:
     .heading-3
 
 */
+
 #root {
     --bg: unset;
+    --font-family: unset;
 
     /* Surfaces */
     --surface-radius: unset;
@@ -38,7 +40,9 @@ Classes:
     --surface-elevated-bg: unset;
     --surface-elevated-border: unset;
     --surface-elevated-shadow: unset;
+
     --surface-sunken-bg: unset;
+    --surface-sunken-border: unset;
     --surface-sunken-shadow: unset;
 
     /* Buttons */
@@ -102,12 +106,12 @@ Classes:
     --input-border: unset;
     --input-shadow: unset;
     
-    --input-hover-bg: unset;
-    --input-hover-border: unset;
+    --input-hover-outline: unset;
+    --input-hover-filter: unset;
     --input-hover-shadow: unset;
 
-    --input-focus-visible-bg: unset;
-    --input-focus-visible-border: unset;
+    --input-focus-visible-outline: unset;
+    --input-focus-visible-filter: unset;
     --input-focus-visible-shadow: unset;
 
     --input-invalid-bg: unset;
@@ -120,11 +124,8 @@ Classes:
 
     /* Text */
     --text-normal-color: unset;
-    --text-normal-font: unset;
     --text-emphasized-color: unset;
-    --text-emphasized-font: unset;
     --text-muted-color: unset;
-    --text-muted-font: unset;
 
     /* Headings */
     --text-heading-color: unset;
@@ -133,23 +134,39 @@ Classes:
     --text-heading-3-font: unset;
 }
 
-#root {
-    background: var(--bg);
+/* Font defaults */
+* {
+    font-family: var(--font-family);
+    color: var(--text-normal-color);
+    box-sizing: border-box;
+}
+
+html, body, #root {
+    background-color: var(--bg);
+    height: 100svh;
+    width: 100svw;
+    overflow: hidden;
 }
 
 /* Surfaces */
 .surface-base {
+    border-radius: var(--surface-radius);
+    padding: var(--surface-padding);
     background: var(--surface-base-bg);
     border: var(--surface-base-border);
 }
 
 .surface-elevated {
+    border-radius: var(--surface-radius);
+    padding: var(--surface-padding);
     background: var(--surface-elevated-bg);
     border: var(--surface-elevated-border);
     box-shadow: var(--surface-elevated-shadow);
 }
 
 .surface-sunken {
+    border-radius: var(--surface-radius);
+    padding: var(--surface-padding);
     background: var(--surface-sunken-bg);
     border: var(--surface-sunken-border);
     box-shadow: var(--surface-sunken-shadow);
@@ -275,13 +292,13 @@ Classes:
     box-shadow: var(--input-shadow);
 }
 .input:hover {
-    background: var(--input-hover-bg);
-    border: var(--input-hover-border);
+    outline: var(--input-hover-outline);
+    filter: var(--input-hover-filter);
     box-shadow: var(--input-hover-shadow);
 }
 .input:focus-visible {
-    background: var(--input-focus-visible-bg);
-    border: var(--input-focus-visible-border);
+    outline: var(--input-focus-visible-outline);
+    filter: var(--input-focus-visible-filter);
     box-shadow: var(--input-focus-visible-shadow);
 }
 .input:invalid {
@@ -327,3 +344,5 @@ Classes:
     color: var(--text-heading-color);
     font: var(--text-heading-3-font);
 }
+
+@import "tailwindcss";

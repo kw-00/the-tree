@@ -1,8 +1,10 @@
+import "@/app/theme/base.css"
+import "@/app/theme/dark-mode.css"
+
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
 import Dashboard from "./app/pages/dashboard/Dashboard"
-import Play from "./app/pages/Play"
 
 export default function App() {
   const [queryClient] = useState(() => new QueryClient())
@@ -12,7 +14,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/play"/>} />
           <Route path="/dashboard" element={<Dashboard/>} />
-          <Route path="/play" element={<Play/>}/>
         </Routes>
       </BrowserRouter>
       {/* <ReactQueryDevtools initialIsOpen={true}/> */}

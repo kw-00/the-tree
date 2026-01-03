@@ -1,9 +1,5 @@
 import styles from "./_MessagesSection.module.css"
-
-import Button from "@/app/components/button/Button"
-import Panel from "@/app/components/panel/Panel"
 import TextInput from "@/app/components/text-input/TextInput"
-import Heading from "@/app/components/typography/Heading"
 
 import { useState } from "react"
 
@@ -22,20 +18,20 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
     })
 
     return (
-        <Panel variant="3" className={`${styles["messages-container"]} ${className ?? ""}`} {...rest}>
+        <div className={`${styles["messages-container"]} ${className ?? ""}`} {...rest}>
             {/* Header */}
-            <Panel variant="4">
-                <Heading variant="2">Hog Rider Gang</Heading>
-            </Panel>
+            <div className="surface-elevated">
+                <span className="heading-2">Hog Rider Gang</span>
+            </div>
             {/* Messages */}
-            <Panel variant="3" className="overflow-y-auto">
-                {messages.map((m, n) => <Panel key={n} variant="5">{m}</Panel>)}
-            </Panel>
-            <Panel variant="5" className={styles["input-panel"]}>
+            <div className="overflow-y-auto surface-sunken">
+                {messages.map((m, n) => <div key={n} className="surface-elevated">{m}</div>)}
+            </div>
+            <div className={styles["input-div"]}>
                 <TextInput className={`${styles["message-input"]} flex-1`}></TextInput>
-                <Button variant="primary" className={styles["send-button"]}>Send</Button>
-            </Panel>
-        </Panel>
+                <button className={`button-primary ${styles["send-button"]}`}>Send</button>
+            </div>
+        </div>
     )
 
 }

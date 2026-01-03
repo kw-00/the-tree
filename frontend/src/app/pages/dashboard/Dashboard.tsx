@@ -1,6 +1,5 @@
 import styles from "./_Dashboard.module.css"
 
-import Panel from "@/app/components/panel/Panel";
 import FriendsSection from "./sections/friends-section/FriendsSection";
 import ChatroomsSection from "./sections/chatrooms-section/ChatroomsSection";
 import MessagesSection from "./sections/messages-section/MessagesSection";
@@ -31,12 +30,12 @@ export default function Dashboard() {
             {/* Header */}
             <Header/>
             {/* Content */}
-            <Panel variant="1" className={styles["content"]}>
-                {show.friendshipCodesSection.get() ? <FriendshipCodesSection className="basis-20"/> : <></>}
-                {show.friendsSection.get() ? <FriendsSection className="basis-20"/> : <></>}
-                {show.chatroomsSection.get() ? <ChatroomsSection className="basis-20"/> : <></>}
-                <MessagesSection className="flex-1 basis-4/6"/>
-            </Panel>
+            <div className={styles["content"]}>
+                {show.friendshipCodesSection.get() ? <FriendshipCodesSection className="m-1 basis-20"/> : <></>}
+                {show.friendsSection.get() ? <FriendsSection className="m-1 basis-20"/> : <></>}
+                {show.chatroomsSection.get() ? <ChatroomsSection className="m-1 basis-20"/> : <></>}
+                <MessagesSection className="surface-base flex-1 basis-4/6"/>
+            </div>
         </div>
     )
 }

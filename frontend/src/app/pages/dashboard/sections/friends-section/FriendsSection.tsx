@@ -1,12 +1,6 @@
 import styles from "./_FriendsSection.module.css"
 
-import Input from "@/app/components/input/Input";
-import Panel from "@/app/components/panel/Panel";
 import { useState } from "react";
-import Heading from "@/app/components/typography/Heading";
-
-
-
 
 
 export default function FriendsSection({className, ...rest}: React.HTMLAttributes<HTMLDivElement>) {
@@ -19,19 +13,19 @@ export default function FriendsSection({className, ...rest}: React.HTMLAttribute
     })
 
     return (
-        <Panel variant="3" className={`${styles["friends-container"]} ${className ?? ""}`} {...rest}>
-            <Panel variant="4" className="flex flex-col gap-1">
-                <Heading variant="3">Friends</Heading>
+        <div className={`${styles["friends-container"]} ${className ?? ""}`} {...rest}>
+            <div className="surface-elevated flex flex-col gap-1">
+                <span className="heading-3">Friends</span>
                 {/* Search Bar */}
                 <form onSubmit={e => e.preventDefault()}>
-                    <Input className="flex-1"></Input>
+                    <input className="input"></input>
                 </form>
-            </Panel>
+            </div>
             {/* Friends */}
-            <Panel variant="3" className="overflow-y-auto">
-                {friends.map((f, n) => <Panel key={n} variant="5">{f}</Panel>)}
-            </Panel>
-        </Panel>
+            <div className="overflow-y-auto surface-sunken">
+                {friends.map((f, n) => <div key={n} className="surface-elevated">{f}</div>)}
+            </div>
+        </div>
     )
 
 }

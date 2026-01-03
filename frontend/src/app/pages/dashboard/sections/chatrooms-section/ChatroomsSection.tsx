@@ -1,10 +1,6 @@
 import styles from "./_ChatroomsSection.module.css"
 
-import Input from "@/app/components/input/Input";
-import Panel from "@/app/components/panel/Panel";
 import { useState } from "react";
-import Heading from "@/app/components/typography/Heading";
-
 
 
 
@@ -20,18 +16,18 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
     })
 
     return (
-        <Panel variant="2" className={`${styles["chatrooms-container"]} ${className ?? ""}`} {...rest}>
-            <Panel variant="4" className="flex flex-col gap-1">
-                <Heading variant="3">Chatrooms</Heading>
+        <div className={`${styles["chatrooms-container"]} ${className ?? ""}`} {...rest}>
+            <div className="surface-elevated flex flex-col gap-1">
+                <span className="heading-3">Chatrooms</span>
                 {/* Search Bar */}
                 <form onSubmit={e => e.preventDefault()}>
-                    <Input className="flex-1"></Input>
+                    <input className="input flex-1"></input>
                 </form>
-            </Panel>
+            </div>
             {/* Chatrooms */}
-            <Panel variant="3" className="overflow-y-auto">
-                {chatrooms.map((c, n) => <Panel key={n} variant="5">{c}</Panel>)}
-            </Panel>
-        </Panel>
+            <div className="overflow-y-auto surface-sunken">
+                {chatrooms.map((c, n) => <div key={n} className="surface-elevated">{c}</div>)}
+            </div>
+        </div>
     )
 }
