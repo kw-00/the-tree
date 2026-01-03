@@ -41,7 +41,7 @@ export default function Header() {
                 <Button variant="secondary" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="w-40">
                     {`${theme[0].toUpperCase()}${theme.substring(1)} mode`}
                 </Button>
-                <Button variant="warning" className="w-30">Log out</Button>
+                <Button variant="danger" className="w-30">Log out</Button>
             </div>
         </Panel>
     )
