@@ -1,0 +1,80 @@
+
+/* Components */
+#root {
+    --surface-radius: 0;
+    --surface-padding: 0.5rem;
+
+    --button-radius: 0.2rem;
+    --button-ghost-redius: 9999px;
+    --button-padding: 0.5rem 1rem;
+
+    --input-radius: 0.2rem;
+    --input-padding: 0.1rem 0.3rem 0.1rem 0.3rem;
+}
+
+.background {
+    background-color: rgb(16, 30, 36);
+}
+
+.surface-base {
+    background-color: rgb(17, 32, 51);
+    border: 0.1rem solid rgba(255, 255, 255, 0.1);
+}
+
+.surface-elevated {
+    background-color: rgb(0, 61, 110);
+    border: 0.1rem solid rgba(255, 255, 255, 0.2);;
+    box-shadow: 
+        0 0 0.1rem 0.1rem rgb(0, 0, 0),
+        inset 0 0 0 0.3rem rgba(255, 255, 255, 0.04);
+}
+
+.surface-sunken {
+    background-color: rgb(0, 87, 114);
+    border: 0.1rem solid rgba(255, 255, 255, 0.05);;
+    box-shadow: inset 0 0 0.2rem 0.05rem rgb(0, 0, 0);
+}
+
+.button-primary {
+    background: linear-gradient(to top right, rgb(25, 105, 72), rgb(56, 146, 108));
+    box-shadow: 
+        inset 0 0 0 0.2rem rgba(255, 255, 255, 0.2),
+        0 0 0.2rem 0.05rem rgba(0, 0, 0, 1);
+}
+.button-primary:hover {
+    filter: brightness(110%);
+}
+.button-primary:active {
+    filter: brightness(115%);
+}
+
+.input {
+    background-color: rgb(23, 49, 25);
+    border: 0.2rem solid rgba(255, 255, 255, 0.425);
+}
+
+.input:focus-visible {
+    box-shadow: 0 0 2rem 0.1rem rgba(255, 255, 255, 0.24);
+}
+
+/* Text */
+#root {
+    color: rgb(200, 200, 200);
+
+    --heading-color: hsl(135, 100%, 92%);
+}
+
+.heading-1 {
+    color: var(--heading-color);
+    font-size: 1.4rem;
+}
+
+.heading-2 {
+    color: var(--heading-color);
+    font-size: 1.2rem;
+}
+
+.heading-3 {
+    color: var(--heading-color);
+    font-size: 1.2rem;
+}

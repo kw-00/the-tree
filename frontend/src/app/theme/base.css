@@ -1,4 +1,21 @@
 /*
+#root {
+    // Surfaces
+    --surface-radius: unset;
+    --surface-padding: unset;
+
+    // Buttons
+    --button-radius: unset;
+    --button-ghost-radius: unset;
+    --button-padding: unset;
+
+    // Inputs
+    --input-radius: unset;
+    --input-padding: unset;
+}
+*/
+
+/*
 Classes:
     .background
 
@@ -16,333 +33,69 @@ Classes:
 
     .input
 
-    .text-normal 
     .text-emphasized 
     .text-muted 
 
     .heading-1
     .heading-2
     .heading-3
-
 */
 
-#root {
-    --bg: unset;
-    --font-family: unset;
-
-    /* Surfaces */
-    --surface-radius: unset;
-    --surface-padding: unset;
-
-    --surface-base-bg: unset;
-    --surface-base-border: unset;
-
-    --surface-elevated-bg: unset;
-    --surface-elevated-border: unset;
-    --surface-elevated-shadow: unset;
-
-    --surface-sunken-bg: unset;
-    --surface-sunken-border: unset;
-    --surface-sunken-shadow: unset;
-
-    /* Buttons */
-    --button-radius: unset;
-    --button-padding: unset;
-
-    --button-primary-bg: unset;
-    --button-primary-border: unset;
-    --button-primary-shadow: unset;
-    --button-primary-hover-filter: unset;
-    --button-primary-hover-shadow: unset;
-    --button-primary-active-filter: unset;
-    --button-primary-active-shadow: unset;
-
-    --button-secondary-bg: unset;
-    --button-secondary-border: unset;
-    --button-secondary-shadow: unset;
-    --button-secondary-hover-filter: unset;
-    --button-secondary-hover-shadow: unset;
-    --button-secondary-active-filter: unset;
-    --button-secondary-active-shadow: unset;
-
-    --button-danger-bg: unset;
-    --button-danger-border: unset;
-    --button-danger-shadow: unset;
-    --button-danger-hover-filter: unset;
-    --button-danger-hover-shadow: unset;
-    --button-danger-active-filter: unset;
-    --button-danger-active-shadow: unset;
-
-    --button-disabled-filter: unset;
-    --button-disabled-shadow: unset;
-
-    /* Buttons: ghost buttons */
-    --button-ghost-disabled-filter: unset;
-
-    --button-ghost-radius: unset;
-    --button-ghost-hover-bg: unset;
-    --button-ghost-hover-shadow: unset;
-    --button-ghost-active-filter: unset;
-    --button-ghost-active-shadow: unset;;
-
-    --button-text-hover-filter: unset;
-    --button-text-active-filter: unset;
-
-    /* Links */
-    --link-color: unset;
-    --link-decoration: unset;
-    --link-hover-color: unset;
-    --link-hover-decoration: unset;
-    --link-active-color: unset;
-    --link-active-decoration: unset;
-    --link-visited-color: unset;
-    --link-visited-decoration: unset;
-
-    /* Inputs */
-    --input-radius: unset;
-    --input-padding: unset;
-
-    --input-bg: unset;
-    --input-border: unset;
-    --input-shadow: unset;
-    
-    --input-hover-outline: unset;
-    --input-hover-filter: unset;
-    --input-hover-shadow: unset;
-
-    --input-focus-visible-outline: unset;
-    --input-focus-visible-filter: unset;
-    --input-focus-visible-shadow: unset;
-
-    --input-invalid-bg: unset;
-    --input-invalid-border: unset;
-    --input-invalid-shadow: unset;
-
-    --input-disabled-bg: unset;
-    --input-disabled-border: unset;
-    --input-disabled-shadow: unset;
-
-    /* Text */
-    --text-normal-color: unset;
-    --text-emphasized-color: unset;
-    --text-muted-color: unset;
-
-    /* Headings */
-    --text-heading-color: unset;
-    --text-heading-1-font: unset;
-    --text-heading-2-font: unset;
-    --text-heading-3-font: unset;
-}
-
 /* Font defaults */
-* {
-    font-family: var(--font-family);
-    color: var(--text-normal-color);
-    box-sizing: border-box;
-}
-
 html, body, #root {
-    background-color: var(--bg);
     height: 100svh;
     width: 100svw;
     overflow: hidden;
 }
 
+/* Base styling for classes */
 /* Surfaces */
 .surface-base {
     border-radius: var(--surface-radius);
     padding: var(--surface-padding);
-    background: var(--surface-base-bg);
-    border: var(--surface-base-border);
 }
 
 .surface-elevated {
     border-radius: var(--surface-radius);
     padding: var(--surface-padding);
-    background: var(--surface-elevated-bg);
-    border: var(--surface-elevated-border);
-    box-shadow: var(--surface-elevated-shadow);
 }
 
 .surface-sunken {
     border-radius: var(--surface-radius);
     padding: var(--surface-padding);
-    background: var(--surface-sunken-bg);
-    border: var(--surface-sunken-border);
-    box-shadow: var(--surface-sunken-shadow);
 }
-
-
-
 
 /* Buttons */
 .button-primary {
     border-radius: var(--button-radius);
     padding: var(--button-padding);
+}
 
-    background: var(--button-primary-bg);
-    border: var(--button-primary-border);
-}
-.button-primary:hover {
-    filter: var(--button-primary-hover-filter);
-    box-shadow: var(--button-primary-hover-shadow);
-}
-.button-primary:active {
-    filter: var(--button-primary-active-filter);
-    box-shadow: var(--button-primary-active-shadow);
-}
 
 .button-secondary {
     border-radius: var(--button-radius);
     padding: var(--button-padding);
+}
 
-    background: var(--button-secondary-bg);
-    border: var(--button-secondary-border);
-}
-.button-secondary:hover {
-    filter: var(--button-secondary-hover-filter);
-    box-shadow: var(--button-secondary-hover-shadow);
-}
-.button-secondary:active {
-    filter: var(--button-secondary-active-filter);
-    box-shadow: var(--button-secondary-active-shadow);
-}
 
 .button-danger {
     border-radius: var(--button-radius);
     padding: var(--button-padding);
-
-    background: var(--button-danger-bg);
-    border: var(--button-danger-border);
 }
-.button-danger:hover {
-    filter: var(--button-danger-hover-filter);
-    box-shadow: var(--button-danger-hover-shadow);
-}
-.button-danger:active {
-    filter: var(--button-danger-active-filter);
-    box-shadow: var(--button-danger-active-shadow);
-}
-
-.button-primary:disabled, .button-secondary:disabled, .button-danger:disabled {
-    filter: var(--button-disabled-filter);
-    box-shadow: var(--button-disabled-shadow);
-}
-
 
 /* Buttons: ghost buttons */
 .button-ghost {
     border-radius: var(--button-ghost-radius);
     padding: var(--button-padding);
 }
-.button-ghost:hover {
-    background: var(--button-ghost-hover-bg);
-    box-shadow: var(--button-ghost-hover-shadow);
-}
-.button-ghost:active {
-    filter: var(--button-ghost-active-filter);
-    box-shadow: var(--button-ghost-active-shadow);
-}
 
 .button-text {
     padding: var(--button-padding);
 }
-.button-text:hover {
-    filter: var(--button-text-hover-filter);
-}
-.button-text:active {
-    filter: var(--button-text-active-filter);
-}
-
-.button-ghost:disabled, .button-text:disabled {
-    filter: var(--button-ghost-disabled-filter);
-}
-
-
-
-
-/* Links */
-.link {
-    color: var(--link-color);
-    text-decoration: var(--link-decoration);
-}
-.link:hover {
-    color: var(--link-hover-color);
-    text-decoration: var(--link-hover-decoration);
-}
-.link:active {
-    color: var(--link-active-color);
-    text-decoration: var(--link-active-decoration);
-}
-.link:visited {
-    color: var(--link-visited-color);
-    text-decoration: var(--link-visited-decoration);
-}
-
-
 
 
 /* Input */
 .input {
     border-radius: var(--input-radius);
     padding: var(--input-padding);
-
-    background: var(--input-bg);
-    border: var(--input-border);
-    box-shadow: var(--input-shadow);
 }
-.input:hover {
-    outline: var(--input-hover-outline);
-    filter: var(--input-hover-filter);
-    box-shadow: var(--input-hover-shadow);
-}
-.input:focus-visible {
-    outline: var(--input-focus-visible-outline);
-    filter: var(--input-focus-visible-filter);
-    box-shadow: var(--input-focus-visible-shadow);
-}
-.input:invalid {
-    background: var(--input-invalid-bg);
-    border: var(--input-invalid-border);
-    box-shadow: var(--input-invalid-shadow);
-}
-.input:disabled {
-    background: var(--input-disabled-bg);
-    border: var(--input-disabled-border);
-    box-shadow: var(--input-disabled-shadow);
-}
-
-
-/* Text */
-.text-normal {
-    color: var(--text-normal-color);
-    font: var(--text-normal-font);
-}
-
-.text-emphasized {
-    color: var(--text-emphasized-color);
-    font: var(--text-emphasized-font);
-}
-
-.text-muted {
-    color: var(--text-muted-color);
-    font: var(--text-muted-font);
-}
-
-/* Headings */
-.heading-1 {
-    color: var(--text-heading-color);
-    font: var(--text-heading-1-font);
-}
-
-.heading-2 {
-    color: var(--text-heading-color);
-    font: var(--text-heading-2-font);
-}
-
-.heading-3 {
-    color: var(--text-heading-color);
-    font: var(--text-heading-3-font);
-}
-
-@import "tailwindcss";

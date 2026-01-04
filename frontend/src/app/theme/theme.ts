@@ -1,15 +1,12 @@
 import { useEffect, useReducer } from "react"
 
+const baseStyleElement = document.createElement("link")
+baseStyleElement.setAttribute("href", new URL("./base.css", import.meta.url).href)
+baseStyleElement.setAttribute("rel", "stylesheet")
+document.head.appendChild(baseStyleElement)
+
 const themes = ["dark", "light"] as const
 export type Theme = typeof themes[number]
-
-const root = document.getElementById("root")
-if (!root) throw new Error("Root does not exist.")
-const initialDataTheme = root.getAttribute("data-theme")
-if (!initialDataTheme || !themes.includes(initialDataTheme as Theme)) {
-    throw new Error("Root's data-theme attribute does is not a valid theme.")
-}
-
 
 const themeChangedSubscribers = new Set<() => void>() 
 const subscribe = (l: () => void) => {
@@ -17,19 +14,14 @@ const subscribe = (l: () => void) => {
     return () => {themeChangedSubscribers.delete(l)}
 }
 
+let currentTheme: Theme = "dark"
 const setTheme = (theme: Theme) => {
-    root.setAttribute("data-theme", theme)
-    currentThemeHookReturn = {
-        theme: theme,
-        setTheme: setTheme
-    }
+    replaceThemeLink(theme)
+    currentTheme = theme
     themeChangedSubscribers.forEach(l => l())
 }
 
-let currentThemeHookReturn = {
-    theme: initialDataTheme as Theme,
-    setTheme: setTheme
-}
+setTheme(currentTheme)
 
 
 export const useTheme = () => {
@@ -38,5 +30,21 @@ export const useTheme = () => {
         const unsubscribe = subscribe(forceUpdate)
         return unsubscribe
     }, [])
-    return currentThemeHookReturn
+    return {
+        theme: currentTheme,
+        setTheme
+    }
+}
+
+
+function replaceThemeLink(theme: Theme) {
+    document.getElementById("theme-link")?.remove()
+
+    const href = new URL(`./themes/${theme}.css`, import.meta.url).href
+    const themeLink = document.createElement("link")
+    themeLink.setAttribute("id", "theme-link")
+    themeLink.setAttribute("href", href)
+    themeLink.setAttribute("rel", "stylesheet")
+    console.log("Done")
+    document.head.appendChild(themeLink)
 }
