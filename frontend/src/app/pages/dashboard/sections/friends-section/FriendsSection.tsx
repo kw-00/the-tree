@@ -17,8 +17,8 @@ export default function FriendsSection({className, ...rest}: React.HTMLAttribute
             <div className="surface-elevated flex flex-col gap-1">
                 <span className="heading-3">Friends</span>
                 {/* Search Bar */}
-                <form onSubmit={e => e.preventDefault()}>
-                    <input className="input"></input>
+                <form onSubmit={e => e.preventDefault()} className="flex">
+                    <input className="input flex-1"></input>
                 </form>
             </div>
             {/* Friends */}

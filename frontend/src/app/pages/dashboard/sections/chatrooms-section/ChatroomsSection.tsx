@@ -20,7 +20,7 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
             <div className="surface-elevated flex flex-col gap-1">
                 <span className="heading-3">Chatrooms</span>
                 {/* Search Bar */}
-                <form onSubmit={e => e.preventDefault()}>
+                <form onSubmit={e => e.preventDefault()} className="flex">
                     <input className="input flex-1"></input>
                 </form>
             </div>

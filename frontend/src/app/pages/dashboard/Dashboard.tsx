@@ -31,10 +31,14 @@ export default function Dashboard() {
             <Header/>
             {/* Content */}
             <div className={styles["content"]}>
-                {show.friendshipCodesSection.get() ? <FriendshipCodesSection className="m-1 basis-20"/> : <></>}
-                {show.friendsSection.get() ? <FriendsSection className="m-1 basis-20"/> : <></>}
-                {show.chatroomsSection.get() ? <ChatroomsSection className="m-1 basis-20"/> : <></>}
-                <MessagesSection className="surface-base flex-1 basis-4/6"/>
+                <div className="flex flex-1 justify-end">
+                    {show.friendshipCodesSection.get() ? <FriendshipCodesSection className="flex-1"/> : <></>}
+                    {show.friendsSection.get() ? <FriendsSection className="flex-1"/> : <></>}
+                    {show.chatroomsSection.get() ? <ChatroomsSection className="flex-1"/> : <></>}
+                </div>
+                <div className="flex justify-start basis-3/4">
+                    <MessagesSection className="surface-base flex-1"/>
+                </div>
             </div>
         </div>
     )
