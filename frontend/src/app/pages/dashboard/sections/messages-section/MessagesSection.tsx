@@ -24,7 +24,7 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
                 <span className="heading-2">Hog Rider Gang</span>
             </div>
             {/* Messages */}
-            <div className="overflow-y-auto surface-sunken">
+            <div className="overflow-y-auto surface-sunken flex flex-col">
                 {messages.map((m, n) => <div key={n} className="surface-elevated">{m}</div>)}
             </div>
             <div className={`${styles["input-div"]} surface-sunken`}>
