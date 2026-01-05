@@ -1,23 +1,21 @@
 /*
-#root {
+Variables you should override:
     // Surfaces
-    --surface-radius: unset;
-    --surface-padding: unset;
+    --surface-radius — default border-radius for surfaces.
+    --surface-padding — default padding for surfaces.
 
     // Buttons
-    --button-radius: unset;
-    --button-ghost-radius: unset;
-    --button-padding: unset;
+    --button-radius — default border-radius for buttons.
+    --button-ghost-radius — default border-radius for ghosts.
+    --button-padding — default padding for buttons.
 
     // Inputs
-    --input-radius: unset;
-    --input-padding: unset;
+    --input-radius — default border-radius for inputs.
+    --input-padding — default padding for inputs.
 }
-*/
 
-/*
 Classes:
-    .background
+    .background — applied to html, body and root.
 
     .surface-base 
     .surface-elevated 

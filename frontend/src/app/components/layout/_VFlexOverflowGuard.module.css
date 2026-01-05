@@ -1,0 +1,16 @@
+
+
+
+
+.h-outer-layer {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+}
+
+.h-inner-layer {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+}
