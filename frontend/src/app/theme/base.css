@@ -1,5 +1,5 @@
 /*
-Variables you should override:
+Variables you should define:
     // Surfaces
     --surface-radius — default border-radius for surfaces.
     --surface-padding — default padding for surfaces.
@@ -14,7 +14,7 @@ Variables you should override:
     --input-padding — default padding for inputs.
 }
 
-Classes:
+Classes you should define when theming:
     .background — applied to html, body and root.
 
     .surface-base 
