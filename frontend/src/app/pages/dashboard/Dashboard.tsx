@@ -1,3 +1,4 @@
+
 import FriendsSection from "./sections/friends-section/FriendsSection";
 import ChatroomsSection from "./sections/chatrooms-section/ChatroomsSection";
 import MessagesSection from "./sections/messages-section/MessagesSection";
@@ -27,13 +28,13 @@ export default function Dashboard() {
             {/* Header */}
             <Header/>
             {/* Content */}
-            <div className="flex flex-1 justify-between min-h-0">
-                <div className="flex flex-1 justify-end min-h-0">
+            <div className="h-stack v-extrinsic flex-1 justify-between">
+                <div className="h-stack v-extrinsic flex-1 justify-end">
                     {show.friendshipCodesSection.get() && <FriendshipCodesSection className="flex-1"/>}
                     {show.friendsSection.get() && <FriendsSection className="flex-1"/>}
                     {show.chatroomsSection.get() && <ChatroomsSection className="flex-1"/>}
                 </div>
-                <div className="flex justify-start basis-3/4 flex-col min-h-0">
+                <div className="v-stack v-extrinsic justify-start basis-3/4">
                     <MessagesSection className="surface-base flex-1"/>
                 </div>
             </div>

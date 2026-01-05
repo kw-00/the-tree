@@ -1,4 +1,3 @@
-import styles from "./_FriendshipCodesSection.module.css"
 
 import { useState } from "react";
 
@@ -17,7 +16,7 @@ export default function FriendshipCodesSection({className, ...rest}: React.HTMLA
     })
 
     return (
-        <div className={`${styles["chatrooms-container"]} ${className ?? ""}`} {...rest}>
+        <div className={`v-stack v-extrinsic ${className ?? ""}`} {...rest}>
             <div className="surface-elevated flex flex-col gap-1">
                 <span className="heading-3">Friendship codes</span>
                 {/* Search Bar */}
@@ -26,7 +25,7 @@ export default function FriendshipCodesSection({className, ...rest}: React.HTMLA
                 </form>
             </div>
             {/* Friendship Codes */}
-            <div className="overflow-y-auto surface-sunken min-h-0">
+            <div className="v-stack v-extrinsic overflow-y-auto surface-sunken">
                 {chatrooms.map((fc, n) => <div key={n} className="surface-elevated">{fc}</div>)}
             </div>
         </div>

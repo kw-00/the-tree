@@ -1,4 +1,4 @@
-import styles from "./_FriendsSection.module.css"
+
 
 import { useState } from "react";
 
@@ -13,8 +13,8 @@ export default function FriendsSection({className, ...rest}: React.HTMLAttribute
     })
 
     return (
-        <div className={`${styles["friends-container"]} ${className ?? ""}`} {...rest}>
-            <div className="surface-elevated flex flex-col gap-1">
+        <div className={`v-stack ${className ?? ""}`} {...rest}>
+            <div className="v-stack surface-elevated gap-1">
                 <span className="heading-3">Friends</span>
                 {/* Search Bar */}
                 <form onSubmit={e => e.preventDefault()} className="flex">
@@ -22,7 +22,7 @@ export default function FriendsSection({className, ...rest}: React.HTMLAttribute
                 </form>
             </div>
             {/* Friends */}
-            <div className="overflow-y-auto surface-sunken">
+            <div className="v-stack v-extrinsic overflow-y-auto surface-sunken">
                 {friends.map((f, n) => <div key={n} className="surface-elevated">{f}</div>)}
             </div>
         </div>

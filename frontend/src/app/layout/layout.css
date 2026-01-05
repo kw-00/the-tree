@@ -15,8 +15,8 @@ This is where extrinsic sizing helps. When your flexbox is sized extrinsically, 
 accommodate its children. Instead, it overflows, triggering scroll behaviour. This allows the component to be scrollable without having an explicitly
 set height.
 
-Use "v/h-stack" together with "extrinsic-v/h" classes. If you want extrinsic sizing in a stack,
-make sure there is a chain of components using the "extrinsic-v/h" class from the nearest fixed-size
+Use "v/h-stack" together with "v/h-extrinsic" classes. If you want extrinsic sizing in a stack,
+make sure there is a chain of components using the "v/h-extrinsic" class from the nearest fixed-size
 parent to your stack. 
 
 For example, suppose I want extrinsic sizing vertically, so that my stack does not grow
@@ -25,9 +25,9 @@ element with fixed size. I will make sure every element I check has either v-sta
 
 Visual example:
 <div style="height: 100svh; width: 100svw;">
-    <div class="v-stack extrinsic-v">
-        <div class="h-stack extrinsic-v>
-            <div class="v-stack extrinsic-v>
+    <div class="v-stack v-extrinsic">
+        <div class="h-stack v-extrinsic>
+            <div class="v-stack v-extrinsic>
                 <div class="todo-item">Buy eggs</div>
                 <div class="todo-item>...</div>
                 ...
@@ -36,10 +36,8 @@ Visual example:
     </div.
 </div>
 
-Note how every layer has "extrinsic-v". In order for "extrinsic-v/h" to work, we need a chain of "extrinsic-v" or "extrinsic-h" from
+Note how every layer has "v-extrinsic". In order for "v/h-extrinsic" to work, we need a chain of "v-extrinsic" or "v-extrinsic" respectively from
 a component with fixed height. The moment the chain is broken, extrinsic sizing does not work.
-
-extrinsic sizing works primarily with stacks or other flex components.
 */
 
 .v-stack {
@@ -52,10 +50,10 @@ extrinsic sizing works primarily with stacks or other flex components.
     flex-direction: row;
 }
 
-.extrinsic-v {
+.v-extrinsic {
     min-height: 0;
 }
 
-.extrinsic-h {
+.h-extrinsic {
     min-height: 0;
 }

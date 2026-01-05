@@ -1,3 +1,4 @@
+import "./app/layout/layout.css"
 import "./app/theme/theme.ts"
 import "./import-tailwind.css"
 

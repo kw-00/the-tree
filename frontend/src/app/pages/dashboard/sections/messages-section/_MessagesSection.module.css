@@ -1,17 +1,4 @@
 
-
-.messages-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-}
-
-.input-div {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-}
-
 .message-input {
     box-sizing: content-box;
     flex-shrink: 0;

@@ -1,4 +1,3 @@
-import styles from "./_ChatroomsSection.module.css"
 
 import { useState } from "react";
 
@@ -16,8 +15,8 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
     })
 
     return (
-        <div className={`${styles["chatrooms-container"]} ${className ?? ""}`} {...rest}>
-            <div className="surface-elevated flex flex-col gap-1">
+        <div className={`v-stack v-extrinsic ${className ?? ""}`} {...rest}>
+            <div className="v-stack surface-elevated gap-1">
                 <span className="heading-3">Chatrooms</span>
                 {/* Search Bar */}
                 <form onSubmit={e => e.preventDefault()} className="flex">
@@ -25,7 +24,7 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
                 </form>
             </div>
             {/* Chatrooms */}
-            <div className="overflow-y-auto surface-sunken min-h-0">
+            <div className="v-stack v-extrinsic overflow-y-auto surface-sunken">
                 {chatrooms.map((c, n) => <div key={n} className="surface-elevated">{c}</div>)}
             </div>
         </div>
