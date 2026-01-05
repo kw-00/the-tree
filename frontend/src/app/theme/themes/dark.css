@@ -48,12 +48,59 @@
     filter: brightness(115%);
 }
 
+.button-secondary {
+    background: linear-gradient(to top right, rgb(84, 22, 90), rgb(94, 46, 121));
+    box-shadow: 
+        inset 0 0 0 0.2rem rgba(255, 255, 255, 0.1),
+        0 0 0.2rem 0.05rem rgba(0, 0, 0, 1);
+}
+.button-secondary:hover {
+    filter: brightness(110%);
+}
+.button-secondary:active {
+    filter: brightness(115%);
+}
+
+.button-danger {
+    background: linear-gradient(to top right, rgb(175, 16, 16), rgb(148, 7, 7));
+    box-shadow: 
+        inset 0 0 0 0.2rem rgba(255, 255, 255, 0.2),
+        0 0 0.2rem 0.05rem rgba(0, 0, 0, 1);
+}
+.button-danger:hover {
+    filter: brightness(110%);
+}
+.button-danger:active {
+    filter: brightness(115%);
+}
+
+.button-ghost {
+    background: linear-gradient(to top right, rgb(255, 255, 255, 0.02), rgb(255, 255, 255, 0.01));
+    box-shadow: 
+        inset 0 0 0 0.2rem rgba(255, 255, 255, 0.1),
+        0 0 0.2rem 0.05rem rgba(0, 0, 0, 0.5);
+}
+.button-ghost:hover {
+    filter: brightness(90%);
+}
+.button-ghost:active {
+    filter: brightness(85%);
+}
+
+.button-text:hover {
+    filter: brightness(92%);
+}
+.button-text:active {
+    filter: brightness(88%);
+}
+
 .input {
-    background-color: rgb(23, 49, 25);
+    background: linear-gradient(to bottom right, rgb(23, 49, 25), rgb(9, 39, 11));
     border: 0.2rem solid rgba(255, 255, 255, 0.425);
 }
 
 .input:focus-visible {
+    outline: none;
     box-shadow: 0 0 2rem 0.1rem rgba(255, 255, 255, 0.24);
 }
 

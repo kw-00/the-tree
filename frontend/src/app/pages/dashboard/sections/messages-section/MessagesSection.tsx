@@ -27,8 +27,8 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
             <div className="overflow-y-auto surface-sunken">
                 {messages.map((m, n) => <div key={n} className="surface-elevated">{m}</div>)}
             </div>
-            <div className={styles["input-div"]}>
-                <TextInput className={`${styles["message-input"]} flex-1`}></TextInput>
+            <div className={`${styles["input-div"]} surface-sunken`}>
+                <TextInput className={`${styles["message-input"]} input flex-1`}></TextInput>
                 <button className={`button-primary ${styles["send-button"]}`}>Send</button>
             </div>
         </div>

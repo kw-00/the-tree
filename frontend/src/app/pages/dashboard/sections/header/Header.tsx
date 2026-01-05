@@ -18,28 +18,28 @@ export default function Header() {
     const showUsersInChatroom = show.usersInChatroom.get()
 
     return (
-        <div className={styles["header"]}>
-            <div className="flex justify-start">
-                <button onClick={() => show.friendshipCodesSection.set(!showFriendshipCodes)} className="button-ghost w-60">
+        <div className={`${styles["header"]} surface-base`}>
+            <div className="flex justify-start gap-2">
+                <button onClick={() => show.friendshipCodesSection.set(!showFriendshipCodes)} className="button-ghost w-50">
                     {`${showFriendshipCodes ? "Hide" : "Show"} friendship codes`}
                 </button>
-                <button onClick={() => show.friendsSection.set(!showFriends)} className="button-ghost w-50">
+                <button onClick={() => show.friendsSection.set(!showFriends)} className="button-ghost w-35">
                     {`${showFriends ? "Hide" : "Show"} friends`}
                 </button>
-                <button onClick={() => show.chatroomsSection.set(!showChatrooms)} className="button-ghost w-50">
+                <button onClick={() => show.chatroomsSection.set(!showChatrooms)} className="button-ghost w-40">
                     {`${showChatrooms ? "Hide" : "Show"} chatrooms`}
                 </button>
             </div>
 
             <div className="flex justify-end gap-2">
-                <button onClick={() => show.usersInChatroom.set(!showUsersInChatroom)} className="button-ghost w-80">
+                <button onClick={() => show.usersInChatroom.set(!showUsersInChatroom)} className="button-text w-45">
                     {`${showUsersInChatroom ? "Hide" : "Show"} chat members`}
                 </button>
 
-                <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="button-secondary w-40">
+                <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="button-secondary">
                     {`${theme[0].toUpperCase()}${theme.substring(1)} mode`}
                 </button>
-                <button className="button-danger w-30">Log out</button>
+                <button className="button-danger">Log out</button>
             </div>
         </div>
     )
