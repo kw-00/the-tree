@@ -32,9 +32,9 @@ export default function Dashboard() {
             {/* Content */}
             <div className={styles["content"]}>
                 <div className="flex flex-1 justify-end">
-                    {show.friendshipCodesSection.get() ? <FriendshipCodesSection className="flex-1"/> : <></>}
-                    {show.friendsSection.get() ? <FriendsSection className="flex-1"/> : <></>}
-                    {show.chatroomsSection.get() ? <ChatroomsSection className="flex-1"/> : <></>}
+                    {show.friendshipCodesSection.get() && <FriendshipCodesSection className="flex-1"/>}
+                    {show.friendsSection.get() && <FriendsSection className="flex-1"/>}
+                    {show.chatroomsSection.get() && <ChatroomsSection className="flex-1"/>}
                 </div>
                 <div className="flex justify-start basis-3/4">
                     <MessagesSection className="surface-base flex-1"/>
