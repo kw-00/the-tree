@@ -1,4 +1,3 @@
-import styles from "./_Header.module.css"
 
 import { useTheme } from "@/app/theme/theme"
 import { useDashboardState } from "../../DashboardState"
@@ -18,8 +17,8 @@ export default function Header() {
     const showUsersInChatroom = show.usersInChatroom.get()
 
     return (
-        <div className={`${styles["header"]} surface-base`}>
-            <div className="flex justify-start gap-2">
+        <div className="h-stack justify-between surface-base">
+            <div className="h-stack justify-start gap-2">
                 <button onClick={() => show.friendshipCodesSection.set(!showFriendshipCodes)} className="button-ghost w-50">
                     {`${showFriendshipCodes ? "Hide" : "Show"} friendship codes`}
                 </button>
@@ -31,12 +30,12 @@ export default function Header() {
                 </button>
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className="h-stack justify-end gap-2">
                 <button onClick={() => show.usersInChatroom.set(!showUsersInChatroom)} className="button-text w-45">
                     {`${showUsersInChatroom ? "Hide" : "Show"} chat members`}
                 </button>
 
-                <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="button-secondary">
+                <button disabled onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="button-secondary">
                     {`${theme[0].toUpperCase()}${theme.substring(1)} mode`}
                 </button>
                 <button className="button-danger">Log out</button>
