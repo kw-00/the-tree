@@ -19,8 +19,8 @@ export default function Settings() {
                         <h1 className="heading-1">Settings</h1>
                         <div className="surface-sunken">
                             <div className="v-stack pb-8 gap-8">
-                                <ChangePasswordSection/>
                                 <ChangeLoginSection/>
+                                <ChangePasswordSection/>
                             </div>
                         </div>
                 </div>
