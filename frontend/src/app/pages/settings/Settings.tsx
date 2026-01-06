@@ -11,7 +11,7 @@ export default function Settings() {
         <div className="v-stack h-svh w-svw">
             {/* Header */}
             <div className="h-stack justify-end surface-base">
-                <Link to="/dashboard" className="button-danger">back</Link>
+                <Link to="/dashboard" className="button-danger">Back to dashboard</Link>
             </div>
             {/* Content */}
             <div className="h-stack justify-center grow overflow-y-scroll ">
