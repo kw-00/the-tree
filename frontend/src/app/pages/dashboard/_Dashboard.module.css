@@ -1,7 +1,7 @@
 
 
 
-@media (width < 60rem) {
+@media (width < 65rem) {
     .collapse-wrap {
         flex-wrap: wrap;
     }
