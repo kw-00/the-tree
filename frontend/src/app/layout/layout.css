@@ -1,43 +1,13 @@
 
 /*
-==== STACKS AND extrinsic SIZING ====
+==== LAYOUT STYLES ====
 
 ---- STACKS ----
-There are two stack types — vertical (v-stack) and horizontal (h-stack). They are merely flex containers oriented either
-vertically (column) or horizontally (row).
+There are two stack types — vertical (v-stack) and horizontal (h-stack). 
+They are merely flex containers oriented eithervertically (column) or horizontally (row).
 
----- EXTRINSIC ----
-Sometimes, you might want to use extrinsic sizing. By default, flexboxes use intrinsic sizing. If their content
-is too large, this may result in the flexbox expanding beyond its its reserved space. This means the flexbox itself does not overflow,
-but instead changes its size against the layout system. In cases where you'd want it to keep its size and scroll, it expands instead.g
-
-This is where extrinsic sizing helps. When your flexbox is sized extrinsically, it does not expand beyond its designated space within the layout to
-accommodate its children. Instead, it overflows, triggering scroll behaviour. This allows the component to be scrollable without having an explicitly
-set height.
-
-Use "v/h-stack" together with "v/h-extrinsic" classes. If you want extrinsic sizing in a stack,
-make sure there is a chain of components using the "v/h-extrinsic" class from the nearest fixed-size
-parent to your stack. 
-
-For example, suppose I want extrinsic sizing vertically, so that my stack does not grow
-beyond its parent when overflowing. I will go through every element from my stack up through the hierarchy, till I reach an
-element with fixed size. I will make sure every element I check has either v-stack or h-stack class and instrinsic-v.
-
-Visual example:
-<div style="height: 100svh; width: 100svw;">
-    <div class="v-stack v-extrinsic">
-        <div class="h-stack v-extrinsic>
-            <div class="v-stack v-extrinsic>
-                <div class="todo-item">Buy eggs</div>
-                <div class="todo-item>...</div>
-                ...
-            </div>
-        </div>
-    </div.
-</div>
-
-Note how every layer has "v-extrinsic". In order for "v/h-extrinsic" to work, we need a chain of "v-extrinsic" or "v-extrinsic" respectively from
-a component with fixed height. The moment the chain is broken, extrinsic sizing does not work.
+Build your entire layout using these in combination with flex properties 
+(apart from flex-direction, which is decided by the "v/h" aspect of the stack).
 */
 
 .v-stack {
@@ -48,12 +18,4 @@ a component with fixed height. The moment the chain is broken, extrinsic sizing 
 .h-stack {
     display: flex;
     flex-direction: row;
-}
-
-.v-extrinsic {
-    min-height: 0;
-}
-
-.h-extrinsic {
-    min-height: 0;
 }

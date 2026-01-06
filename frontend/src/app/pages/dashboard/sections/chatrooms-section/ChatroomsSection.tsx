@@ -1,4 +1,5 @@
 
+import Guard from "@/app/layout/Guard";
 import { useState } from "react";
 
 
@@ -15,7 +16,7 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
     })
 
     return (
-        <div className={`v-stack v-extrinsic ${className ?? ""}`} {...rest}>
+        <div className={`v-stack ${className ?? ""}`} {...rest}>
             <div className="v-stack surface-elevated gap-1">
                 <span className="heading-3">Chatrooms</span>
                 {/* Search Bar */}
@@ -24,9 +25,11 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
                 </form>
             </div>
             {/* Chatrooms */}
-            <div className="v-stack v-extrinsic overflow-y-auto surface-sunken">
-                {chatrooms.map((c, n) => <div key={n} className="surface-elevated">{c}</div>)}
-            </div>
+            <Guard>
+                <div className="v-stack overflow-y-auto surface-sunken">
+                    {chatrooms.map((c, n) => <div key={n} className="surface-elevated">{c}</div>)}
+                </div>
+            </Guard>
         </div>
     )
 }
