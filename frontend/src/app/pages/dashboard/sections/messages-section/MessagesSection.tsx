@@ -26,7 +26,7 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
             </div>
             {/* Messages */}
             <Guard>
-                <div className="v-stack overflow-y-auto surface-sunken">
+                <div className="v-stack overflow-y-auto surface-sunken flex-1">
                     {messages.map((m, n) => <div key={n} className="surface-elevated">{m}</div>)}
                 </div>
             </Guard>

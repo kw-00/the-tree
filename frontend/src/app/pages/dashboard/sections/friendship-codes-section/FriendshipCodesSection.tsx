@@ -27,7 +27,7 @@ export default function FriendshipCodesSection({className, ...rest}: React.HTMLA
             </div>
             {/* Friendship Codes */}
             <Guard>
-                <div className="v-stack overflow-y-auto surface-sunken">
+                <div className="v-stack overflow-y-auto surface-sunken flex-1">
                     {chatrooms.map((fc, n) => <div key={n} className="surface-elevated">{fc}</div>)}
                 </div>
             </Guard>
