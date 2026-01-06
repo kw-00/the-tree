@@ -45,7 +45,7 @@
 }
 
 .button-primary {
-    background: linear-gradient(to top right, rgb(25, 105, 72), rgb(56, 146, 108));
+    background: linear-gradient(to top right, rgb(1, 94, 55), rgb(4, 107, 64));
     box-shadow: 
         inset 0 0 0 0.2rem rgba(255, 255, 255, 0.2),
         0 0 0.1rem 0.05rem rgba(0, 0, 0, 0.5);
@@ -58,7 +58,7 @@
 }
 
 .button-secondary {
-    background: linear-gradient(to top right, rgb(22, 90, 64), rgb(46, 121, 90));
+    background: linear-gradient(to top right, rgb(70, 13, 82), rgb(85, 12, 80));
     box-shadow: 
         inset 0 0 0 0.2rem rgba(255, 255, 255, 0.1),
         0 0 0.1rem 0.05rem rgba(0, 0, 0, 0.5);

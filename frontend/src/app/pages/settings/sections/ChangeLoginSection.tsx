@@ -15,7 +15,7 @@ export default function ChangeLoginSection() {
                     <input className="input"/>
                 </Label>
                 <Label className="v-stack gap-2">
-                    Ppassword
+                    Password
                     <input type="password" className="input"/>
                 </Label>
             </fieldset>
