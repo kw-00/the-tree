@@ -14,15 +14,15 @@ export default function Settings() {
                 <Link to="/dashboard" className="button-danger">back</Link>
             </div>
             {/* Content */}
-            <div className="surface-base overflow-y-scroll grow">
-                <div className="px-128">
-                    <h1 className="heading-1">Settings</h1>
-                    <div className="surface-sunken">
-                        <div className="v-stack pb-8 gap-8">
-                            <ChangePasswordSection/>
-                            <ChangeLoginSection/>
+            <div className="h-stack justify-center grow overflow-y-scroll ">
+                <div className="v-stack max-w-2xl grow">
+                        <h1 className="heading-1">Settings</h1>
+                        <div className="surface-sunken">
+                            <div className="v-stack pb-8 gap-8">
+                                <ChangePasswordSection/>
+                                <ChangeLoginSection/>
+                            </div>
                         </div>
-                    </div>
                 </div>
             </div>
 
