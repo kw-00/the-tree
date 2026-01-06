@@ -52,34 +52,17 @@ html, body, #root {
 
 /* Base styling for classes */
 /* Surfaces */
-.surface-base {
-    border-radius: var(--surface-radius);
-    padding: var(--surface-padding);
-}
-
-.surface-elevated {
-    border-radius: var(--surface-radius);
-    padding: var(--surface-padding);
-}
-
+.surface-base,
+.surface-elevated,
 .surface-sunken {
     border-radius: var(--surface-radius);
     padding: var(--surface-padding);
 }
 
+
 /* Buttons */
-.button-primary {
-    border-radius: var(--button-radius);
-    padding: var(--button-padding);
-}
-
-
-.button-secondary {
-    border-radius: var(--button-radius);
-    padding: var(--button-padding);
-}
-
-
+.button-primary, 
+.button-secondary, 
 .button-danger {
     border-radius: var(--button-radius);
     padding: var(--button-padding);
