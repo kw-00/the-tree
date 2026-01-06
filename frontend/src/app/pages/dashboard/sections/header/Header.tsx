@@ -7,7 +7,7 @@ import { Link } from "react-router-dom"
 
 
 
-export default function Header() {
+export default function Header({className, ...rest}: Omit<React.HTMLAttributes<HTMLDivElement>, "children">) {
     const {theme, setTheme} = useTheme()
     const state = useDashboardState(() => [])
 
@@ -18,7 +18,7 @@ export default function Header() {
     const showUsersInChatroom = show.usersInChatroom.get()
 
     return (
-        <div className="h-stack justify-between surface-base">
+        <div className={`h-stack justify-between surface-base gap-2 ${className ?? ""}`} {...rest}>
             <div className="h-stack justify-start gap-2">
                 <button onClick={() => show.friendshipCodesSection.set(!showFriendshipCodes)} className="button-ghost w-50">
                     {`${showFriendshipCodes ? "Hide" : "Show"} friendship codes`}

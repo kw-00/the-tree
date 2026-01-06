@@ -1,3 +1,4 @@
+import styles from "./_Dashboard.module.css"
 
 import FriendsSection from "./sections/friends-section/FriendsSection";
 import ChatroomsSection from "./sections/chatrooms-section/ChatroomsSection";
@@ -20,16 +21,15 @@ export default function Dashboard() {
             show.usersInChatroom
         ]
     })
-
     const show = state.layout.show
 
     return (
-        <div className="h-svh w-svw flex flex-col" data-state={state}>
+        <div className="h-svh w-svw flex flex-col">
             {/* Header */}
-            <Header/>
+            <Header className={styles["collapse-wrap"]}/>
             {/* Content */}
             <div className="h-stack grow justify-between p-4">
-                <div className="h-stack grow justify-end">
+                <div className={`h-stack grow justify-end ${styles["collapse-wrap"]} ${styles["collapse-column"]}`}>
                     {show.friendshipCodesSection.get() && <FriendshipCodesSection className="grow"/>}
                     {show.friendsSection.get() && <FriendsSection className="grow"/>}
                     {show.chatroomsSection.get() && <ChatroomsSection className="grow"/>}

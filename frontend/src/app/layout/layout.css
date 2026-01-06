@@ -23,3 +23,8 @@ Build your entire layout using these in combination with flex properties
 .grow {
     flex-grow: 1;
 }
+
+.fold {
+    min-height: 0;
+    min-width: 0;
+}

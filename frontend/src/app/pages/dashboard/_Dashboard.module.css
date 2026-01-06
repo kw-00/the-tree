@@ -1,0 +1,15 @@
+
+
+
+@media (width < 60rem) {
+    .collapse-wrap {
+        flex-wrap: wrap;
+    }
+}
+
+@media (width < 40rem) {
+    .collapse-column {
+        flex-direction: column;
+    }
+}
+
