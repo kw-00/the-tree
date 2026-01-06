@@ -35,9 +35,10 @@ export default function Header() {
                     {`${showUsersInChatroom ? "Hide" : "Show"} chat members`}
                 </button>
 
-                <button disabled onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="button-secondary">
+                <button disabled={true} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="button-secondary">
                     {`${theme[0].toUpperCase()}${theme.substring(1)} mode`}
                 </button>
+                <button className="button-ghost">Settings</button>
                 <button className="button-danger">Log out</button>
             </div>
         </div>

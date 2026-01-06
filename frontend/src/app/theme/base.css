@@ -1,5 +1,9 @@
 /*
 Variables you should define:
+    // Text
+    --color
+    --color-emphasized
+    --color-muted
     // Surfaces
     --surface-radius — default border-radius for surfaces.
     --surface-padding — default padding for surfaces.
@@ -31,19 +35,19 @@ Classes you should define when theming:
 
     .input
 
-    .text-emphasized 
-    .text-muted 
+    .color-emphasized 
+    .color-muted 
 
     .heading-1
     .heading-2
     .heading-3
 */
 
-/* Font defaults */
 html, body, #root {
     height: 100svh;
     width: 100svw;
     overflow: hidden;
+    color: var(--color);
 }
 
 /* Base styling for classes */
@@ -96,4 +100,12 @@ html, body, #root {
 .input {
     border-radius: var(--input-radius);
     padding: var(--input-padding);
+}
+
+.color-emphasized {
+    color: var(--color-emphasized);
+}
+
+.color-muted {
+    color: var(--color-muted);
 }
