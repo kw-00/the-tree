@@ -27,7 +27,7 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
             {/* Chatrooms */}
             <Guard>
                 <div className="v-stack overflow-y-auto surface-sunken grow">
-                    {chatrooms.map((c, n) => <div key={n} className="surface-elevated">{c}</div>)}
+                    {chatrooms.map((c, n) => <div key={n} className="surface-item">{c}</div>)}
                 </div>
             </Guard>
         </div>

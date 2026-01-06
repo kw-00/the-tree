@@ -24,6 +24,7 @@ Classes you should define when theming:
     .surface-base 
     .surface-elevated 
     .surface-sunken 
+    .surface-item
 
     .button-primary  
     .button-secondary 
@@ -54,7 +55,8 @@ html, body, #root {
 /* Surfaces */
 .surface-base,
 .surface-elevated,
-.surface-sunken {
+.surface-sunken,
+.surface-item {
     border-radius: var(--surface-radius);
     padding: var(--surface-padding);
 }

@@ -42,7 +42,7 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
                     <div className="v-stack grow basis-5/6">
                         <Guard>
                             <div className="v-stack overflow-y-auto surface-sunken grow">
-                                {messages.map((m, n) => <div key={n} className="surface-elevated">{m}</div>)}
+                                {messages.map((m, n) => <div key={n} className="surface-item">{m}</div>)}
                             </div>
                         </Guard>
                     </div>
@@ -54,7 +54,7 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
                         </div>
                         <Guard>
                             <div className="v-stack overflow-y-auto surface-sunken grow">
-                                {friends.map((f, n) => <div key={n} className="surface-elevated">{f}</div>)}
+                                {friends.map((f, n) => <div key={n} className="surface-item">{f}</div>)}
                             </div>
                         </Guard>
                     </div>}

@@ -25,7 +25,7 @@ export default function FriendsSection({className, ...rest}: React.HTMLAttribute
             {/* Friends */}
             <Guard>
                 <div className="v-stack overflow-y-auto surface-sunken">
-                    {friends.map((f, n) => <div key={n} className="surface-elevated">{f}</div>)}
+                    {friends.map((f, n) => <div key={n} className="surface-item">{f}</div>)}
                 </div>
             </Guard>
         </div>
