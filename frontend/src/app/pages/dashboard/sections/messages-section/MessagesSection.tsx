@@ -31,7 +31,7 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
                 </div>
             </Guard>
 
-                <div className="v-stack surface-sunken">
+                <div className="v-stack surface-sunken gap-1">
                     <TextInput className={`${styles["message-input"]} input flex-1`}></TextInput>
                     <button className={`button-primary ${styles["send-button"]}`}>Send</button>
                 </div>
