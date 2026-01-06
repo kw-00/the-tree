@@ -45,6 +45,5 @@ function replaceThemeLink(theme: Theme) {
     themeLink.setAttribute("id", "theme-link")
     themeLink.setAttribute("href", href)
     themeLink.setAttribute("rel", "stylesheet")
-    console.log("Done")
     document.head.appendChild(themeLink)
 }
