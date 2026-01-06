@@ -22,12 +22,12 @@ export default function FriendshipCodesSection({className, ...rest}: React.HTMLA
                 <span className="heading-3">Friendship codes</span>
                 {/* Search Bar */}
                 <form onSubmit={e => e.preventDefault()} className="flex">
-                    <input className="input flex-1"></input>
+                    <input className="input grow"></input>
                 </form>
             </div>
             {/* Friendship Codes */}
             <Guard>
-                <div className="v-stack overflow-y-auto surface-sunken flex-1">
+                <div className="v-stack overflow-y-auto surface-sunken grow">
                     {chatrooms.map((fc, n) => <div key={n} className="surface-elevated">{fc}</div>)}
                 </div>
             </Guard>

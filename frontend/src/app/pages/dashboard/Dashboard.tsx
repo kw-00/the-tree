@@ -28,14 +28,14 @@ export default function Dashboard() {
             {/* Header */}
             <Header/>
             {/* Content */}
-            <div className="h-stack flex-1 justify-between p-4">
-                <div className="h-stack flex-1 justify-end">
-                    {show.friendshipCodesSection.get() && <FriendshipCodesSection className="flex-1"/>}
-                    {show.friendsSection.get() && <FriendsSection className="flex-1"/>}
-                    {show.chatroomsSection.get() && <ChatroomsSection className="flex-1"/>}
+            <div className="h-stack grow justify-between p-4">
+                <div className="h-stack grow justify-end">
+                    {show.friendshipCodesSection.get() && <FriendshipCodesSection className="grow"/>}
+                    {show.friendsSection.get() && <FriendsSection className="grow"/>}
+                    {show.chatroomsSection.get() && <ChatroomsSection className="grow"/>}
                 </div>
                 <div className="v-stack justify-start basis-3/4">
-                    <MessagesSection className="surface-base flex-1"/>
+                    <MessagesSection className="surface-base grow"/>
                 </div>
             </div>
         </div>

@@ -26,13 +26,13 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
             </div>
             {/* Messages */}
             <Guard>
-                <div className="v-stack overflow-y-auto surface-sunken flex-1">
+                <div className="v-stack overflow-y-auto surface-sunken grow">
                     {messages.map((m, n) => <div key={n} className="surface-elevated">{m}</div>)}
                 </div>
             </Guard>
 
                 <div className="v-stack surface-sunken gap-1">
-                    <TextInput className={`${styles["message-input"]} input flex-1`}></TextInput>
+                    <TextInput className={`${styles["message-input"]} input grow`}></TextInput>
                     <button className={`button-primary ${styles["send-button"]}`}>Send</button>
                 </div>
         </div>

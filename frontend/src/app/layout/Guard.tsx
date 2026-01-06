@@ -60,7 +60,7 @@ export default function Guard({orientation = "vertical", children}: GuardProps) 
     }, [])
 
     return (
-        <div ref={guardRef} className="flex flex-1">
+        <div ref={guardRef} className="flex grow">
             .
             <div ref={contentRef} className={`flex ${orientation === "vertical" ? "flex-col" : ""}`}>
                 {children}

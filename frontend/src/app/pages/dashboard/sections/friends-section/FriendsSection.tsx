@@ -19,7 +19,7 @@ export default function FriendsSection({className, ...rest}: React.HTMLAttribute
                 <span className="heading-3">Friends</span>
                 {/* Search Bar */}
                 <form onSubmit={e => e.preventDefault()} className="flex">
-                    <input className="input flex-1"></input>
+                    <input className="input grow"></input>
                 </form>
             </div>
             {/* Friends */}

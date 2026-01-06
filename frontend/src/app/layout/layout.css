@@ -19,3 +19,7 @@ Build your entire layout using these in combination with flex properties
     display: flex;
     flex-direction: row;
 }
+
+.grow {
+    flex-grow: 1;
+}

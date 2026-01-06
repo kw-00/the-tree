@@ -21,12 +21,12 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
                 <span className="heading-3">Chatrooms</span>
                 {/* Search Bar */}
                 <form onSubmit={e => e.preventDefault()} className="flex">
-                    <input className="input flex-1"></input>
+                    <input className="input grow"></input>
                 </form>
             </div>
             {/* Chatrooms */}
             <Guard>
-                <div className="v-stack overflow-y-auto surface-sunken flex-1">
+                <div className="v-stack overflow-y-auto surface-sunken grow">
                     {chatrooms.map((c, n) => <div key={n} className="surface-elevated">{c}</div>)}
                 </div>
             </Guard>
