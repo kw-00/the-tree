@@ -1,6 +1,7 @@
 
 import { useTheme } from "@/app/theme/theme"
 import { useDashboardState } from "../../DashboardState"
+import { Link } from "react-router-dom"
 
 
 
@@ -38,7 +39,7 @@ export default function Header() {
                 <button disabled={true} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="button-secondary">
                     {`${theme[0].toUpperCase()}${theme.substring(1)} mode`}
                 </button>
-                <button className="button-ghost">Settings</button>
+                <Link to="/settings" className="button-ghost">Settings</Link>
                 <button className="button-danger">Log out</button>
             </div>
         </div>
