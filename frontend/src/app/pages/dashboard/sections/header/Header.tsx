@@ -9,7 +9,14 @@ import { Link } from "react-router-dom"
 
 export default function Header({className, ...rest}: Omit<React.HTMLAttributes<HTMLDivElement>, "children">) {
     const {theme, setTheme} = useTheme()
-    const state = useDashboardState(() => [])
+    const state = useDashboardState((state) => {
+        const show = state.layout.show
+        return [
+            show.friendshipCodesSection,
+            show.friendsSection,
+            show.chatroomsSection
+        ]
+    })
 
     const show = state.layout.show
     const showFriendshipCodes = show.friendshipCodesSection.get()
@@ -17,9 +24,23 @@ export default function Header({className, ...rest}: Omit<React.HTMLAttributes<H
     const showChatrooms = show.chatroomsSection.get()
     const showUsersInChatroom = show.usersInChatroom.get()
 
+    const sidebarStates = [show.friendshipCodesSection, show.friendsSection, show.chatroomsSection]
+    const allHidden = !showFriendshipCodes && !showFriends && !showChatrooms
+    const sidebarsOnClick = (e: any) => {
+        e.preventDefault()
+        if (!allHidden) {
+            sidebarStates.forEach(s => s.set(false))
+        } else {
+            sidebarStates.forEach(s => s.set(true))
+        }
+    }
+
     return (
         <div className={`h-stack justify-between surface-base gap-2 ${className ?? ""}`} {...rest}>
-            <div className="h-stack justify-start gap-2">
+            <div className="h-stack justify-start flex-wrap gap-2">
+                <button onClick={sidebarsOnClick} className="button-secondary w-40">
+                    {`${allHidden ? "Hide" : "Show"} all sidebars`}
+                </button>
                 <button onClick={() => show.friendshipCodesSection.set(!showFriendshipCodes)} className="button-ghost w-50">
                     {`${showFriendshipCodes ? "Hide" : "Show"} friendship codes`}
                 </button>
@@ -31,7 +52,7 @@ export default function Header({className, ...rest}: Omit<React.HTMLAttributes<H
                 </button>
             </div>
 
-            <div className="h-stack justify-end gap-2">
+            <div className="h-stack justify-end flex-wrap gap-2">
                 <button onClick={() => show.usersInChatroom.set(!showUsersInChatroom)} className="button-text w-45">
                     {`${showUsersInChatroom ? "Hide" : "Show"} chat members`}
                 </button>
