@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import ChangePasswordSection from "./sections/ChangePasswordSection";
 import ChangeLoginSection from "./sections/ChangeLoginSection";
+import UserHeader from "../00-reused-sections/UserHeader";
 
 
 
@@ -9,6 +10,7 @@ export default function Settings() {
 
     return (
         <div className="v-stack h-svh w-svw">
+            <UserHeader/>
             {/* Header */}
             <div className="h-stack justify-end surface-base">
                 <Link to="/dashboard" className="button-danger">Back to dashboard</Link>

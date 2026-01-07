@@ -18,6 +18,10 @@ export default function ChangePasswordSection() {
                     New password
                     <input type="password" className="input"/>
                 </Label>
+                <Label className="v-stack gap-2">
+                    Confirm new password
+                    <input type="password" className="input"/>
+                </Label>
             </fieldset>
             <div className="h-stack justify-end">
                 <button className="button-secondary" onClick={e => e.preventDefault()}>Change password</button>

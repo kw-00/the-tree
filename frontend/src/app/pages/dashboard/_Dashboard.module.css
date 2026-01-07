@@ -1,7 +1,7 @@
 
 
 
-@media (width < 85rem) {
+@media (width < 65rem) {
     .collapse {
         flex-wrap: wrap;
         justify-content: center;

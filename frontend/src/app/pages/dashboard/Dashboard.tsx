@@ -6,6 +6,7 @@ import MessagesSection from "./sections/messages-section/MessagesSection";
 import Header from "./sections/header/Header";
 import FriendshipCodesSection from "./sections/friendship-codes-section/FriendshipCodesSection";
 import { useDashboardState } from "./DashboardState";
+import UserHeader from "../00-reused-sections/UserHeader";
 
 
 
@@ -24,7 +25,8 @@ export default function Dashboard() {
     const show = state.layout.show
 
     return (
-        <div className="h-svh w-svw flex flex-col">
+        <div className="v-stack h-svh w-svw">
+            <UserHeader/>
             {/* Header */}
             <Header className={styles["collapse"]}/>
             {/* Content */}
