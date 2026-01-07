@@ -22,6 +22,7 @@
     background-color: rgb(16, 30, 36);
 }
 
+/* Surfaces */
 .surface-base {
     background-color: rgb(17, 32, 51);
     border: 0.1rem solid rgba(255, 255, 255, 0.1);
@@ -50,6 +51,7 @@
 
 }
 
+/* Buttons */
 .button-primary {
     background: linear-gradient(to top right, rgb(1, 94, 55), rgb(4, 107, 64));
     box-shadow: 
@@ -122,6 +124,21 @@ button.button-primary:disabled, .button-secondary:disabled, .button-danger:disab
     filter: unset;
 }
 
+/* Links */
+.link {
+    color: rgb(165, 197, 255);
+}
+
+.link:hover {
+    filter: brightness(90%);
+    text-decoration: underline;
+}
+
+.link:visited {
+    color: rgb(130, 170, 151);
+}
+
+/* Inputs */
 .input {
     background: linear-gradient(to bottom right, rgb(23, 49, 25), rgb(9, 39, 11));
     border: 0.2rem solid rgba(255, 255, 255, 0.425);
