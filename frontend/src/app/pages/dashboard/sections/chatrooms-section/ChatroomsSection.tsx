@@ -16,7 +16,7 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
 
     return (
         <div className={`v-stack ${className ?? ""}`} {...rest}>
-            <div className="v-stack surface-elevated gap-1">
+            <div className="v-stack surface-elevated gap-xs">
                 <span className="heading-3">Chatrooms</span>
                 {/* Search Bar */}
                 <form onSubmit={e => e.preventDefault()} className="flex">

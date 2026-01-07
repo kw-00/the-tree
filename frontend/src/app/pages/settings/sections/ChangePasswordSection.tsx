@@ -7,18 +7,18 @@ import Label from "@/app/components/label/Label";
 
 export default function ChangePasswordSection() {
     return (
-        <form className="v-stack surface-elevated gap-2">
+        <form className="v-stack surface-elevated gap-sm">
             <h2 className="heading-2">Change password</h2>
-            <fieldset className="v-stack gap-4">
-                <Label className="v-stack gap-2">
+            <fieldset className="v-stack gap-lg">
+                <Label className="v-stack gap-sm">
                     Old password
                     <input type="password" className="input"/>
                 </Label>
-                <Label className="v-stack gap-2">
+                <Label className="v-stack gap-sm">
                     New password
                     <input type="password" className="input"/>
                 </Label>
-                <Label className="v-stack gap-2">
+                <Label className="v-stack gap-sm">
                     Confirm new password
                     <input type="password" className="input"/>
                 </Label>

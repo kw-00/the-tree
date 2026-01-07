@@ -7,14 +7,14 @@ import Label from "@/app/components/label/Label";
 
 export default function ChangeLoginSection() {
     return (
-        <form className="v-stack surface-elevated gap-2">
+        <form className="v-stack surface-elevated gap-sm">
             <h2 className="heading-2">Change login</h2>
-            <fieldset className="v-stack gap-4">
-                <Label className="v-stack gap-2">
+            <fieldset className="v-stack gap-lg">
+                <Label className="v-stack gap-sm">
                     New login
                     <input className="input"/>
                 </Label>
-                <Label className="v-stack gap-2">
+                <Label className="v-stack gap-sm">
                     Password
                     <input type="password" className="input"/>
                 </Label>

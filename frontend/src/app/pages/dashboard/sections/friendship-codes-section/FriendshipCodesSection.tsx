@@ -17,7 +17,7 @@ export default function FriendshipCodesSection({className, ...rest}: React.HTMLA
 
     return (
         <div className={`v-stack ${className ?? ""}`} {...rest}>
-            <div className="surface-elevated flex flex-col gap-1">
+            <div className="surface-elevated flex flex-col gap-xs">
                 <span className="heading-3">Friendship codes</span>
                 {/* Search Bar */}
                 <form onSubmit={e => e.preventDefault()} className="flex">

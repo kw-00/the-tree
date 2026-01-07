@@ -1,9 +1,18 @@
 /*
 Variables you should define:
-    // Text
+
+    // Text — default, emphasized and muted colors
     --color
     --color-emphasized
     --color-muted
+
+    // Spacing — affects padding and gap class default values
+    --spacing-xs
+    --spacing-sm
+    --spacing-md
+    --spacing-lg
+    --spacing-xl
+
     // Surfaces
     --surface-radius — default border-radius for surfaces.
     --surface-padding — default padding for surfaces.
@@ -18,27 +27,41 @@ Variables you should define:
     --input-padding — default padding for inputs.
 }
 
-Classes you should define when theming:
+Available classes (override as needed them when theming):
     .background — applied to html, body and root.
 
+    // Surfaces
     .surface-base 
     .surface-elevated 
     .surface-sunken 
     .surface-item
 
+    // Buttons
     .button-primary  
     .button-secondary 
     .button-danger 
     .button-ghost 
     .button-text 
 
+    // Links
     .link
 
+    // Forms
+    .label
     .input
 
+    // Spacing
+    .gap-xs
+    .gap-sm
+    .gap-md
+    .gap-lg
+    .gap-xl
+
+    // Text color
     .color-emphasized 
     .color-muted 
 
+    // Text headings
     .heading-1
     .heading-2
     .heading-3
@@ -48,10 +71,43 @@ html, body, #root {
     height: 100svh;
     width: 100svw;
     overflow: hidden;
+}
+
+/* Text color */
+#root {
     color: var(--color);
 }
 
-/* Base styling for classes */
+.color-emphasized {
+    color: var(--color-emphasized);
+}
+
+.color-muted {
+    color: var(--color-muted);
+}
+
+/* Spacing */
+.gap-xs {
+    gap: var(--spacing-xs);
+}
+
+.gap-sm {
+    gap: var(--spacing-sm);
+}
+
+.gap-md {
+    gap: var(--spacing-md);
+}
+
+.gap-lg {
+    gap: var(--spacing-lg);
+}
+
+.gap-xl {
+    gap: var(--spacing-xl);
+}
+
+
 /* Surfaces */
 .surface-base,
 .surface-elevated,
@@ -82,15 +138,14 @@ html, body, #root {
 
 
 /* Input */
+.label {
+    padding-bottom: var(--spacing-sm);
+}
+
 .input {
     border-radius: var(--input-radius);
     padding: var(--input-padding);
 }
 
-.color-emphasized {
-    color: var(--color-emphasized);
-}
 
-.color-muted {
-    color: var(--color-muted);
-}
+

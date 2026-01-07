@@ -1,7 +1,7 @@
 
 import { useTheme } from "@/app/theme/theme"
 import { useDashboardState } from "../../DashboardState"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 
 
@@ -35,6 +35,8 @@ export default function Header({className, ...rest}: Omit<React.HTMLAttributes<H
         }
     }
 
+    const navigate = useNavigate()
+
     return (
         <div className={`h-stack justify-between surface-base gap-2 ${className ?? ""}`} {...rest}>
             <div className="h-stack justify-start flex-wrap gap-2">
@@ -61,7 +63,10 @@ export default function Header({className, ...rest}: Omit<React.HTMLAttributes<H
                     {`${theme[0].toUpperCase()}${theme.substring(1)} mode`}
                 </button>
                 <Link to="/settings" className="button-ghost">Settings</Link>
-                <button className="button-danger">Log out</button>
+                <button onClick={e => {
+                    e.preventDefault()
+                    navigate("/login")
+                }} className="button-danger">Log out</button>
             </div>
         </div>
     )
