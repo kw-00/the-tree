@@ -9,7 +9,7 @@ const LogInForm = () => {
         <>
             <h2 className="heading-2 self-center">Log in</h2>
             <form className="v-stack surface-elevated">
-                <fieldset className="v-stack gap-xl brightness-150">
+                <fieldset className="v-stack gap-xl">
                     <Label className="v-stack gap-2">
                         Login
                         <input className="input grow"></input>
@@ -38,7 +38,7 @@ const RegisterForm = () => {
         <>
             <h2 className="heading-2 self-center">Register an account</h2>
             <form className="v-stack surface-elevated">
-                <fieldset className="v-stack gap-xl brightness-150">
+                <fieldset className="v-stack gap-xl">
                     <Label className="v-stack gap-sm">
                         Login
                         <input className="input grow"></input>
@@ -67,7 +67,7 @@ export default function AuthPage({type}: {type: "logIn" | "register"}) {
     return (
         <div className="v-stack h-svh w-svw justify-center items-center">
             <h1 className="heading-1" style={{fontSize: "2rem"}}>{type === "logIn" ? "Welcome back!" : "Welcome!"}</h1>
-            <div className="v-stack w-2xl surface-sunken brightness-75">
+            <div className="v-stack w-2xl surface-sunken">
                 <div className="v-stack p-5 gap-2">
                     {type === "logIn" ? <LogInForm/> : <RegisterForm/>}
                 </div>
