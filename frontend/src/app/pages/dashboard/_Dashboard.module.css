@@ -1,15 +1,11 @@
 
 
 
-@media (width < 65rem) {
-    .collapse-wrap {
+@media (width < 85rem) {
+    .collapse {
         flex-wrap: wrap;
-    }
-}
-
-@media (width < 40rem) {
-    .collapse-column {
-        flex-direction: column;
+        justify-content: center;
+        flex-shrink: 20;
     }
 }
 

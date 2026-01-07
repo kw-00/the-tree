@@ -26,10 +26,10 @@ export default function Dashboard() {
     return (
         <div className="h-svh w-svw flex flex-col">
             {/* Header */}
-            <Header className={styles["collapse-wrap"]}/>
+            <Header className={styles["collapse"]}/>
             {/* Content */}
             <div className="h-stack grow justify-between p-4">
-                <div className={`h-stack grow justify-end ${styles["collapse-wrap"]} ${styles["collapse-column"]}`}>
+                <div className={`h-stack grow justify-end ${styles["collapse"]}`}>
                     {show.friendshipCodesSection.get() && <FriendshipCodesSection className="grow"/>}
                     {show.friendsSection.get() && <FriendsSection className="grow"/>}
                     {show.chatroomsSection.get() && <ChatroomsSection className="grow"/>}
