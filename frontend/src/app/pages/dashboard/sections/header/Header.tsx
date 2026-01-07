@@ -41,7 +41,7 @@ export default function Header({className, ...rest}: Omit<React.HTMLAttributes<H
         <div className={`h-stack justify-between surface-base gap-2 ${className ?? ""}`} {...rest}>
             <div className="h-stack justify-start flex-wrap gap-2">
                 <button onClick={sidebarsOnClick} className="button-secondary w-40">
-                    {`${allHidden ? "Hide" : "Show"} all sidebars`}
+                    {`${!allHidden ? "Hide" : "Show"} all sidebars`}
                 </button>
                 <button onClick={() => show.friendshipCodesSection.set(!showFriendshipCodes)} className="button-ghost w-50">
                     {`${showFriendshipCodes ? "Hide" : "Show"} friendship codes`}
