@@ -36,8 +36,8 @@ export default function Dashboard() {
                     {show.friendsSection.get() && <FriendsSection className="grow"/>}
                     {show.chatroomsSection.get() && <ChatroomsSection className="grow"/>}
                 </div>
-                <div className="v-stack justify-start basis-3/4 contrast-110">
-                    <MessagesSection className="surface-base grow"/>
+                <div className="v-stack justify-start basis-3/4 surface-base">
+                    <MessagesSection className="contrast-110 grow"/>
                 </div>
             </div>
         </div>
