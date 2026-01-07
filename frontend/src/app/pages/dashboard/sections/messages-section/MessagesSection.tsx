@@ -1,6 +1,5 @@
 import styles from "./_MessagesSection.module.css"
 import TextInput from "@/app/components/text-input/TextInput"
-import Guard from "@/app/layout/Guard"
 
 import { useState } from "react"
 import { useDashboardState } from "../../DashboardState"
@@ -40,11 +39,9 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
                 <div className="h-stack grow">
                     {/* Messages */}
                     <div className="v-stack grow basis-5/6">
-                        <Guard>
-                            <div className="v-stack overflow-y-auto surface-sunken grow">
-                                {messages.map((m, n) => <div key={n} className="surface-item">{m}</div>)}
-                            </div>
-                        </Guard>
+                        <div className="v-stack overflow-y-auto surface-sunken grow contain-size">
+                            {messages.map((m, n) => <div key={n} className="surface-item">{m}</div>)}
+                        </div>
                     </div>
 
                     {show.usersInChatroom.get() &&
@@ -52,11 +49,9 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
                         <div className="surface-elevated">
                             <h3 className="heading-3">Chatroom members</h3>
                         </div>
-                        <Guard>
-                            <div className="v-stack overflow-y-auto surface-sunken grow">
-                                {friends.map((f, n) => <div key={n} className="surface-item">{f}</div>)}
-                            </div>
-                        </Guard>
+                        <div className="v-stack overflow-y-auto surface-sunken grow contain-size">
+                            {friends.map((f, n) => <div key={n} className="surface-item">{f}</div>)}
+                        </div>
                     </div>}
                 </div>
 

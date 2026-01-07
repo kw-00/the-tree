@@ -1,5 +1,4 @@
 
-import Guard from "@/app/layout/Guard";
 import { useState } from "react";
 
 
@@ -25,11 +24,9 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
                 </form>
             </div>
             {/* Chatrooms */}
-            <Guard>
-                <div className="v-stack overflow-y-auto surface-sunken grow">
-                    {chatrooms.map((c, n) => <div key={n} className="surface-item">{c}</div>)}
-                </div>
-            </Guard>
+            <div className="v-stack overflow-y-auto surface-sunken grow contain-size">
+                {chatrooms.map((c, n) => <div key={n} className="surface-item">{c}</div>)}
+            </div>
         </div>
     )
 }

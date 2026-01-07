@@ -1,5 +1,4 @@
 
-import Guard from "@/app/layout/Guard";
 import { useState } from "react";
 
 
@@ -26,11 +25,9 @@ export default function FriendshipCodesSection({className, ...rest}: React.HTMLA
                 </form>
             </div>
             {/* Friendship Codes */}
-            <Guard>
-                <div className="v-stack overflow-y-auto surface-sunken grow">
-                    {chatrooms.map((fc, n) => <div key={n} className="surface-item">{fc}</div>)}
-                </div>
-            </Guard>
+            <div className="v-stack overflow-y-auto surface-sunken grow contain-size">
+                {chatrooms.map((fc, n) => <div key={n} className="surface-item">{fc}</div>)}
+            </div>
         </div>
     )
 }
