@@ -3,6 +3,7 @@ import TextInput from "@/app/components/text-input/TextInput"
 
 import { useState } from "react"
 import { useDashboardState } from "../../DashboardState"
+import Messages from "./components/Messages"
 
 
 
@@ -10,14 +11,6 @@ import { useDashboardState } from "../../DashboardState"
 
 
 export default function MessagesSection({className, ...rest}: React.HTMLAttributes<HTMLDivElement>) {
-    const [messages,] = useState(() => {
-    const ms = []
-        while (ms.length < 100) {
-            ms.push(["Hi!", "How are you?", "Fine, thank you!", "Hmm.", "Not bad.", "Been a while."][Math.floor(Math.random() * 6)])
-        }
-        return ms
-    })
-
     const [friends,] = useState(() => {
         const fs = []
         while (fs.length < 50) {
@@ -38,11 +31,7 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
             <div className="v-stack grow">
                 <div className="h-stack grow">
                     {/* Messages */}
-                    <div className="v-stack grow basis-5/6">
-                        <div className="v-stack overflow-y-auto surface-sunken grow contain-size">
-                            {messages.map((m, n) => <div key={n} className="surface-item">{m}</div>)}
-                        </div>
-                    </div>
+                    <Messages/>
 
                     {show.usersInChatroom.get() &&
                     <div className="v-stack grow">

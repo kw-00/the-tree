@@ -5,7 +5,6 @@ import { throwErrorOnRequestFailure } from "../00-common/queries/utility"
 
 export type Room = {
     messages: MessageData[]
-    scrollPosition: number | null
     hasPrevious: boolean
     hasNext: boolean
 }
@@ -16,7 +15,7 @@ class ChatroomNotFoundError extends Error {
     }
 }
 
-export type ErrorListener = (state: Error) => void
+export type ErrorListener = (error: Error) => void
 export type MessageListener = (messages: MessageData[], chatroomId: number) => void
 export type ResizedListener = (newSize: number, chatroomId: number) => void
 export type ChatroomListener = (chatroomId: number) => void
@@ -26,7 +25,7 @@ export type Store = {
 
 }
 
-class MessageStore {
+export class MessageStore {
 
     #store: Store = {
         data: new Map(),
@@ -89,7 +88,7 @@ class MessageStore {
     addChatrooms (...chatroomIds: number[]) {
         chatroomIds.forEach(id => {
             if (this.#store.data.get(id)) return
-            this.#store.data.set(id, {messages: [], scrollPosition: null, hasPrevious: true, hasNext: true})
+            this.#store.data.set(id, {messages: [], hasPrevious: true, hasNext: true})
         })
     }
 
@@ -141,16 +140,6 @@ class MessageStore {
         }
         entry.messages = [...entry.messages]
         this.#emitChange(chatroomId)
-    }
-
-
-    setScrollPosition (chatroomId: number, newPosition: number) {
-        const entry = this.#store.data.get(chatroomId)
-        if (!entry) {
-            this.#error(new ChatroomNotFoundError(chatroomId))
-            return
-        }
-        entry.scrollPosition = newPosition
     }
 
     // Fetching messages
