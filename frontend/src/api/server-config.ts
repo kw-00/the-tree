@@ -1,4 +1,4 @@
-import raw from "@/backend-integration/server-config.json" with {type: "json"}
+import raw from "@/api/server-config.json" with {type: "json"}
 
 
 import z from "zod"
