@@ -19,7 +19,8 @@ export async function handleRequest(
                     cause: error.cause,
                     message: error.message,
                     stack: error.stack
-                }
+                },
+                message: "An error occurred. Check \"error\" field for more information."
             })
         } else {
             rep.status(500).send({
