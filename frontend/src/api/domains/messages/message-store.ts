@@ -217,7 +217,7 @@ export function useMessageStore() {
     const storeRef = useRef(globalStore)
 
     return {
-        data: storeRef.current.getSnapshot(),
-        functions: storeRef.current
+        messageStoreSnapshot: storeRef.current.getSnapshot(),
+        messageStore: storeRef.current
     }
 }
