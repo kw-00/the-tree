@@ -2,6 +2,7 @@
 import { useTheme } from "@/app/theme/theme"
 import { useDashboardState } from "../../DashboardState"
 import { Link, useNavigate } from "react-router-dom"
+import * as authService from "@/api/domains/auth/auth-service"
 
 
 
@@ -63,8 +64,13 @@ export default function Header({className, ...rest}: Omit<React.HTMLAttributes<H
                     {`${theme[0].toUpperCase()}${theme.substring(1)} mode`}
                 </button>
                 <Link to="/settings" className="button-ghost">Settings</Link>
-                <button onClick={e => {
+                <button onClick={async e => {
                     e.preventDefault()
+                    const response = await authService.logOut()
+                    if (response.status === "UNEXPECTED_ERROR") {
+                        alert(response.status)
+                        return
+                    }
                     navigate("/login")
                 }} className="button-danger">Log out</button>
             </div>

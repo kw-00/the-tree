@@ -1,5 +1,5 @@
 
 export type StandardResponse<Status extends string> = {
-    status: Status
+    status: Status | "UNEXPECTED_ERROR"
     message: string
 }

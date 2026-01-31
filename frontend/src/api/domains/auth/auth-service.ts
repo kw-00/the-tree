@@ -37,13 +37,11 @@ export async function refreshToken(params: RefreshTokenParams): Promise<RefreshT
     return makePOSTRequest(`${baseUrl}${authPaths.refreshToken.path}`, params)
 }
 
-export type LogOutParams = {}
-
 export type LogOutResponse = StandardResponse<
     "SUCCESS" 
     | "SUCCESS_REDUNDANT"
 >
 
-export async function logOut(params: LogOutParams): Promise<LogOutResponse> {
-    return makePOSTRequest(`${baseUrl}${authPaths.logOut.path}`, params)
+export async function logOut(): Promise<LogOutResponse> {
+    return makePOSTRequest(`${baseUrl}${authPaths.logOut.path}`)
 }
