@@ -10,16 +10,14 @@ export type ErrorListener = (error: Error) => void
 class MessageStoreWindow {
     #messageStore: MessageStore
     #size: number
-    #jump: number
     #cursors: Map<number, number> = new Map()
     #emitListeners: Set<() => void> = new Set()
     #errorListeners: Set<ErrorListener> = new Set()
 
 
-    constructor(messageStore: MessageStore, size: number, jump: number) {
+    constructor(messageStore: MessageStore, size: number) {
         this.#messageStore = messageStore
         this.#size = size
-        this.#jump = jump
     }
 
     addEmitListener(listener: () => void) {
@@ -55,7 +53,9 @@ class MessageStoreWindow {
             storeEntry = this.#messageStore.getStore().get(chatroomId)!
         }
         const cursor = this.#cursors.get(chatroomId) ?? 0
-        const newCursor = cursor + this.#jump
+        const newCursor = cursor + this.#size
+        console.log("Cur: ", newCursor)
+        console.log("Len: ", storeEntry.messages.length)
 
         if (newCursor >= storeEntry.messages.length) {
             await this.#messageStore.fetchNextMessages(chatroomId, newCursor + 1 - storeEntry.messages.length)
@@ -72,7 +72,9 @@ class MessageStoreWindow {
             storeEntry = this.#messageStore.getStore().get(chatroomId)!
         }
         const cursor = this.#cursors.get(chatroomId) ?? 0
-        const newCursor = cursor - this.#jump
+        const newCursor = cursor - this.#size
+        console.log("Cur: ", newCursor)
+        console.log("Len: ", storeEntry.messages.length)
 
         if (newCursor < 0) {
             await this.#messageStore.fetchPreviousMessages(chatroomId, -newCursor)
@@ -93,9 +95,9 @@ class MessageStoreWindow {
     }
 }
 
-export function useMessageStoreWindow(size: number, jump: number) {
+export function useMessageStoreWindow(size: number) {
     const {messageStore} = useMessageStore()
-    const windowRef = useRef(new MessageStoreWindow(messageStore, size, jump))
+    const windowRef = useRef(new MessageStoreWindow(messageStore, size))
     return {
         messageStoreWindow: windowRef.current
     }

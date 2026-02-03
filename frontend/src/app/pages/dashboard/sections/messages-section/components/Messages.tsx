@@ -13,13 +13,9 @@ const chatroomId = 1
 export default function Messages() {
     const forceUpdate = useForceUpdate()
 
-    const {messageStoreWindow} = useMessageStoreWindow(50, 25)
+    const {messageStoreWindow} = useMessageStoreWindow(50)
     const scrollableRef = useRef<HTMLDivElement | null>(null)
     const scrollStateBufferRef = useRef<ScrollState | null>(null)
-
-    useLayoutEffect(() => {
-        
-    })
 
     useEffect(() => {
         const unsub = messageStoreWindow.addEmitListener(() => {
@@ -44,7 +40,7 @@ export default function Messages() {
                     await messageStoreWindow.movePrevious(chatroomId)
                 } else if (currentScrollState.isNearBottom && !prevScrollState.isNearBottom) {
                     await messageStoreWindow.moveNext(chatroomId)
-                    
+
                 }
             }
             scrollStateBufferRef.current = currentScrollState
