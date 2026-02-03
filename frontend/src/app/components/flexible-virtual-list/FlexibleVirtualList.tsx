@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, type ReactElement } from "react"
 
 export type FlexibleVirtualListCacheInit<ElementProps> = {
     initialElementProps: ElementProps[]
-    elementFactory: (props: ElementProps) => ReactElement
     estimatedElementHeight: number
 }
 
@@ -16,7 +15,7 @@ export type FlexibleVirtualListData<ElementProps> = {
 
 
 export function useFlexibleVirtualListCache<ElementProps>(
-        {initialElementProps, elementFactory, estimatedElementHeight}: FlexibleVirtualListCacheInit<ElementProps>
+        {initialElementProps, estimatedElementHeight}: FlexibleVirtualListCacheInit<ElementProps>
     ) {
     const [data, setData] = useState<FlexibleVirtualListData<ElementProps>>({
         elementProps: initialElementProps, 
@@ -39,15 +38,36 @@ export function useFlexibleVirtualListCache<ElementProps>(
         setData(newData)
     }
 
+    const calculatePosition = (index: number) => {
+        return data.heightCache.slice(0, index).reduce((prev, next) => prev + next, 0)
+    }
+
+    const calculateIndex = (position: number) => {
+        let index = 0
+        while (true) {
+            position -= data.heightCache[index]
+            if (position < 0) {
+                return index
+            }
+        }
+    }
+
     return {
         data,
         prependElements,
-        appendElements
+        appendElements,
+        calculatePosition,
+        calculateIndex
     }
 }
 
+export type FlexibleVirtualListProps<ElementProps> = {
+    data: FlexibleVirtualListData<ElementProps>
+    elementFactory: (props: ElementProps) => ReactElement
+}
+
 export function FlexibleVirtualList<ElementProps>(
-        {data}: {data: FlexibleVirtualListData<ElementProps>}
+        {data, elementFactory}: FlexibleVirtualListProps<ElementProps>
     ) {
     const containerRef = useRef<HTMLDivElement | null>(null)
 
