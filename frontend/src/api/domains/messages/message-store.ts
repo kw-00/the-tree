@@ -20,18 +20,13 @@ export type MessageListener = (messages: MessageData[], chatroomId: number) => v
 export type ResizedListener = (newSize: number, chatroomId: number) => void
 export type ChatroomListener = (chatroomId: number) => void
 
-export type Store = {
-    data: Map<number, Room>
+export type Store = Map<number, Room>
 
-}
+export type ReadonlyStore = ReadonlyMap<number, Readonly<Room>>
 
 export class MessageStore {
 
-    #store: Store = {
-        data: new Map(),
-    }
-
-    #dataSnapshot = new Map(this.#store.data)
+    #store: Store = new Map()
 
     #errorListeners: Set<ErrorListener> =  new Set()
     #chatroomEmitListeners: Map<number, Set<() => void>> =  new Map()
@@ -72,31 +67,34 @@ export class MessageStore {
     }
 
     #emitChange(chatroomId: number) {
-        const entry = this.#store.data.get(chatroomId)
+        const entry = this.#store.get(chatroomId)
         if (!entry) {
             this.#errorListeners.forEach(l => l(new Error("Emitting change for non-existent chatroom.")))
             return 
         }
-        this.#store.data.set(chatroomId, Object.assign({}, entry))
-        this.#dataSnapshot = new Map(this.#store.data)
+        this.#store.set(chatroomId, Object.assign({}, entry))
         this.#chatroomEmitListeners.get(chatroomId)?.forEach(l => l())
         this.#globalEmitListeners.forEach(l => l())
     }
 
+    getStore(): ReadonlyStore {
+        return this.#store
+    }
+
 
     // Adding chatrooms
-    addChatrooms (...chatroomIds: number[]) {
+    addChatrooms(...chatroomIds: number[]) {
         chatroomIds.forEach(id => {
-            if (this.#store.data.get(id)) return
-            this.#store.data.set(id, {messages: [], hasPrevious: true, hasNext: true})
+            if (this.#store.get(id)) return
+            this.#store.set(id, {messages: [], hasPrevious: true, hasNext: true})
         })
     }
 
-        // Adding chatrooms
+    // Removing chatrooms
     removeChatrooms(...chatroomIds: number[]) {
         chatroomIds.forEach(id => {
             this.#emitChange(id)
-            this.#store.data.delete(id)
+            this.#store.delete(id)
             this.#chatroomEmitListeners.delete(id)
         })
     }
@@ -104,10 +102,10 @@ export class MessageStore {
     // Prepending messages
     prependMessages(chatroomId: number, ...messages: MessageData[]) {
         if (messages.length === 0) return
-        let entry = this.#store.data.get(chatroomId)
+        let entry = this.#store.get(chatroomId)
         if (!entry) {
             this.addChatrooms(chatroomId)
-            entry = this.#store.data.get(chatroomId)!
+            entry = this.#store.get(chatroomId)!
         }
         entry.messages = [...messages, ...entry.messages]
         this.#emitChange(chatroomId)
@@ -116,17 +114,17 @@ export class MessageStore {
     // Appending messages
     appendMessages(chatroomId: number, ...messages: MessageData[]) {
         if (messages.length === 0) return
-        let entry = this.#store.data.get(chatroomId)
+        let entry = this.#store.get(chatroomId)
         if (!entry) {
             this.addChatrooms(chatroomId)
-            entry = this.#store.data.get(chatroomId)!
+            entry = this.#store.get(chatroomId)!
         }
         entry.messages = [...entry.messages, ...messages]
         this.#emitChange(chatroomId)
     }
 
     resize(chatroomId: number, newSize: number, keep: "new" | "old" = "new") {
-        const entry = this.#store.data.get(chatroomId)
+        const entry = this.#store.get(chatroomId)
         if (!entry) {
             this.#error(new ChatroomNotFoundError(chatroomId))
             return
@@ -145,7 +143,7 @@ export class MessageStore {
     // Fetching messages
     async fetchPreviousMessages(chatroomId: number, limit: number) {
         this.addChatrooms(chatroomId)
-        const entry = this.#store.data.get(chatroomId)!
+        const entry = this.#store.get(chatroomId)!
         if (!entry.hasPrevious) {
             return
         }
@@ -166,7 +164,7 @@ export class MessageStore {
 
     async fetchNextMessages(chatroomId: number, limit: number) {
         this.addChatrooms(chatroomId)
-        const entry = this.#store.data.get(chatroomId)!
+        const entry = this.#store.get(chatroomId)!
         if (!entry.hasNext) {
             return
         }
@@ -189,7 +187,7 @@ export class MessageStore {
     }
 
     invalidate(chatroomId: number) {
-        const entry = this.#store.data.get(chatroomId)
+        const entry = this.#store.get(chatroomId)
         if (!entry) {
             this.#error(new ChatroomNotFoundError(chatroomId))
             return
@@ -205,10 +203,6 @@ export class MessageStore {
     subscribeGlobal = (listener: () => void) => {
         return this.#addGlobalEmitListener(listener)
     }
-
-    getSnapshot = () => {
-        return this.#dataSnapshot as ReadonlyMap<number, Readonly<Room>>
-    }
 }
 
 const globalStore = new MessageStore()
@@ -217,7 +211,6 @@ export function useMessageStore() {
     const storeRef = useRef(globalStore)
 
     return {
-        messageStoreSnapshot: storeRef.current.getSnapshot(),
         messageStore: storeRef.current
     }
 }

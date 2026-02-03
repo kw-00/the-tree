@@ -41,7 +41,7 @@
             },
             "getFriends": {
                 "path": "/get_friends",
-                "maxBatchSize": 20
+                "maxBatchSize": 200
             },
             "removeFriend": {
                 "path": "/remove_friend"
@@ -69,11 +69,11 @@
             },
             "getNextMessages": {
                 "path": "/get_next_messages",
-                "maxBatchSize": 20
+                "maxBatchSize": 200
             },
             "getPreviousMessages": {
                 "path": "/get_previous_messages",
-                "maxBatchSize": 20
+                "maxBatchSize": 200
             }
         }
     },

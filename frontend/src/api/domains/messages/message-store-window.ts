@@ -1,5 +1,6 @@
 import { useRef } from "react";
-import { useMessageStore, type MessageStore, type Room } from "./message-store";
+import { useMessageStore, type MessageStore } from "./message-store";
+import { clamp } from "@/utils/math";
 
 
 
@@ -8,7 +9,6 @@ export type ErrorListener = (error: Error) => void
 
 class MessageStoreWindow {
     #messageStore: MessageStore
-    #messageStoreSnapshot: ReadonlyMap<number, Readonly<Room>>
     #size: number
     #jump: number
     #cursors: Map<number, number> = new Map()
@@ -18,15 +18,13 @@ class MessageStoreWindow {
 
     constructor(messageStore: MessageStore, size: number, jump: number) {
         this.#messageStore = messageStore
-        this.#messageStoreSnapshot = messageStore.getSnapshot()
         this.#size = size
         this.#jump = jump
-
-        this.#messageStore.subscribeGlobal(() => this.#messageStoreSnapshot = messageStore.getSnapshot())
     }
 
     addEmitListener(listener: () => void) {
         this.#emitListeners.add(listener)
+        return () => this.removeEmitListener(listener)
     }
 
     removeEmitListener(listener: () => void) {
@@ -39,6 +37,7 @@ class MessageStoreWindow {
 
     addErroristener(listener: ErrorListener) {
         this.#errorListeners.add(listener)
+        return () => this.removeErrorListener(listener)
     }
 
     removeErrorListener(listener: ErrorListener) {
@@ -49,45 +48,45 @@ class MessageStoreWindow {
         this.#errorListeners.forEach(l => l(error))
     }
 
-    moveNext(chatroomId: number) {
-        const storeEntry = this.#messageStoreSnapshot.get(chatroomId)
+    async moveNext(chatroomId: number) {
+        let storeEntry = this.#messageStore.getStore().get(chatroomId)
         if (!storeEntry) {
-            this.#fireError(new Error(`MessageStore does not contain chatroom with ID of ${chatroomId}.`))
-            return
+            this.#messageStore.addChatrooms(chatroomId)
+            storeEntry = this.#messageStore.getStore().get(chatroomId)!
         }
         const cursor = this.#cursors.get(chatroomId) ?? 0
         const newCursor = cursor + this.#jump
 
         if (newCursor >= storeEntry.messages.length) {
-            this.#messageStore.fetchNextMessages(chatroomId, newCursor + 1 - storeEntry.messages.length)
+            await this.#messageStore.fetchNextMessages(chatroomId, newCursor + 1 - storeEntry.messages.length)
         }
-        this.#cursors.set(chatroomId, Math.min(newCursor, storeEntry.messages.length - this.#size))
+        this.#cursors.set(chatroomId, clamp(newCursor, 0, storeEntry.messages.length - this.#size))
 
         this.#fireEmit()
     }
 
-    movePrevious(chatroomId: number) {
-        const storeEntry = this.#messageStoreSnapshot.get(chatroomId)
+    async movePrevious(chatroomId: number) {
+        let storeEntry = this.#messageStore.getStore().get(chatroomId)
         if (!storeEntry) {
-            this.#fireError(new Error(`MessageStore does not contain chatroom with ID of ${chatroomId}.`))
-            return
+            this.#messageStore.addChatrooms(chatroomId)
+            storeEntry = this.#messageStore.getStore().get(chatroomId)!
         }
         const cursor = this.#cursors.get(chatroomId) ?? 0
         const newCursor = cursor - this.#jump
 
         if (newCursor < 0) {
-            this.#messageStore.fetchPreviousMessages(chatroomId, -newCursor)
+            await this.#messageStore.fetchPreviousMessages(chatroomId, -newCursor)
         }
-        this.#cursors.set(chatroomId, Math.max(newCursor, 0))
+        this.#cursors.set(chatroomId, clamp(newCursor, 0, storeEntry.messages.length - this.#size))
 
         this.#fireEmit()
     }
 
     getMessages(chatroomId: number) {
-        const storeEntry = this.#messageStoreSnapshot.get(chatroomId)
+        const storeEntry = this.#messageStore.getStore().get(chatroomId)
         if (!storeEntry) {
             this.#fireError(new Error(`MessageStore does not contain chatroom with ID of ${chatroomId}.`))
-            return
+            return []
         }
         const cursor = this.#cursors.get(chatroomId) ?? 0
         return storeEntry.messages.slice(cursor, cursor + this.#size)
