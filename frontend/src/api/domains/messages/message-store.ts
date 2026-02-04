@@ -15,10 +15,9 @@ class ChatroomNotFoundError extends Error {
     }
 }
 
-export type ErrorListener = (error: Error) => void
-export type MessageListener = (messages: MessageData[], chatroomId: number) => void
-export type ResizedListener = (newSize: number, chatroomId: number) => void
-export type ChatroomListener = (chatroomId: number) => void
+export type MessageListener = (messages: MessageData[], type: "appended" | "prepended") => void
+export type ChatroomListener = (chatroomId: number, type: "added" | "removed") => void
+export type ResizingListener = () => void
 
 export type Store = Map<number, Room>
 
@@ -28,75 +27,101 @@ export class MessageStore {
 
     #store: Store = new Map()
 
-    #errorListeners: Set<ErrorListener> =  new Set()
-    #chatroomEmitListeners: Map<number, Set<() => void>> =  new Map()
-    #globalEmitListeners: Set<() => void> = new Set()
+    #chatroomListeners: Set<ChatroomListener> =  new Set()
+    #messageListeners: Map<number, Set<MessageListener>> = new Map()
+    #resizingListeners: Map<number, Set<ResizingListener>> = new Map()
 
-    // Error Event
-    addErrorListener(listener: ErrorListener) {
-        this.#errorListeners.add(listener)
-        return () => this.removeErrorListener(listener)
+
+    // Chatroom Event
+    addChatroomListener(listener: ChatroomListener) {
+        this.#chatroomListeners.add(listener)
+        return () => this.removeChatroomListener(listener)
     }
 
-    removeErrorListener (listener: ErrorListener) {
-        this.#errorListeners.delete(listener)
+    removeChatroomListener(listener: ChatroomListener) {
+        this.#chatroomListeners.delete(listener)
     }
 
-    // Data Mutated Event
-    #addChatroomEmitListener(listener: () => void, chatroomId: number) {
-        this.#chatroomEmitListeners.get(chatroomId)?.add(listener)
-        return () => this.#removeChatroomEmitListener(listener, chatroomId)
+    #fireChatroomAdded(chatroomId: number) {
+        this.#chatroomListeners.forEach(l => l(chatroomId, "added"))
     }
 
-    #removeChatroomEmitListener(listener: () => void, chatroomId: number) {
-        this.#chatroomEmitListeners.get(chatroomId)?.delete(listener)
+    #fireChatroomRemoved(chatroomId: number) {
+        this.#chatroomListeners.forEach(l => l(chatroomId, "removed"))
     }
 
-    // Message Prepended Event
-    #addGlobalEmitListener(listener: () => void) {
-        this.#globalEmitListeners.add(listener)
-        return () => this.#removeGlobalEmitListener(listener)
+    // Message Event
+    addMessageListener(listener: MessageListener, chatroomId: number) {
+        const listenerSet = this.#messageListeners.get(chatroomId)
+        if (!listenerSet) throw new Error(`Message with ID of ${chatroomId} is not featured in MessageStore.`) 
+        
+        listenerSet.add(listener)
+        return () => this.removeMessageListener(listener, chatroomId)
     }
 
-    #removeGlobalEmitListener(listener: () => void) {
-        this.#globalEmitListeners.delete(listener)
+    removeMessageListener(listener: MessageListener, chatroomId: number) {
+        this.#messageListeners.get(chatroomId)?.delete(listener)
     }
 
-    #error(error: Error) {
-        this.#errorListeners.forEach(l => l(error))
+    #fireMessagesAppended(chatroomId: number, messages: MessageData[]) {
+        this.#messageListeners.get(chatroomId)?.forEach(l => l(messages, "appended"))
     }
 
-    #emitChange(chatroomId: number) {
-        const entry = this.#store.get(chatroomId)
-        if (!entry) {
-            this.#errorListeners.forEach(l => l(new Error("Emitting change for non-existent chatroom.")))
-            return 
-        }
-        this.#store.set(chatroomId, Object.assign({}, entry))
-        this.#chatroomEmitListeners.get(chatroomId)?.forEach(l => l())
-        this.#globalEmitListeners.forEach(l => l())
+    #fireMessagesPrepended(chatroomId: number, messages: MessageData[]) {
+        this.#messageListeners.get(chatroomId)?.forEach(l => l(messages, "prepended"))
     }
+
+    // Resizing Event
+    addResizingListener(listener: ResizingListener, chatroomId: number) {
+        const listenerSet = this.#resizingListeners.get(chatroomId)
+        if (!listenerSet) throw new Error(`Resizing with ID of ${chatroomId} is not featured in MessageStore.`) 
+        
+        listenerSet.add(listener)
+        return () => this.removeResizingListener(listener, chatroomId)
+    }
+
+    removeResizingListener(listener: ResizingListener, chatroomId: number) {
+        this.#resizingListeners.get(chatroomId)?.delete(listener)
+    }
+
+    #fireResized(chatroomId: number) {
+        this.#resizingListeners.get(chatroomId)?.forEach(l => l())
+    }
+
 
     getStore(): ReadonlyStore {
         return this.#store
     }
-
 
     // Adding chatrooms
     addChatrooms(...chatroomIds: number[]) {
         chatroomIds.forEach(id => {
             if (this.#store.get(id)) return
             this.#store.set(id, {messages: [], hasPrevious: true, hasNext: true})
+            this.#fireChatroomAdded(id)
         })
     }
 
     // Removing chatrooms
     removeChatrooms(...chatroomIds: number[]) {
         chatroomIds.forEach(id => {
-            this.#emitChange(id)
             this.#store.delete(id)
-            this.#chatroomEmitListeners.delete(id)
+            this.#messageListeners.delete(id)
+            this.#resizingListeners.delete(id)
+            this.#fireChatroomRemoved(id)
         })
+    }
+    
+    // Appending messages
+    appendMessages(chatroomId: number, ...messages: MessageData[]) {
+        if (messages.length === 0) return
+        let entry = this.#store.get(chatroomId)
+        if (!entry) {
+            this.addChatrooms(chatroomId)
+            entry = this.#store.get(chatroomId)!
+        }
+        entry.messages = [...entry.messages, ...messages]
+        this.#fireMessagesAppended(chatroomId, messages)
     }
 
     // Prepending messages
@@ -108,26 +133,13 @@ export class MessageStore {
             entry = this.#store.get(chatroomId)!
         }
         entry.messages = [...messages, ...entry.messages]
-        this.#emitChange(chatroomId)
-    }
-
-    // Appending messages
-    appendMessages(chatroomId: number, ...messages: MessageData[]) {
-        if (messages.length === 0) return
-        let entry = this.#store.get(chatroomId)
-        if (!entry) {
-            this.addChatrooms(chatroomId)
-            entry = this.#store.get(chatroomId)!
-        }
-        entry.messages = [...entry.messages, ...messages]
-        this.#emitChange(chatroomId)
+        this.#fireMessagesPrepended(chatroomId, messages)
     }
 
     resize(chatroomId: number, newSize: number, keep: "new" | "old" = "new") {
         const entry = this.#store.get(chatroomId)
         if (!entry) {
-            this.#error(new ChatroomNotFoundError(chatroomId))
-            return
+            throw new ChatroomNotFoundError(chatroomId)
         }
         if (entry.messages.length <= newSize) return 
 
@@ -137,7 +149,7 @@ export class MessageStore {
             entry.messages.splice(newSize)
         }
         entry.messages = [...entry.messages]
-        this.#emitChange(chatroomId)
+        this.#fireResized(chatroomId)
     }
 
     // Fetching messages
@@ -148,18 +160,9 @@ export class MessageStore {
             return
         }
         const firstMessageId = entry.messages[0]?.id ?? null
-        try {
-            const result = await throwErrorOnRequestFailure(() => getPreviousMessages({chatroomId: chatroomId, before: firstMessageId, limit}))
-            entry.hasPrevious = result.page?.prevCursor ? true : false
-            this.prependMessages(chatroomId, ...result.page!.messagesData)
-        } catch (error) {
-            if (error instanceof Error) {
-                this.#error(error)
-            } else {
-                throw error
-            }
-        }
-
+        const result = await throwErrorOnRequestFailure(() => getPreviousMessages({chatroomId: chatroomId, before: firstMessageId, limit}))
+        entry.hasPrevious = result.page?.prevCursor ? true : false
+        this.prependMessages(chatroomId, ...result.page!.messagesData)
     }
 
     async fetchNextMessages(chatroomId: number, limit: number) {
@@ -173,35 +176,15 @@ export class MessageStore {
             await this.fetchPreviousMessages(chatroomId, limit)
             return
         }
-        try {
-            const result = await throwErrorOnRequestFailure(() => getNextMessages({chatroomId: chatroomId, after: lastMessageId, limit}))
-            entry.hasNext = result.page?.nextCursor ? true : false
-            this.appendMessages(chatroomId, ...result.page!.messagesData)
-        } catch (error) {
-            if (error instanceof Error) {
-                this.#error(error)
-            } else {
-                throw error
-            }
-        }
+        const result = await throwErrorOnRequestFailure(() => getNextMessages({chatroomId: chatroomId, after: lastMessageId, limit}))
+        entry.hasNext = result.page?.nextCursor ? true : false
+        this.appendMessages(chatroomId, ...result.page!.messagesData)
+
     }
 
     invalidate(chatroomId: number) {
         const entry = this.#store.get(chatroomId)
-        if (!entry) {
-            this.#error(new ChatroomNotFoundError(chatroomId))
-            return
-        }
-        entry.hasNext = true
-    }
-
-    // May be passed as callbacks
-    subscribeChatroom = (listener: () => void, chatroomId: number) => {
-        return this.#addChatroomEmitListener(listener, chatroomId)
-    }
-
-    subscribeGlobal = (listener: () => void) => {
-        return this.#addGlobalEmitListener(listener)
+        if (entry) entry.hasNext = true
     }
 }
 

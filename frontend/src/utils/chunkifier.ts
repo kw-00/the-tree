@@ -1,20 +1,20 @@
 
 
 
-class BaseChunkifier<T> {
-    #chunks: T[][]
+export class Chunkifier<T> {
+    _chunks: T[][]
     #chunkSize: number
 
     constructor(data: T[], chunkSize: number) {
         this.#chunkSize = chunkSize
-        this.#chunks = this.#chunkify(data)
+        this._chunks = this.#chunkify(data)
     }
 
     /**
      * Returns the number of chunks.
      */
     chunkCount() {
-        return this.#chunks.length
+        return this._chunks.length
     }
 
     /**
@@ -24,20 +24,83 @@ class BaseChunkifier<T> {
         return this.#chunkSize
     }
 
+    totalSize() {
+        let size = 0
+        for (let i = 0; i < this.chunkCount(); i++) {
+            size += this.getChunk(i)!.length
+        }
+        return size
+    }
+
+    getData() {
+        const data = []
+        for (let i = 0; i < this.chunkCount(); i++) {
+            data.push(...this.getChunk(i)!)
+        }
+        return data
+    }
+
     appendData(...data: T[]) {
-        const lastChunk = this.#chunks[this.chunkCount() - 1]
-        const remainingSpaceInChunk = this.#chunkSize - lastChunk.length
-        lastChunk.push(...data.splice(0, remainingSpaceInChunk))
-        this.#chunks.push(...this.#chunkify(data))
+        const lastChunk = this.getChunkByOffset(-1)
+        if (lastChunk) {
+            const remainingSpaceInChunk = this.#chunkSize - lastChunk.length
+            lastChunk.push(...data.splice(0, remainingSpaceInChunk))
+        }
+        this._chunks.push(...this.#chunkify(data))
     }
 
     prependData(...data: T[]) {
-        const firstChunk = this.#chunks[0]
-        const remainingSpaceInChunk = this.#chunkSize - firstChunk.length
-        if (remainingSpaceInChunk > 0) {
-            firstChunk.unshift(...data.splice(-remainingSpaceInChunk))
+        const firstChunk = this.getChunk(0)
+        if (firstChunk) {
+            const remainingSpaceInChunk = this.#chunkSize - firstChunk.length
+            if (remainingSpaceInChunk > 0) {
+                firstChunk.unshift(...data.splice(-remainingSpaceInChunk))
+            }
         }
-        this.#chunks.unshift(...this.#chunkify(data))
+        this._chunks.unshift(...this.#chunkify(data))
+    }
+
+    popData(count: number) {
+        while (true) {
+            const lastChunk = this.getChunkByOffset(-1)
+            if (!lastChunk) return
+            if (count >= lastChunk.length) {
+                count -= lastChunk.length
+                this.pop()
+            } else {
+                lastChunk.splice(lastChunk.length - count)
+                return
+            }
+        }
+    }
+
+    shiftData(count: number) {
+        while (true) {
+            const firstChunk = this.getChunk(0)
+            if (!firstChunk) return
+
+            if (count >= firstChunk.length) {
+                count -= firstChunk.length
+                this.shift()
+            } else {
+                firstChunk.splice(0, count)
+                return
+            }
+        }
+    }
+
+    /**
+     * Removes the last chunk.
+     */
+    pop() {
+        this._chunks.pop()
+    }
+
+    /**
+     * Removes the first chunk.
+     */
+    shift() {
+        this._chunks.shift()
     }
 
     /**
@@ -45,8 +108,8 @@ class BaseChunkifier<T> {
      * reverse indexation.
      */
     getChunkByOffset(offset: number) {
-        if (offset < 0) offset = this.#chunks.length + offset
-        const result = this.#chunks[offset]
+        if (offset < 0) offset = this._chunks.length + offset
+        const result = this._chunks[offset]
         return result as T[] | undefined
     }
 
@@ -54,21 +117,7 @@ class BaseChunkifier<T> {
      * Returns a chunk at a given index.
      */
     getChunk(index: number) {
-        return this.#chunks[index] as T[] | undefined
-    }
-
-    /**
-     * Removes the last chunk.
-     */
-    pop() {
-        this.#chunks.pop()
-    }
-
-    /**
-     * Removes the first chunk.
-     */
-    shift() {
-        this.#chunks.shift()
+        return this._chunks[index] as T[] | undefined
     }
 
     #chunkify(data: T[]): T[][] {
@@ -86,117 +135,65 @@ class BaseChunkifier<T> {
     }
 }
 
-export class Chunkifier<T> extends BaseChunkifier<T> {
-    #cursor: number
-
-    constructor(data: T[], chunkSize: number, initialCursor: number) {
-        super(data, chunkSize)
-        const lastChunk = this.getChunkByOffset(-1)
-        if (lastChunk) {
-            const bufferForIncompleteLastChunk = this.#chunkIsFull(lastChunk) ? 0 : 1
-            this.#cursor = initialCursor < 0 
-                ? 
-                Math.max(this.chunkCount() + initialCursor - bufferForIncompleteLastChunk, 0) 
-                : 
-                Math.min(initialCursor, this.chunkCount() - 1 - bufferForIncompleteLastChunk)
-        } else {
-            this.#cursor = 0
-        }
+export class MergingChunkifier<T> extends Chunkifier<T> {
+    override appendData(...data: T[]): void {
+        this.#splitOvergrownLastChunk()
+        super.appendData(...data)
+        this.#mergeIncompleteLastChunk()
     }
 
     override prependData(...data: T[]): void {
-        const oldChunkCount = this.chunkCount()
-        super.prependData(...data)
-        const newChunkCount = this.chunkCount()
-        this.#cursor += newChunkCount - oldChunkCount
+        this.#splitOvergrownFirstChunk()
+        super.prependData(...data) 
+        this.#mergeIncompleteFirstChunk()
     }
 
-    override shift() {
-        super.shift()
-        this.#cursor -= 1
+    override popData(count: number): void {
+        super.popData(count)
+        this.#mergeIncompleteLastChunk()
     }
 
-    /**
-     * Moves the cursor to the next chunk and returns that chunk.
-     * 
-     * Works only if there is a next chunk - otherwise, returns `undefined`.
-     */
-    next() {
-        const currentChunk = this.getChunk(this.#cursor)
-        if (!currentChunk) return undefined
-        
-        const nextCursor = this.#cursor + 1
-        const nextChunk = this.getChunk(nextCursor)
+    override shiftData(count: number): void {
+        super.shiftData(count)
+        this.#mergeIncompleteFirstChunk()
+    }
 
-        if (nextChunk && this.#chunkIsFull(nextChunk)) {
-            this.#cursor = nextCursor
-            return this.current()
+
+    #mergeIncompleteLastChunk() {
+        const lastChunk = this.getChunkByOffset(-1)
+        const penultimateChunk = this.getChunkByOffset(-2) 
+        if (lastChunk && penultimateChunk && lastChunk.length < this.chunkSize()) {
+            this.pop()
+            this.pop()
+            this._chunks.push([...penultimateChunk, ...lastChunk])
         }
     }
 
-    /**
-     * Moves the cursor to the previous chunk and returns that chunk.
-     * 
-     * Works only if cursor can move backwards - otherwise, returns `undefined`.
-     */
-    previous() {
-        const currentChunk = this.getChunkByOffset(this.#cursor)
-        if (!currentChunk) return undefined
+    #mergeIncompleteFirstChunk() {
+        const firstChunk = this.getChunk(0)
+        const secondChunk = this.getChunk(1)
+        if (firstChunk && secondChunk && firstChunk.length < this.chunkSize()) {
+            this.shift()
+            this.shift()
+            this._chunks.push([...firstChunk, ...secondChunk])
+        }
 
-        const prevCursor = this.#cursor - 1
-        const prevChunk = this.getChunk(prevCursor)
+    }
 
-        if (prevChunk && this.#chunkIsFull(prevChunk)) {
-            this.#cursor = prevCursor
-            return this.current()
+    #splitOvergrownLastChunk() {
+        const lastChunk = this.getChunkByOffset(-1)
+        if (lastChunk && lastChunk.length > this.chunkSize()) {
+            const newLastChunk = lastChunk.splice(this.chunkSize())
+            this._chunks.push(newLastChunk)
         }
     }
 
-    /**
-     * Returns the chunk under the current cursor, merged with surrounding chunks if they are not full.
-     */
-    current() {
-        const currentChunk = this.getChunk(this.#cursor)
-        if (currentChunk) {
-            return this.#absorbIncompleteChunks(this.#cursor)
-        }
-    }
-
-    #chunkIsFull(chunk: T[]) {
-        return chunk.length === this.chunkSize()
-    }
-
-    /**
-     * Returns the chunk with the given index, potentially merged with surrounding chunks.
-     * Surrounding chunks are merged only if they are not full. 
-     * 
-     * No mutation occurs.
-     * 
-     * @throws RangeError - if index is out of bounds.
-     */
-    #absorbIncompleteChunks(index: number) {
-        const chunk = this.getChunkByOffset(index)
-        if (!chunk) throw new RangeError(`Index of ${index} is out of bounds for chunkCount of ${this.chunkCount()}`)
-        return [...this.#getPreviousChunkIfIncomplete(index) ?? [], ...chunk, ...this.#getNextChunkIfIncomplete(index) ?? []]
-    }
-
-    /**
-     * Returns the chunk after the given index if that chunk is not full.
-     */
-    #getNextChunkIfIncomplete(index: number) {
-        const nextChunk = this.getChunkByOffset(index + 1)
-        if (nextChunk && !this.#chunkIsFull(nextChunk)) {
-            return nextChunk
-        }
-    }
-
-    /**
-     * Returns the chunk before the given index if that chunk is not full.
-     */
-    #getPreviousChunkIfIncomplete(index: number) {
-        const prevChunk = this.getChunkByOffset(index - 1)
-        if (prevChunk && !this.#chunkIsFull(prevChunk)) {
-            return prevChunk
+    #splitOvergrownFirstChunk() {
+        const firstChunk = this.getChunk(0)
+        if (firstChunk && firstChunk.length > this.chunkSize()) {
+            const newFirstChunk = firstChunk.splice(0, firstChunk.length - this.chunkSize())
+            this._chunks.unshift(newFirstChunk)
         }
     }
 }
+
