@@ -1,4 +1,3 @@
-import { useRef } from "react"
 import { getNextMessages, getPreviousMessages, type MessageData } from "./messages-service"
 import { throwErrorOnRequestFailure } from "../00-common/queries/utility"
 
@@ -185,15 +184,5 @@ export class MessageStore {
     invalidate(chatroomId: number) {
         const entry = this.#store.get(chatroomId)
         if (entry) entry.hasNext = true
-    }
-}
-
-const globalStore = new MessageStore()
-
-export function useMessageStore() {
-    const storeRef = useRef(globalStore)
-
-    return {
-        messageStore: storeRef.current
     }
 }
