@@ -1,10 +1,3 @@
-import { clamp } from "./math"
-
-
-
-
-
-
 
 
 
@@ -41,7 +34,9 @@ class BaseChunkifier<T> {
     prependData(...data: T[]) {
         const firstChunk = this.#chunks[0]
         const remainingSpaceInChunk = this.#chunkSize - firstChunk.length
-        firstChunk.unshift(...data.splice(-remainingSpaceInChunk))
+        if (remainingSpaceInChunk > 0) {
+            firstChunk.unshift(...data.splice(-remainingSpaceInChunk))
+        }
         this.#chunks.unshift(...this.#chunkify(data))
     }
 
@@ -91,12 +86,6 @@ class BaseChunkifier<T> {
     }
 }
 
-type ChunkFullnessState = {
-    fullChunkCount: number
-    firstFull: boolean
-    lastFull: boolean
-}
-
 export class Chunkifier<T> extends BaseChunkifier<T> {
     #cursor: number
 
@@ -104,11 +93,12 @@ export class Chunkifier<T> extends BaseChunkifier<T> {
         super(data, chunkSize)
         const lastChunk = this.getChunkByOffset(-1)
         if (lastChunk) {
-            this.#cursor = clamp(
-                initialCursor, 
-                0, 
-                lastChunk.length === this.chunkSize() ? this.chunkCount() : this.chunkCount() - 1
-            )
+            const bufferForIncompleteLastChunk = this.#chunkIsFull(lastChunk) ? 0 : 1
+            this.#cursor = initialCursor < 0 
+                ? 
+                Math.max(this.chunkCount() + initialCursor - bufferForIncompleteLastChunk, 0) 
+                : 
+                Math.min(initialCursor, this.chunkCount() - 1 - bufferForIncompleteLastChunk)
         } else {
             this.#cursor = 0
         }
@@ -116,7 +106,7 @@ export class Chunkifier<T> extends BaseChunkifier<T> {
 
     override prependData(...data: T[]): void {
         const oldChunkCount = this.chunkCount()
-        super.appendData(...data)
+        super.prependData(...data)
         const newChunkCount = this.chunkCount()
         this.#cursor += newChunkCount - oldChunkCount
     }
@@ -157,7 +147,7 @@ export class Chunkifier<T> extends BaseChunkifier<T> {
         const prevChunk = this.getChunk(prevCursor)
 
         if (prevChunk && this.#chunkIsFull(prevChunk)) {
-            this.#cursor -= 1
+            this.#cursor = prevCursor
             return this.current()
         }
     }
