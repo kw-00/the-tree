@@ -53,16 +53,10 @@ export class Chunkifier<T> implements IChunkifier<T> {
         this._chunks = this.#chunkify(data)
     }
 
-    /**
-     * Returns the number of chunks.
-     */
     chunkCount() {
         return this._chunks.length
     }
 
-    /**
-     * Returns the maximum size of each chunk configured for the Chunkifier.
-     */
     chunkSize() {
         return this.#chunkSize
     }
@@ -132,33 +126,20 @@ export class Chunkifier<T> implements IChunkifier<T> {
         }
     }
 
-    /**
-     * Removes the last chunk.
-     */
     pop() {
         this._chunks.pop()
     }
 
-    /**
-     * Removes the first chunk.
-     */
     shift() {
         this._chunks.shift()
     }
 
-    /**
-     * Returns the chunk at a given index. Negative numbers are treated as
-     * reverse indexation.
-     */
     getChunkByOffset(offset: number) {
         if (offset < 0) offset = this._chunks.length + offset
         const result = this._chunks[offset]
         return result as T[] | undefined
     }
 
-    /**
-     * Returns a chunk at a given index.
-     */
     getChunk(index: number) {
         return this._chunks[index] as T[] | undefined
     }
