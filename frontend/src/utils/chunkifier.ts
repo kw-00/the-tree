@@ -1,7 +1,50 @@
 
+export interface IChunkifier<T> {
+    /**
+     * Returns the number of chunks.
+     */
+    chunkCount(): number
 
+    /**
+     * Returns the maximum size of each chunk configured for the Chunkifier.
+     */
+    chunkSize(): number
 
-export class Chunkifier<T> {
+    totalSize(): number
+
+    getData(): T[]
+
+    appendData(...data: T[]): void
+
+    prependData(...data: T[]): void
+
+    popData(count: number): void
+
+    shiftData(count: number): void
+
+    /**
+     * Removes the last chunk.
+     */
+    pop(): void
+
+    /**
+     * Removes the first chunk.
+     */
+    shift(): void
+
+    /**
+     * Returns the chunk at a given index. Negative numbers are treated as
+     * reverse indexation.
+     */
+    getChunkByOffset(offset: number): T[] | undefined
+
+    /**
+     * Returns a chunk at a given index.
+     */
+    getChunk(index: number): T[] | undefined  
+}
+
+export class Chunkifier<T> implements IChunkifier<T> {
     _chunks: T[][]
     #chunkSize: number
 
@@ -194,6 +237,99 @@ export class MergingChunkifier<T> extends Chunkifier<T> {
             const newFirstChunk = firstChunk.splice(0, firstChunk.length - this.chunkSize())
             this._chunks.unshift(newFirstChunk)
         }
+    }
+}
+
+export class ChunkifierWithCursor<T> implements IChunkifier<T> {
+    #chunkifer: IChunkifier<T>
+    #cursor: number
+
+    constructor(chunkifier: IChunkifier<T>, initialCursor: number) {
+        this.#chunkifer = chunkifier
+        this.#cursor = initialCursor
+    }
+
+    chunkCount(): number {
+        return this.#chunkifer.chunkCount()
+    }
+
+    chunkSize(): number {
+        return this.#chunkifer.chunkSize()
+    }
+
+    totalSize(): number {
+        return this.#chunkifer.totalSize()
+    }
+
+    getData(): T[] {
+        return this.#chunkifer.getData()
+    }
+
+    appendData(...data: T[]): void {
+        this.#chunkifer.appendData(...data)
+        this.moveCursorIntoBounds()
+    }
+
+    prependData(...data: T[]): void {
+        this.#chunkifer.prependData(...data)
+        this.moveCursorIntoBounds()
+    }
+
+    popData(count: number): void {
+        this.#chunkifer.popData(count)
+        this.moveCursorIntoBounds()
+    }
+
+    shiftData(count: number): void {
+        this.#chunkifer.shiftData(count)
+        this.moveCursorIntoBounds()
+    }
+
+    pop(): void {
+        this.#chunkifer.pop()
+        this.moveCursorIntoBounds()
+    }
+
+    shift(): void {
+        this.#chunkifer.shift()
+        this.moveCursorIntoBounds()
+    }
+
+    getChunkByOffset(offset: number): T[] | undefined {
+        return this.#chunkifer.getChunkByOffset(offset)
+    }
+
+    getChunk(index: number): T[] | undefined {
+        return this.#chunkifer.getChunk(index)
+    }
+
+    moveCursorIntoBounds() {
+        if (this.#cursor === -1 || this.#cursor === 0) {
+            return
+        }
+
+        const lowerBound = -this.chunkCount() 
+        const upperBound = this.chunkCount() - 1
+
+        if (this.#cursor < lowerBound) {
+            this.#cursor = lowerBound
+        } else if (this.#cursor > upperBound) {
+            this.#cursor = upperBound
+        }
+    }
+
+    incrementCursor(increment?: number) {
+        this.#cursor += increment ?? 1
+        this.moveCursorIntoBounds()
+    }
+
+    reverseCursor(steps?: number) {
+        this.#cursor -= steps ?? 1
+        this.moveCursorIntoBounds()
+    }
+
+    getChunkUnderCursor() {
+        return this.getChunkByOffset(this.#cursor)
     }
 }
 
