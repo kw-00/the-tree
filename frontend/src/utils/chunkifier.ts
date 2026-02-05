@@ -72,15 +72,15 @@ export class Chunkifier<T> implements IChunkifier<T> {
         this._chunks = this.#chunkify(data)
     }
 
-    chunkCount() {
+    chunkCount(): number {
         return this._chunks.length
     }
 
-    chunkSize() {
+    chunkSize(): number {
         return this.#chunkSize
     }
 
-    totalSize() {
+    totalSize(): number {
         let size = 0
         for (let i = 0; i < this.chunkCount(); i++) {
             size += this.getChunk(i)!.length
@@ -88,7 +88,7 @@ export class Chunkifier<T> implements IChunkifier<T> {
         return size
     }
 
-    getData() {
+    getData(): T[] {
         const data = []
         for (let i = 0; i < this.chunkCount(); i++) {
             data.push(...this.getChunk(i)!)
@@ -96,7 +96,7 @@ export class Chunkifier<T> implements IChunkifier<T> {
         return data
     }
 
-    appendData(...data: T[]) {
+    appendData(...data: T[]): void {
         const lastChunk = this.getChunkByOffset(-1)
         if (lastChunk) {
             const remainingSpaceInChunk = this.#chunkSize - lastChunk.length
@@ -105,7 +105,7 @@ export class Chunkifier<T> implements IChunkifier<T> {
         this._chunks.push(...this.#chunkify(data))
     }
 
-    prependData(...data: T[]) {
+    prependData(...data: T[]): void {
         const firstChunk = this.getChunk(0)
         if (firstChunk) {
             const remainingSpaceInChunk = this.#chunkSize - firstChunk.length
@@ -116,7 +116,7 @@ export class Chunkifier<T> implements IChunkifier<T> {
         this._chunks.unshift(...this.#chunkify(data))
     }
 
-    popData(count: number) {
+    popData(count: number): void {
         while (true) {
             const lastChunk = this.getChunkByOffset(-1)
             if (!lastChunk) return
@@ -130,7 +130,7 @@ export class Chunkifier<T> implements IChunkifier<T> {
         }
     }
 
-    shiftData(count: number) {
+    shiftData(count: number): void {
         while (true) {
             const firstChunk = this.getChunk(0)
             if (!firstChunk) return
@@ -145,22 +145,22 @@ export class Chunkifier<T> implements IChunkifier<T> {
         }
     }
 
-    pop() {
+    pop(): void {
         this._chunks.pop()
     }
 
-    shift() {
+    shift(): void {
         this._chunks.shift()
     }
 
-    getChunkByOffset(offset: number) {
+    getChunkByOffset(offset: number): T[] | undefined {
         if (offset < 0) offset = this._chunks.length + offset
         const result = this._chunks[offset]
-        return result as T[] | undefined
+        return result
     }
 
-    getChunk(index: number) {
-        return this._chunks[index] as T[] | undefined
+    getChunk(index: number): T[] | undefined {
+        return this._chunks[index]
     }
 
     #chunkify(data: T[]): T[][] {
@@ -202,7 +202,7 @@ export class MergingChunkifier<T> extends Chunkifier<T> {
     }
 
 
-    #mergeIncompleteLastChunk() {
+    #mergeIncompleteLastChunk(): void {
         const lastChunk = this.getChunkByOffset(-1)
         const penultimateChunk = this.getChunkByOffset(-2) 
         if (lastChunk && penultimateChunk && lastChunk.length < this.chunkSize()) {
@@ -212,7 +212,7 @@ export class MergingChunkifier<T> extends Chunkifier<T> {
         }
     }
 
-    #mergeIncompleteFirstChunk() {
+    #mergeIncompleteFirstChunk(): void {
         const firstChunk = this.getChunk(0)
         const secondChunk = this.getChunk(1)
         if (firstChunk && secondChunk && firstChunk.length < this.chunkSize()) {
@@ -223,7 +223,7 @@ export class MergingChunkifier<T> extends Chunkifier<T> {
 
     }
 
-    #splitOvergrownLastChunk() {
+    #splitOvergrownLastChunk(): void {
         const lastChunk = this.getChunkByOffset(-1)
         if (lastChunk && lastChunk.length > this.chunkSize()) {
             const newLastChunk = lastChunk.splice(this.chunkSize())
@@ -231,7 +231,7 @@ export class MergingChunkifier<T> extends Chunkifier<T> {
         }
     }
 
-    #splitOvergrownFirstChunk() {
+    #splitOvergrownFirstChunk(): void {
         const firstChunk = this.getChunk(0)
         if (firstChunk && firstChunk.length > this.chunkSize()) {
             const newFirstChunk = firstChunk.splice(0, firstChunk.length - this.chunkSize())
@@ -240,76 +240,149 @@ export class MergingChunkifier<T> extends Chunkifier<T> {
     }
 }
 
-export class ChunkifierWithCursor<T> implements IChunkifier<T> {
-    #chunkifer: IChunkifier<T>
+export interface IChunkifierWrapper<T> {
+    /**
+     * Returns the underlying chunkifier.
+     */
+    getChunkifier(): IChunkifier<T>
+}
+
+export interface IChunkifierCursor<T> {
+
+    /**
+     * Moves cursor a set number of steps. Always stops at the chunkifiers first or last chunk.
+     * 
+     * Returns `false` if the cursor did not move, `true` otherwise.
+     */
+    move(steps?: number): boolean
+
+    /**
+     * Moves cursor a set number of steps. If value is out of bounds, it is brought to the nearest chunk.
+     * 
+     * Returns `false` if the cursor did not move, `true` otherwise.
+     */
+    setCursor(value: number): boolean
+
+    /**
+     * Anchors cursor the the start of chunkifier. For example, `-1` becomes `chunkCount() - 1`.
+     * Positive cursor values are unaffected.
+     */
+    anchorStart(): void
+
+    /**
+     * Anchors cursor the the start of chunkifier. For example, `chunkCount() - 1` becomes `-1`. 
+     * Negative cursor values are unaffected.
+     */
+    anchorEnd(): void
+
+    /**
+     * Returns the chunk under the current cursor. If there are no chunks, returns `undefined`.
+     */
+    getChunkUnderCursor(): T[] | undefined
+
+    /**
+     * Returns `true` if there are no chunks, `false` otherwise.
+     */
+    noChunks(): boolean
+
+    /**
+     * Returns `true` if cursor is on last chunk or there are no chunks, `false` otherwise.
+     */
+    lastChunkReached(): boolean
+
+    /**
+     * Returns true  if cursor is on firstChunk or there are no chunks, `false` otherwise.
+     */
+    firstChunkReached(): boolean
+}
+
+export class ChunkifierCursor<T> implements IChunkifierCursor<T>, IChunkifierWrapper<T> {
+    #chunkifier: IChunkifier<T>
     #cursor: number
 
     constructor(chunkifier: IChunkifier<T>, initialCursor: number) {
-        this.#chunkifer = chunkifier
+        this.#chunkifier = chunkifier
         this.#cursor = initialCursor
     }
 
-    chunkCount(): number {
-        return this.#chunkifer.chunkCount()
+    // Implementing IChunkifierWrapper
+    getChunkifier(): IChunkifier<T> {
+        return this.#chunkifier
     }
 
-    chunkSize(): number {
-        return this.#chunkifer.chunkSize()
+    // Implementing IChunkifierCursor
+    move(steps?: number): boolean {
+        this.#moveCursorIntoBounds()
+        steps = steps ?? 1
+        if (this.#cursor < 0) {
+            steps = -steps
+        }
+
+        const oldCursor = this.#cursor
+        this.#cursor += steps
+        this.#moveCursorIntoBounds()
+
+        return !(this.#cursor === oldCursor)
+    }
+    
+    setCursor(value: number): boolean {
+        this.#moveCursorIntoBounds()
+        const oldCursor = this.#cursor
+        this.#cursor = value
+        this.#moveCursorIntoBounds()
+
+        return  !(this.#cursor === oldCursor)
     }
 
-    totalSize(): number {
-        return this.#chunkifer.totalSize()
+    anchorStart(): void {
+        this.#moveCursorIntoBounds()
+        if (this.#cursor < 0) {
+            this.#cursor += this.#chunkifier.chunkCount()
+        }
     }
 
-    getData(): T[] {
-        return this.#chunkifer.getData()
+    anchorEnd(): void {
+        this.#moveCursorIntoBounds()
+        if (this.#cursor >= 0) {
+            this.#cursor -= this.#chunkifier.chunkCount()
+        }
     }
 
-    appendData(...data: T[]): void {
-        this.#chunkifer.appendData(...data)
-        this.moveCursorIntoBounds()
+    getChunkUnderCursor(): T[] | undefined {
+        this.#moveCursorIntoBounds()
+        return this.#chunkifier.getChunkByOffset(this.#cursor)
     }
 
-    prependData(...data: T[]): void {
-        this.#chunkifer.prependData(...data)
-        this.moveCursorIntoBounds()
+    noChunks() {
+        return this.#chunkifier.chunkCount() === 0
     }
 
-    popData(count: number): void {
-        this.#chunkifer.popData(count)
-        this.moveCursorIntoBounds()
+    lastChunkReached() {
+        if (this.noChunks()) return true
+        this.#moveCursorIntoBounds()
+        if (this.#cursor === -1 || this.#cursor === this.#chunkifier.chunkCount() - 1) {
+            return true
+        }
+        return false
     }
 
-    shiftData(count: number): void {
-        this.#chunkifer.shiftData(count)
-        this.moveCursorIntoBounds()
+    firstChunkReached() {
+        if (this.noChunks()) return true
+        this.#moveCursorIntoBounds()
+        if (this.#cursor === 0 || this.#cursor === -this.#chunkifier.chunkCount()) {
+            return true
+        }
+        return false
     }
 
-    pop(): void {
-        this.#chunkifer.pop()
-        this.moveCursorIntoBounds()
-    }
 
-    shift(): void {
-        this.#chunkifer.shift()
-        this.moveCursorIntoBounds()
-    }
-
-    getChunkByOffset(offset: number): T[] | undefined {
-        return this.#chunkifer.getChunkByOffset(offset)
-    }
-
-    getChunk(index: number): T[] | undefined {
-        return this.#chunkifer.getChunk(index)
-    }
-
-    moveCursorIntoBounds() {
+    #moveCursorIntoBounds(): void {
         if (this.#cursor === -1 || this.#cursor === 0) {
             return
         }
 
-        const lowerBound = -this.chunkCount() 
-        const upperBound = this.chunkCount() - 1
+        const lowerBound = -this.#chunkifier.chunkCount() 
+        const upperBound = this.#chunkifier.chunkCount() - 1
 
         if (this.#cursor < lowerBound) {
             this.#cursor = lowerBound
@@ -317,19 +390,128 @@ export class ChunkifierWithCursor<T> implements IChunkifier<T> {
             this.#cursor = upperBound
         }
     }
+}
 
-    incrementCursor(increment?: number) {
-        this.#cursor += increment ?? 1
-        this.moveCursorIntoBounds()
+export class SuperChunkifierCursor<T> implements IChunkifierCursor<T[]>, IChunkifierWrapper<T> {
+    #chunkifier: IChunkifier<T>
+    #superChunkSize: number
+    #cursor: number
+
+
+    
+    constructor(chunkifier: IChunkifier<T>, initialCursor: number, superChunkSize: number) {
+        this.#chunkifier = chunkifier
+        this.#cursor = initialCursor
+        this.#superChunkSize = superChunkSize
     }
 
-    reverseCursor(steps?: number) {
-        this.#cursor -= steps ?? 1
-        this.moveCursorIntoBounds()
+    // Implementing IChunkifierWrapper
+    getChunkifier(): IChunkifier<T> {
+        return this.#chunkifier
+    }
+    
+    // Implementing IChunkifierCursor
+    move(steps?: number): boolean {
+        this.#moveCursonIntoBounds()
+        steps = steps ?? 1
+        if (this.#cursor < 0) {
+            steps = -steps
+        }
+
+        const oldCursor = this.#cursor
+        this.#cursor += steps
+        this.#moveCursonIntoBounds()
+
+        return !(this.#cursor === oldCursor)
     }
 
-    getChunkUnderCursor() {
-        return this.getChunkByOffset(this.#cursor)
+    setCursor(value: number): boolean {
+        this.#moveCursonIntoBounds()
+        const oldCursor = this.#cursor
+        this.#cursor = value
+        this.#moveCursonIntoBounds()
+
+        return !(this.#cursor === oldCursor)
+    }
+
+    anchorStart(): void {
+        this.#moveCursonIntoBounds()
+        if (this.#cursor < 0) {
+            this.#cursor += this.#superChunkCount()
+        }
+    }
+
+    anchorEnd(): void {
+        this.#moveCursonIntoBounds()
+        if (this.#cursor >= 0) {
+            this.#cursor -= this.#superChunkCount() 
+        }
+    }
+
+    getChunkUnderCursor(): T[][] | undefined {
+        this.#moveCursonIntoBounds()
+        if (this.noChunks()) return undefined
+        const result: T[][] = []
+        if (this.#cursor >= 0) {
+            for (let i = 0; i < this.#superChunkSize && i < this.getChunkifier().chunkCount(); i++) {
+                // Constrains on the cursor and i allow us the assertion below
+                result.push(this.getChunkifier().getChunk(this.#cursor + i)!)
+            }
+        } else {
+            for (let i = 0; i < this.#superChunkSize && i < this.getChunkifier().chunkCount(); i++) {
+                const offset = -1 - i
+                // Constrains on the cursor and i allow us the assertion below
+                result.push(this.getChunkifier().getChunkByOffset(offset)!)
+            }
+        }
+        return result
+    }
+
+    noChunks(): boolean {
+        return this.getChunkifier().chunkCount() === 0
+    }
+
+    lastChunkReached(): boolean {
+        this.#moveCursonIntoBounds()
+        if (this.getChunkifier().chunkCount() <= this.#superChunkSize) {
+            return true
+        }
+
+        if (this.#cursor >= 0) {
+            return this.#cursor === this.#superChunkCount() - 1
+        } else {
+            return this.#cursor === -this.#superChunkSize
+        }
+    }
+
+    firstChunkReached(): boolean {
+        this.#moveCursonIntoBounds()
+        if (this.getChunkifier().chunkCount() <= this.#superChunkSize) {
+            return true
+        }
+
+        if (this.#cursor >= 0) {
+            return this.#cursor === 0
+        } else {
+            return this.#cursor === -this.#superChunkCount()
+        }
+    }
+
+    #superChunkCount(): number {
+        return Math.max(this.getChunkifier().chunkCount() - this.#superChunkSize + 1, 0)
+    }
+
+    #moveCursonIntoBounds() {
+        if (this.#cursor === 0 || this.#cursor === -1) return
+
+        const lowerBound = -this.#superChunkCount()
+        const upperBound = this.#superChunkCount() - 1
+
+        if (this.#cursor < lowerBound) {
+            this.#cursor = lowerBound
+        } else if (this.#cursor > upperBound) {
+            this.#cursor = upperBound
+        }
     }
 }
 

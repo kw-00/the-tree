@@ -7,6 +7,7 @@ export type ScrollState = {
 
     isBottom: boolean
     isNearBottom: boolean
+    isTop: boolean
     isNearTop: boolean
 }
 
@@ -20,6 +21,7 @@ export function getScrollState(element: HTMLElement) {
         clientHeight: element.clientHeight,
         isBottom: distanceFromBottom === 0,
         isNearBottom: distanceFromBottom < 200,
+        isTop: distanceFromTop === 0,
         isNearTop: distanceFromTop < 200
     } as ScrollState
 }
