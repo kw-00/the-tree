@@ -1,4 +1,4 @@
-import { ChunkifierCursor, MergingChunkifier } from "@/utils/chunkifier";
+import { SuperChunkifierCursor, Chunkifier } from "@/utils/chunkifier";
 import { type MessageStore } from "./message-store";
 import type { MessageData } from "./messages-service";
 
@@ -7,21 +7,21 @@ import type { MessageData } from "./messages-service";
 
 export class MessageStoreChunkifiers {
     #messageStore: MessageStore
-    #chunkifiers: Map<number, ChunkifierCursor<MessageData>> = new Map()
+    #chunkifiers: Map<number, SuperChunkifierCursor<MessageData>> = new Map()
 
     constructor(messageStore: MessageStore, chunkSize: number) {
         this.#messageStore = messageStore
 
         this.#messageStore.addChatroomListener((chatroomId, type) => {
             if (type === "added") {
-                const chunkifier = new ChunkifierCursor(new MergingChunkifier<MessageData>([], chunkSize), -1)
-                this.#chunkifiers.set(chatroomId, chunkifier)
+                const chunkifierCursor = new SuperChunkifierCursor(new Chunkifier<MessageData>([], chunkSize), -1, 3)
+                this.#chunkifiers.set(chatroomId, chunkifierCursor)
 
                 this.#messageStore.addMessageListener((messages, type) => {
                     if (type === "appended") {
-                        chunkifier.appendData(...messages)
+                        chunkifierCursor.getChunkifier().appendData(...messages)
                     } else if (type === "prepended") {
-                        chunkifier.prependData(...messages)
+                        chunkifierCursor.getChunkifier().prependData(...messages)
                     }
                 }, chatroomId)
             } else if (type === "removed") {
@@ -30,7 +30,7 @@ export class MessageStoreChunkifiers {
         })
     }
 
-    getChunkifier(chatroomId: number): ChunkifierCursor<MessageData> | undefined {
+    getChunkifierCursor(chatroomId: number): ISuperChu<MessageData> | undefined {
         return this.#chunkifiers.get(chatroomId)
     }
 }

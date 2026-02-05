@@ -247,7 +247,7 @@ export interface IChunkifierWrapper<T> {
     getChunkifier(): IChunkifier<T>
 }
 
-export interface IChunkifierCursor<T> {
+export interface IPureChunkifierCursor<T> {
 
     /**
      * Moves cursor a set number of steps. Always stops at the chunkifiers first or last chunk.
@@ -296,7 +296,9 @@ export interface IChunkifierCursor<T> {
     firstChunkReached(): boolean
 }
 
-export class ChunkifierCursor<T> implements IChunkifierCursor<T>, IChunkifierWrapper<T> {
+export interface IChunkifierCursor<T> extends IPureChunkifierCursor<T>, IChunkifierWrapper<T> {}
+
+export class ChunkifierCursor<T> implements IChunkifierCursor<T> {
     #chunkifier: IChunkifier<T>
     #cursor: number
 
@@ -392,7 +394,9 @@ export class ChunkifierCursor<T> implements IChunkifierCursor<T>, IChunkifierWra
     }
 }
 
-export class SuperChunkifierCursor<T> implements IChunkifierCursor<T[]>, IChunkifierWrapper<T> {
+export interface ISuperChunkifierCursor<T> extends IPureChunkifierCursor<T[]>, IChunkifierWrapper<T> {}
+
+export class SuperChunkifierCursor<T> implements ISuperChunkifierCursor<T> {
     #chunkifier: IChunkifier<T>
     #superChunkSize: number
     #cursor: number
