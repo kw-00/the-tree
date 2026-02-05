@@ -1,5 +1,5 @@
 import { type IChunkifier } from "../types/chunkifiers"
-import type { IChunkifierCursor, ISuperChunkifierCursor } from "../types/cursors-i"
+import type { IChunkifierCursor, ISuperChunkifierCursor } from "../types/cursors"
 
 
 export class ChunkifierCursor<T> implements IChunkifierCursor<T> {

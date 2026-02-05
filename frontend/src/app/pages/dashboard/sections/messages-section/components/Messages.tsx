@@ -29,57 +29,18 @@ export default function Messages() {
 
         const currentScrollState = getScrollState(scrollable)
         const prevScrollState = prevScrollStateRef.current
-        const chunkifier = messageStoreChunkifiers.getChunkifier(chatroomId)
+        const chunkifier = messageStoreChunkifiers.getCursor(chatroomId)
 
         if (prevScrollState && chunkifier) {
             const movedToTop = currentScrollState.isTop && !prevScrollState.isTop
-            const mvoedToBottom = currentScrollState.isBottom && !prevScrollState.isBottom
+            const movedToBottom = currentScrollState.isBottom && !prevScrollState.isBottom
             const movedNearTop = currentScrollState.isNearTop && !prevScrollState.isNearTop
             const movedNearBottom = currentScrollState.isNearBottom && !prevScrollState.isNearBottom 
 
-            if (isTop) {
-                chunkifier.move(-1)
-                if (chunkifier.firstChunkReached()) {
-                    const lengthBeforeFetch = chunkifier.getChunkUnderCursor()?.length
+            if (movedToTop) {
 
-                    messageStore.fetchPreviousMessages(chatroomId, messageBatchSize)
-                    const lengthAfterFetch = chunkifier.getChunkUnderCursor()?.length
-                    const chunkHasGrown = 
-                        lengthBeforeFetch !== undefined 
-                        && lengthAfterFetch !== undefined 
-                        && lengthAfterFetch - lengthAfterFetch > 0
+            } else if (movedToBottom) {
 
-                    if (!chunkHasGrown) {
-                        const newChunkAppeared = chunkifier.move(-1)
-                        if (newChunkAppeared) {
-
-                        }
-                    }
-                }
-            } else if (mvoedToBottom) {
-                chunkifier.move()
-                if (chunkifier.lastChunkReached()) {
-                    const lengthBeforeFetch = chunkifier.getChunkUnderCursor()?.length ?? 0
-
-                    messageStore.fetchNextMessages(chatroomId, messageBatchSize)
-                    const lengthAfterFetch = chunkifier.getChunkUnderCursor()?.length ?? 0
-
-                    const chunkHasGrown = 
-                        lengthBeforeFetch !== undefined 
-                        && lengthAfterFetch !== undefined 
-                        && lengthBeforeFetch - lengthAfterFetch > 0
-
-                    const chunkHasShrunk = 
-                        lengthBeforeFetch !== undefined 
-                        && lengthAfterFetch !== undefined 
-                        && lengthBeforeFetch - lengthAfterFetch < 0
-
-                    const newChunkAppeared = chunkHasShrunk
-                    const messagesWereFetched = chunkHasGrown || chunkHasShrunk
-
-                    if ()
-
-                }
             }
         }
         prevScrollStateRef.current = currentScrollState

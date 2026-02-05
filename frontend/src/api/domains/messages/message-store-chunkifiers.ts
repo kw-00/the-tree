@@ -1,6 +1,9 @@
-import { SuperChunkifierCursor, Chunkifier } from "@/utils/chunkifier";
+
+import { SuperChunkifierCursor } from "@/utils/chunkifiers/implementation/cursors";
 import { type MessageStore } from "./message-store";
 import type { MessageData } from "./messages-service";
+import { Chunkifier } from "@/utils/chunkifiers/implementation/chunkifiers";
+import type { ISuperChunkifierCursor } from "@/utils/chunkifiers/types/cursors";
 
 
 
@@ -30,7 +33,7 @@ export class MessageStoreChunkifiers {
         })
     }
 
-    getChunkifierCursor(chatroomId: number): ISuperChu<MessageData> | undefined {
+    getCursor(chatroomId: number): ISuperChunkifierCursor<MessageData> | undefined {
         return this.#chunkifiers.get(chatroomId)
     }
 }
