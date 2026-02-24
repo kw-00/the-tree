@@ -52,7 +52,7 @@ export class MessageStore {
     // Message Event
     addMessageListener(listener: MessageListener, chatroomId: number) {
         const listenerSet = this.#messageListeners.get(chatroomId)
-        if (!listenerSet) throw new Error(`Message with ID of ${chatroomId} is not featured in MessageStore.`) 
+        if (!listenerSet) throw new Error(`Chatroom with ID of ${chatroomId} is not featured in MessageStore.`) 
         
         listenerSet.add(listener)
         return () => this.removeMessageListener(listener, chatroomId)
@@ -73,7 +73,7 @@ export class MessageStore {
     // Resizing Event
     addResizingListener(listener: ResizingListener, chatroomId: number) {
         const listenerSet = this.#resizingListeners.get(chatroomId)
-        if (!listenerSet) throw new Error(`Resizing with ID of ${chatroomId} is not featured in MessageStore.`) 
+        if (!listenerSet) throw new Error(`Chatroom with ID of ${chatroomId} is not featured in MessageStore.`) 
         
         listenerSet.add(listener)
         return () => this.removeResizingListener(listener, chatroomId)
@@ -97,6 +97,8 @@ export class MessageStore {
         chatroomIds.forEach(id => {
             if (this.#store.get(id)) return
             this.#store.set(id, {messages: [], hasPrevious: true, hasNext: true})
+            this.#messageListeners.set(id, new Set())
+            this.#resizingListeners.set(id, new Set())
             this.#fireChatroomAdded(id)
         })
     }
@@ -153,6 +155,7 @@ export class MessageStore {
 
     // Fetching messages
     async fetchPreviousMessages(chatroomId: number, limit: number) {
+        console.log("Fetching previous...")
         this.addChatrooms(chatroomId)
         const entry = this.#store.get(chatroomId)!
         if (!entry.hasPrevious) {
@@ -165,6 +168,7 @@ export class MessageStore {
     }
 
     async fetchNextMessages(chatroomId: number, limit: number) {
+        console.log("Fetching next...")
         this.addChatrooms(chatroomId)
         const entry = this.#store.get(chatroomId)!
         if (!entry.hasNext) {

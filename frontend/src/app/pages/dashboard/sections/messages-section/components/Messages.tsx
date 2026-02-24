@@ -1,4 +1,5 @@
-import { useRef } from "react"
+import { useEffect, useLayoutEffect, useRef } from "react"
+import { useForceUpdate } from "@/app/hooks/ForceUpdate"
 import { getScrollState, type ScrollState } from "@/utils/element"
 import { useMessageStoreWithChunkifiers } from "@/api/domains/messages/message-store-tools"
 import { type MessageData } from "@/api/domains/messages/messages-service"
@@ -14,12 +15,19 @@ const messageBatchSize = 50
 
 
 export default function Messages() {
+    const forceUpdate = useForceUpdate()
     const {messageStore, messageStoreChunkifiers} = useMessageStoreWithChunkifiers()
     const chunkifier = messageStoreChunkifiers.getCursor(chatroomId)
 
     const scrollableRef = useRef<HTMLDivElement | null>(null)
     const scrollable = scrollableRef.current
 
+    useLayoutEffect(() => {
+        messageStore.addChatroomListener(async (chatroomId) => {
+            await messageStore.fetchNextMessages(chatroomId, messageBatchSize)
+        })
+        messageStore.addChatrooms(chatroomId)
+    }, [])
     
 
     const prevTopMessageRef = useRef<MessageData | null>(null)
@@ -78,28 +86,35 @@ export default function Messages() {
 
     
     const prevScrollStateRef = useRef<ScrollState | null>(null)
-    const prevScrollState = prevScrollStateRef.current
 
     const handleScroll = async (e: React.UIEvent<HTMLDivElement>) => {
         e.preventDefault()
         
         if (!scrollable) return
-        if (!prevScrollState) return
 
         const currentScrollState = getScrollState(scrollable)
-        const movedToTop = currentScrollState.isTop && !prevScrollState.isTop
-        const movedToBottom = currentScrollState.isBottom && !prevScrollState.isBottom
+        const prevScrollState = prevScrollStateRef.current
 
-        if (movedToTop) {
-            loadMessageChunk("previous")
-        } else if (movedToBottom) {
-            loadMessageChunk("next")
+        if (prevScrollState) {
+            const movedToTop = currentScrollState.isTop && !prevScrollState.isTop
+            console.log("Moved to top: ", movedToTop)
+            const movedToBottom = currentScrollState.isBottom && !prevScrollState.isBottom
+            console.log("Moved to botton: ", movedToBottom)
+            console.log(chunkifier?.getChunkifier().chunkCount())
+            console.log(chunkifier?.getChunkifier().getData())
+
+            if (movedToTop) {
+                loadMessageChunk("previous")
+            } else if (movedToBottom) {
+                loadMessageChunk("next")
+            }
         }
 
         prevScrollStateRef.current = currentScrollState
     }
 
     const messages = chunkifier?.getChunkUnderCursor()?.reduce((val, c) => [...val, ...c])
+    console.log(messages?.length)
 
     return (
         <div className="v-stack grow basis-5/6">
