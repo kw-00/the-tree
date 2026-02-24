@@ -15,6 +15,14 @@ export class ListWindow<T> {
         this.cursor = cursor
     }
 
+    current() {
+        if (this.cursor >= 0) {
+            return this.source.slice(this.cursor, this.cursor + this.size)
+        } else {
+            return this.source.slice(this.cursor, this.cursor - this.size)
+        }
+    }
+
     moveNext() {
         const prevCursor = this.cursor
         this.cursor += this.size
