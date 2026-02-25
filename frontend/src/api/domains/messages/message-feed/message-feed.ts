@@ -1,23 +1,25 @@
 import { ListWindow } from "@/utils/list-window/list-window";
 import { getPreviousMessages, getNextMessages, type MessageData } from "../messages-service";
 import { throwErrorOnRequestFailure } from "../../00-common/queries/utility";
-import type { IChatroomMessageFeed } from "./types";
+import type { IChatroomMessageFeed as IMessageFeed } from "./types";
 
 const conf = {
-    MESSAGE_BATCH_SIZE: 100
+    MESSAGE_BATCH_SIZE: 100,
+    WINDOW_SIZE: 50,
+    WINDOW_STEP: 30
 }
 
-class ChatroomMessageFeed implements IChatroomMessageFeed {
+class MessageFeed implements IMessageFeed {
     #chatroomId: number
     #messages: MessageData[]
     #window: ListWindow<MessageData>
 
     #hasPrevious: boolean = true
 
-    constructor(chatroomId: number, windowSize: number, windowStep: number) {
+    constructor(chatroomId: number) {
         this.#chatroomId = chatroomId
         this.#messages = []
-        this.#window = new ListWindow(this.#messages, windowSize, windowStep, -1)
+        this.#window = new ListWindow(this.#messages, conf.WINDOW_SIZE, conf.WINDOW_STEP, -1)
     }
 
     getMessagesInWindow() {
@@ -81,4 +83,22 @@ class ChatroomMessageFeed implements IChatroomMessageFeed {
         this.#hasPrevious = requestResult.page?.nextCursor ? true : false
         return messagesFetched.length > 0
     }
+
+    clear() {
+        this.#messages.length = 0
+    }
+
+    delete() {
+        globalFeedMap.delete(this.#chatroomId)
+    }
+}
+
+const globalFeedMap: Map<number, MessageFeed> = new Map()
+
+
+export function useMessageFeed(chatroomId: number) {
+    if (!globalFeedMap.has(chatroomId)) {
+        globalFeedMap.set(chatroomId, new MessageFeed(chatroomId))
+    }
+    return globalFeedMap.get(chatroomId)!
 }
