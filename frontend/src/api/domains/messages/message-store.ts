@@ -159,12 +159,13 @@ export class MessageStore {
         this.addChatrooms(chatroomId)
         const entry = this.#store.get(chatroomId)!
         if (!entry.hasPrevious) {
-            return
+            return false
         }
         const firstMessageId = entry.messages[0]?.id ?? null
         const result = await throwErrorOnRequestFailure(() => getPreviousMessages({chatroomId: chatroomId, before: firstMessageId, limit}))
         entry.hasPrevious = result.page?.prevCursor ? true : false
         this.prependMessages(chatroomId, ...result.page!.messagesData)
+        return (result.page?.messagesData.length ?? 0) > 0
     }
 
     async fetchNextMessages(chatroomId: number, limit: number) {
@@ -172,16 +173,17 @@ export class MessageStore {
         this.addChatrooms(chatroomId)
         const entry = this.#store.get(chatroomId)!
         if (!entry.hasNext) {
-            return
+            return false
         }
         const lastMessageId = entry.messages.at(-1)?.id ?? null
         if (!lastMessageId) {
             await this.fetchPreviousMessages(chatroomId, limit)
-            return
+            return false
         }
         const result = await throwErrorOnRequestFailure(() => getNextMessages({chatroomId: chatroomId, after: lastMessageId, limit}))
         entry.hasNext = result.page?.nextCursor ? true : false
         this.appendMessages(chatroomId, ...result.page!.messagesData)
+        return (result.page?.messagesData.length ?? 0) > 0
 
     }
 

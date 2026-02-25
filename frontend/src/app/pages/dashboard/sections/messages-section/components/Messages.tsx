@@ -17,7 +17,7 @@ const messageBatchSize = 50
 export default function Messages() {
     const forceUpdate = useForceUpdate()
     const {messageStore, messageStoreChunkifiers} = useMessageStoreWithChunkifiers()
-    const chunkifier = messageStoreChunkifiers.getCursor(chatroomId)
+    const messageWindow = messageStoreChunkifiers.getWindow(chatroomId)
 
     const scrollableRef = useRef<HTMLDivElement | null>(null)
     const scrollable = scrollableRef.current
@@ -48,35 +48,27 @@ export default function Messages() {
     
     const loadMessageChunk = async (direction: "next" | "previous") => {
         if (!scrollable) return
-        if (!chunkifier) return
+        if (!messageWindow) return
 
-        const topMessage = chunkifier.getChunkUnderCursor()?.[0]?.[0] ?? null
+        const topMessage = messageWindow.current()[0] ?? null
 
         if (direction === "previous") {
-            if (!chunkifier.firstChunkReached()) {
-                chunkifier.move(-1)
+            if (messageWindow.hasPrevious()) {
+                messageWindow.movePrevious()
                 resetScrollbar()
     
             } else {
-                const currentChunkMessageCount = () => chunkifier.getChunkUnderCursor()?.reduce((prev, next) => prev + next.length, 0) ?? 0
-                const oldChunkSize = currentChunkMessageCount()
-                
-                await messageStore.fetchPreviousMessages(chatroomId, messageBatchSize)
-                const newChunkSize = currentChunkMessageCount()
-                const chunkGrew = newChunkSize - oldChunkSize > 0
-                
-                if (chunkGrew) {
-                    resetScrollbar()
-                } else if (!chunkifier.firstChunkReached()) {
-                    chunkifier.move(-1)
+                const newMessagesFetched = await messageStore.fetchPreviousMessages(chatroomId, messageBatchSize)
+                if (newMessagesFetched) {
+                    messageWindow.movePrevious()
                     resetScrollbar()
                 }
             }
             prevTopMessageRef.current = topMessage
 
         } else if (direction === "next") {
-            if (!chunkifier.lastChunkReached()) {
-                chunkifier.move()
+            if (messageWindow.hasNext()) {
+                messageWindow.moveNext()
                 resetScrollbar()
             }
         }
@@ -100,8 +92,8 @@ export default function Messages() {
             console.log("Moved to top: ", movedToTop)
             const movedToBottom = currentScrollState.isBottom && !prevScrollState.isBottom
             console.log("Moved to botton: ", movedToBottom)
-            console.log(chunkifier?.getChunkifier().chunkCount())
-            console.log(chunkifier?.getChunkifier().getData())
+            console.log(messageWindow?.current().length)
+            console.log(messageWindow?.current().length)
 
             if (movedToTop) {
                 loadMessageChunk("previous")
@@ -113,7 +105,7 @@ export default function Messages() {
         prevScrollStateRef.current = currentScrollState
     }
 
-    const messages = chunkifier?.getChunkUnderCursor()?.reduce((val, c) => [...val, ...c])
+    const messages = messageWindow?.current()
     console.log(messages?.length)
 
     return (

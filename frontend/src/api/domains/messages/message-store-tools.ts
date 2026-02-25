@@ -1,10 +1,10 @@
 import { useRef } from "react"
 import { MessageStore } from "./message-store"
-import { MessageStoreChunkifiers } from "./message-store-chunkifiers"
+import { MessageStoreWindows } from "./message-store-windows"
 
 const globalStore = new MessageStore()
 
-const globalMessageStoreChunkifiers = new MessageStoreChunkifiers(globalStore, 100)
+const globalMessageStoreChunkifiers = new MessageStoreWindows(globalStore)
 
 export function useMessageStoreWithChunkifiers() {
     const messageStoreRef = useRef(globalStore)
