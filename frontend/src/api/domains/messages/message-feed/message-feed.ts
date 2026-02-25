@@ -1,5 +1,5 @@
 import { ListWindow } from "@/utils/list-window/list-window";
-import { getPreviousMessages, getNextMessages, type MessageData } from "../messages-service";
+import { getPreviousMessages, type MessageData } from "../messages-service";
 import { throwErrorOnRequestFailure } from "../../00-common/queries/utility";
 import type { IChatroomMessageFeed as IMessageFeed } from "./types";
 

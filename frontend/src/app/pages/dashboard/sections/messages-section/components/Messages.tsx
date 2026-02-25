@@ -1,8 +1,7 @@
-import { useEffect, useLayoutEffect, useRef } from "react"
+import { useLayoutEffect, useRef } from "react"
 import { useForceUpdate } from "@/app/hooks/ForceUpdate"
 import { getScrollState, type ScrollState } from "@/utils/element"
 import { useMessageStoreWithChunkifiers } from "@/api/domains/messages/old/message-store-tools"
-import { type MessageData } from "@/api/domains/messages/messages-service"
 
 
 
