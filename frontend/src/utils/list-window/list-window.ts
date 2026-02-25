@@ -5,13 +5,13 @@
 export class ListWindow<T> {
     source: T[]
     size: number
-    offset: number
+    step: number
     cursor: number
 
-    constructor(source: T[], size: number, offset: number, cursor: number) {
+    constructor(source: T[], size: number, step: number, cursor: number) {
         this.source = source
         this.size = size
-        this.offset = offset
+        this.step = step
         this.cursor = cursor
     }
 
@@ -47,7 +47,7 @@ export class ListWindow<T> {
     moveNext() {
         this.#moveCursorWithinBounds()
         const prevCursor = this.cursor
-        this.cursor += this.offset
+        this.cursor += this.step
         if (prevCursor < 0 && this.cursor >= 0) {
             this.cursor = this.#negativeCursorEnd()
         }
@@ -57,7 +57,7 @@ export class ListWindow<T> {
     movePrevious() {
         this.#moveCursorWithinBounds()
         const prevCursor = this.cursor
-        this.cursor -= this.offset
+        this.cursor -= this.step
         if (prevCursor >= 0 && this.cursor < 0) {
             this.cursor = this.#positiveCursorStart()
         }

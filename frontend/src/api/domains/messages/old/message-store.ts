@@ -1,5 +1,5 @@
-import { getNextMessages, getPreviousMessages, type MessageData } from "./messages-service"
-import { throwErrorOnRequestFailure } from "../00-common/queries/utility"
+import { getNextMessages, getPreviousMessages, type MessageData } from "../messages-service"
+import { throwErrorOnRequestFailure } from "../../00-common/queries/utility"
 
 
 export type Room = {

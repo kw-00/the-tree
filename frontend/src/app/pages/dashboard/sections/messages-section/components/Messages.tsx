@@ -17,7 +17,7 @@ const messageBatchSize = 50
 export default function Messages() {
     const forceUpdate = useForceUpdate()
     const {messageStore, messageStoreChunkifiers} = useMessageStoreWithChunkifiers()
-    const messageWindow = messageStoreChunkifiers.getWindow(chatroomId)
+    const messageWindow = messageStoreChunkifiers.getWindow(chatroomId)!
 
     const scrollableRef = useRef<HTMLDivElement | null>(null)
     const scrollable = scrollableRef.current
@@ -29,49 +29,39 @@ export default function Messages() {
         messageStore.addChatrooms(chatroomId)
     }, [])
     
-
-    const prevTopMessageRef = useRef<MessageData | null>(null)
-    const prevTopMessage = prevTopMessageRef.current
-
-    const resetScrollbar = () => {
-        if (!scrollable) return
-        let heightOnTop = 0
-        const messageNodes = scrollable.children
-        for (const messageNode of messageNodes) {
-            if (Number(messageNode.getAttribute("data-message-id")) === (prevTopMessage?.id ?? -1)) {
-                break
-            }
-            heightOnTop += messageNode.clientHeight
-        }
-        scrollable.scrollTop += heightOnTop
-    }
-    
     const loadMessageChunk = async (direction: "next" | "previous") => {
         if (!scrollable) return
         if (!messageWindow) return
 
-        const topMessage = messageWindow.current()[0] ?? null
-
         if (direction === "previous") {
+            console.log("Has previous: ", messageWindow.hasPrevious())
             if (messageWindow.hasPrevious()) {
                 messageWindow.movePrevious()
-                resetScrollbar()
+                console.log("Moved up")
+                console.log("Source: ", messageWindow.source)
+                console.log("Cursor: ", messageWindow.cursor)
+                forceUpdate()
     
             } else {
                 const newMessagesFetched = await messageStore.fetchPreviousMessages(chatroomId, messageBatchSize)
                 if (newMessagesFetched) {
                     messageWindow.movePrevious()
-                    resetScrollbar()
+                    console.log("Moved up after loading messages")
+                    forceUpdate()
                 }
             }
-            prevTopMessageRef.current = topMessage
 
         } else if (direction === "next") {
+            // TODO - HasNext not working as expected
             if (messageWindow.hasNext()) {
                 messageWindow.moveNext()
-                resetScrollbar()
+                console.log("Moved down")
+                forceUpdate()
             }
         }
+
+        // Message store window does not have messagestore messages as source
+        console.log("IS??? ", Object.is(messageWindow.source, messageStore.getStore().get(chatroomId)?.messages))
     }
 
 
@@ -106,6 +96,8 @@ export default function Messages() {
     }
 
     const messages = messageWindow?.current()
+    console.log("Messages", messageWindow)
+    console.log(messageStore.getStore().get(chatroomId))
     console.log(messages?.length)
 
     return (
