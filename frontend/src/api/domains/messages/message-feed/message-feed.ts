@@ -22,6 +22,10 @@ class MessageFeed implements IMessageFeed {
         this.#window = new ListWindow(this.#messages, conf.WINDOW_SIZE, conf.WINDOW_STEP, -1)
     }
 
+    getAllMessages() {
+        return this.#window.source
+    }
+
     getMessagesInWindow() {
         return this.#window.current()
     }
@@ -79,6 +83,10 @@ class MessageFeed implements IMessageFeed {
             })
         )
         const messagesFetched = requestResult.page?.messagesData!
+
+        // This clears the message list. It is here so that React's strict mode does not cause duplication when initial messages are fetched
+        this.#messages.length = 0
+
         this.#messages.push(...messagesFetched)
         this.#hasPrevious = requestResult.page?.nextCursor ? true : false
         return messagesFetched.length > 0

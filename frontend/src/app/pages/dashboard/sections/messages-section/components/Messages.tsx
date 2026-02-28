@@ -29,6 +29,11 @@ function useMessageWindow(scrollableRef: React.RefObject<HTMLDivElement | null>)
         const messageHeightMap = messageHeightMapRef.current
 
         function handleWindowJump() {
+            console.log("handleWindowJump()")
+            console.log("Top: ", feed.getMessagesInWindow()[0]?.id)
+            console.log("Bottom: ", feed.getMessagesInWindow()[feed.getMessagesInWindow().length - 1]?.id)
+            console.log("Window: ", feed.getMessagesInWindow())
+            console.log("Source: ", feed.getAllMessages())
             const currentMessageWindow = feed.getMessagesInWindow()
             updateMessageHeightMap()
             if (prevMessageWindow) {
@@ -113,26 +118,29 @@ function useMessagesWithScroll(scrollableRef: React.RefObject<HTMLDivElement | n
 
     const scrollable = scrollableRef.current
     const prevScrollStateRef = useRef<ScrollState | null>(null)
-    const prevScrollState = prevScrollStateRef.current
+    
     const updatePrevScrollState = () => {
         if (scrollable) {
             prevScrollStateRef.current = getScrollState(scrollable)
         }
     }
-    const handleScroll = async (ev: Event) => {
-        ev.preventDefault()
+    const handleScroll = async () => {
         if (!scrollable) return
-
+        
+        const prevScrollState = prevScrollStateRef.current
         const currentScrollState = getScrollState(scrollable)
-
+        
         if (prevScrollState) {
+            console.log("Hellol")
             const movedToTop = currentScrollState.isTop && !prevScrollState.isTop
             const movedToBottom = currentScrollState.isBottom && !prevScrollState.isBottom
 
             if (movedToTop) {
-                moveUp()
+                console.log("Moved to top")
+                await moveUp()
             } else if (movedToBottom) {
-                moveDown()
+                console.log("Moved to bottom")
+                await moveDown()
             }
         }
         updatePrevScrollState()
@@ -141,8 +149,8 @@ function useMessagesWithScroll(scrollableRef: React.RefObject<HTMLDivElement | n
     useEffect(() => {
         if (!scrollable) return
         scrollable.addEventListener("scroll", handleScroll)
-        return scrollable.removeEventListener("scroll", handleScroll)
-    }, [])
+        return () => scrollable.removeEventListener("scroll", handleScroll)
+    }, [scrollable])
 
     return {
         messages
