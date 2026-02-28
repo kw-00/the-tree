@@ -1,108 +1,165 @@
-import { useLayoutEffect, useRef } from "react"
+import { useEffect, useLayoutEffect, useRef } from "react"
 import { useForceUpdate } from "@/app/hooks/ForceUpdate"
 import { getScrollState, type ScrollState } from "@/utils/element"
-import { useMessageStoreWithChunkifiers } from "@/api/domains/messages/old/message-store-tools"
+import BTree from "sorted-btree"
+import { useMessageFeed } from "@/api/domains/messages/message-feed/message-feed"
+import type { MessageData } from "@/api/domains/messages/messages-service"
 
 
 
 
 
 const chatroomId = 1
-const messageBatchSize = 50
 
 
-
-
-export default function Messages() {
+function useMessageWindow(scrollableRef: React.RefObject<HTMLDivElement | null>) {
     const forceUpdate = useForceUpdate()
-    const {messageStore, messageStoreChunkifiers} = useMessageStoreWithChunkifiers()
-    const messageWindow = messageStoreChunkifiers.getWindow(chatroomId)!
-
-    const scrollableRef = useRef<HTMLDivElement | null>(null)
     const scrollable = scrollableRef.current
 
-    useLayoutEffect(() => {
-        messageStore.addChatroomListener(async (chatroomId) => {
-            await messageStore.fetchNextMessages(chatroomId, messageBatchSize)
-        })
-        messageStore.addChatrooms(chatroomId)
-    }, [])
-    
-    const loadMessageChunk = async (direction: "next" | "previous") => {
-        if (!scrollable) return
-        if (!messageWindow) return
+    const feed = useMessageFeed(chatroomId)
 
-        if (direction === "previous") {
-            console.log("Has previous: ", messageWindow.hasPrevious())
-            if (messageWindow.hasPrevious()) {
-                messageWindow.movePrevious()
-                console.log("Moved up")
-                console.log("Source: ", messageWindow.source)
-                console.log("Cursor: ", messageWindow.cursor)
-                forceUpdate()
-    
-            } else {
-                const newMessagesFetched = await messageStore.fetchPreviousMessages(chatroomId, messageBatchSize)
-                if (newMessagesFetched) {
-                    messageWindow.movePrevious()
-                    console.log("Moved up after loading messages")
-                    forceUpdate()
+    useEffect(() => {
+        feed.fetchPreviousMessages()
+    }, [])
+
+    {    
+        const prevMessageWindowRef = useRef<MessageData[] | null>(null)
+        const prevMessageWindow = prevMessageWindowRef.current
+        const messageHeightMapRef = useRef(new BTree<number, number>())
+        const messageHeightMap = messageHeightMapRef.current
+
+        function handleWindowJump() {
+            const currentMessageWindow = feed.getMessagesInWindow()
+            updateMessageHeightMap()
+            if (prevMessageWindow) {
+                resetScrollBar(prevMessageWindow, currentMessageWindow)
+            }
+
+            prevMessageWindowRef.current = currentMessageWindow
+
+
+            function updateMessageHeightMap() {
+                if (!scrollable) return
+
+                for (let i = 0; i < scrollable.children.length; i++) {
+                    const child = scrollable.children.item(i)
+                    if (child && child instanceof HTMLElement) {
+                        const messageElement = child
+                        const messageId = Number(child.getAttribute("data-message-id"))
+                        if (!Number.isNaN(messageId)) {
+                            messageHeightMap.set(messageId, messageElement.scrollHeight)
+                        }
+                    }
                 }
             }
 
-        } else if (direction === "next") {
-            // TODO - HasNext not working as expected
-            if (messageWindow.hasNext()) {
-                messageWindow.moveNext()
-                console.log("Moved down")
-                forceUpdate()
+            function resetScrollBar(prevMessageWindow: MessageData[], currentMessageWindow: MessageData[]) {
+                if (!scrollable) return
+                if (prevMessageWindow.length === 0) return
+                
+                const prevTopMessageId = prevMessageWindow[0].id
+                const prevBottomMessageId = prevMessageWindow[prevMessageWindow.length - 1].id
+                const currentTopMessageId = currentMessageWindow[0].id
+                const currentBottomMessageId = currentMessageWindow[currentMessageWindow.length - 1].id
+
+                const movedUp = currentTopMessageId < prevTopMessageId
+                const movedDown = currentBottomMessageId > prevBottomMessageId
+
+                if (movedUp) {
+                    let heightDifference = 0
+                    for (const [id, messageHeight] of messageHeightMap.entries()) {
+                        if (id === currentTopMessageId) break
+                        heightDifference += messageHeight
+                    } 
+                    scrollable.scrollTop += heightDifference
+
+                } else if (movedDown) {
+                    let heightDifference = 0
+                    for (const [id, messageHeight] of messageHeightMap.entriesReversed()) {
+                        if (id === currentBottomMessageId) break
+                        heightDifference += messageHeight
+                    } 
+                    scrollable.scrollTop -= heightDifference
+                }
             }
         }
 
-        // Message store window does not have messagestore messages as source
-        console.log("IS??? ", Object.is(messageWindow.source, messageStore.getStore().get(chatroomId)?.messages))
+        handleWindowJump()
     }
 
+    const moveUp = async () => {
+        const anyMessagesFetched = await feed.fetchPreviousMessages()
+        if (anyMessagesFetched) {
+            forceUpdate()
+        }
+    }
 
+    const moveDown = async () => {
+        const anyMessagesFetched = await feed.fetchNextMessages()
+        if (anyMessagesFetched) {
+            forceUpdate()
+        }
+    }
 
-    
+    return {
+        messages: feed.getMessagesInWindow(),
+        moveUp,
+        moveDown,
+    }
+}
+
+function useMessagesWithScroll(scrollableRef: React.RefObject<HTMLDivElement | null>) {
+    const {messages, moveUp, moveDown} = useMessageWindow(scrollableRef)
+
+    const scrollable = scrollableRef.current
     const prevScrollStateRef = useRef<ScrollState | null>(null)
-
-    const handleScroll = async (e: React.UIEvent<HTMLDivElement>) => {
-        e.preventDefault()
-        
+    const prevScrollState = prevScrollStateRef.current
+    const updatePrevScrollState = () => {
+        if (scrollable) {
+            prevScrollStateRef.current = getScrollState(scrollable)
+        }
+    }
+    const handleScroll = async (ev: Event) => {
+        ev.preventDefault()
         if (!scrollable) return
 
         const currentScrollState = getScrollState(scrollable)
-        const prevScrollState = prevScrollStateRef.current
 
         if (prevScrollState) {
             const movedToTop = currentScrollState.isTop && !prevScrollState.isTop
-            console.log("Moved to top: ", movedToTop)
             const movedToBottom = currentScrollState.isBottom && !prevScrollState.isBottom
-            console.log("Moved to botton: ", movedToBottom)
-            console.log(messageWindow?.current().length)
-            console.log(messageWindow?.current().length)
 
             if (movedToTop) {
-                loadMessageChunk("previous")
+                moveUp()
             } else if (movedToBottom) {
-                loadMessageChunk("next")
+                moveDown()
             }
         }
-
-        prevScrollStateRef.current = currentScrollState
+        updatePrevScrollState()
     }
 
-    const messages = messageWindow?.current()
-    console.log("Messages", messageWindow)
-    console.log(messageStore.getStore().get(chatroomId))
-    console.log(messages?.length)
+    useEffect(() => {
+        if (!scrollable) return
+        scrollable.addEventListener("scroll", handleScroll)
+        return scrollable.removeEventListener("scroll", handleScroll)
+    }, [])
+
+    return {
+        messages
+    }
+}
+
+
+export default function Messages() {
+    const scrollableRef = useRef<HTMLDivElement | null>(null)
+
+    const {messages} = useMessagesWithScroll(scrollableRef)
+
 
     return (
         <div className="v-stack grow basis-5/6">
-            <div className="v-stack overflow-y-auto surface-sunken grow contain-size" onScroll={handleScroll} ref={scrollableRef}>
-                {messages?.map((message, key) => <div key={key} data-message-id={message.id} className="surface-item">{message.content}</div>) ?? "Chunkifier not initialized"}
+            <div className="v-stack overflow-y-auto surface-sunken grow contain-size" ref={scrollableRef}>
+                {messages.map((message, key) => <div key={key} data-message-id={message.id} className="surface-item">{message.content}</div>) ?? "Chunkifier not initialized"}
             </div>
         </div>
     )

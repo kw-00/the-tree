@@ -99,7 +99,7 @@ export class ListWindow<T> {
     }
 
     #negativeCursorStart() {
-        return -this.source.length
+        return this.source.length > 0 ? -this.source.length : -1
     }
 
     #moveCursorWithinBounds() {
@@ -109,15 +109,14 @@ export class ListWindow<T> {
                 this.cursor = end
             }
         } else {
-            const end = this.#negativeCursorEnd()
-            if (this.cursor > end) {
-                this.cursor = end
-                return
-            }
             const start = this.#negativeCursorStart()
             if (this.cursor < start) {
                 this.cursor = start
                 return
+            }
+            const end = this.#negativeCursorEnd()
+            if (this.cursor > end) {
+                this.cursor = end
             }
         }
     }

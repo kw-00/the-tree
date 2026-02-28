@@ -52,7 +52,7 @@ class MessageFeed implements IMessageFeed {
             })
         )
         const messagesFetched = requestResult.page?.messagesData!
-        this.#messages = [...messagesFetched, ...this.#messages]
+        this.#messages.unshift(...messagesFetched)
         this.#window.movePrevious()
         this.#hasPrevious = requestResult.page?.prevCursor ? true : false
         return messagesFetched.length > 0
@@ -79,7 +79,7 @@ class MessageFeed implements IMessageFeed {
             })
         )
         const messagesFetched = requestResult.page?.messagesData!
-        this.#messages = [...messagesFetched]
+        this.#messages.push(...messagesFetched)
         this.#hasPrevious = requestResult.page?.nextCursor ? true : false
         return messagesFetched.length > 0
     }
