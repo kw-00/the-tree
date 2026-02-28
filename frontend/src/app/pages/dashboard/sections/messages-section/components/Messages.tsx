@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import { useForceUpdate } from "@/app/hooks/ForceUpdate"
 import { getScrollState, type ScrollState } from "@/utils/element"
 import BTree from "sorted-btree"
