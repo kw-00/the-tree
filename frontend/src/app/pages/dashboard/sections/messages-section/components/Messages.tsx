@@ -25,22 +25,17 @@ function useMessageWindow(scrollableRef: React.RefObject<HTMLDivElement | null>)
     {    
         const prevMessageWindowRef = useRef<MessageData[] | null>(null)
         const prevMessageWindow = prevMessageWindowRef.current
+
         const messageHeightMapRef = useRef(new BTree<number, number>())
         const messageHeightMap = messageHeightMapRef.current
 
         function handleWindowJump() {
-            console.log("handleWindowJump()")
-            console.log("Top: ", feed.getMessagesInWindow()[0]?.id)
-            console.log("Bottom: ", feed.getMessagesInWindow()[feed.getMessagesInWindow().length - 1]?.id)
-            console.log("Window: ", feed.getMessagesInWindow())
-            console.log("Source: ", feed.getAllMessages())
             const currentMessageWindow = feed.getMessagesInWindow()
             updateMessageHeightMap()
             if (prevMessageWindow) {
                 resetScrollBar(prevMessageWindow, currentMessageWindow)
             }
 
-            prevMessageWindowRef.current = currentMessageWindow
 
 
             function updateMessageHeightMap() {
@@ -72,21 +67,26 @@ function useMessageWindow(scrollableRef: React.RefObject<HTMLDivElement | null>)
 
                 if (movedUp) {
                     let heightDifference = 0
-                    for (const [id, messageHeight] of messageHeightMap.entries()) {
-                        if (id === currentTopMessageId) break
+                    for (const [id, messageHeight] of messageHeightMap.entries(currentTopMessageId)) {
+                        console.log("ID: ", id, "HT: ", messageHeight)
+                        if (id === prevTopMessageId) break
                         heightDifference += messageHeight
                     } 
                     scrollable.scrollTop += heightDifference
+                    console.log("DIFF: ", heightDifference)
 
                 } else if (movedDown) {
                     let heightDifference = 0
-                    for (const [id, messageHeight] of messageHeightMap.entriesReversed()) {
-                        if (id === currentBottomMessageId) break
+                    for (const [id, messageHeight] of messageHeightMap.entries(prevTopMessageId)) {
+                        console.log("ID: ", id, "HT: ", messageHeight)
+                        if (id === currentTopMessageId) break
                         heightDifference += messageHeight
                     } 
                     scrollable.scrollTop -= heightDifference
+                    console.log("DIFF: ", heightDifference)
                 }
             }
+            prevMessageWindowRef.current = currentMessageWindow
         }
 
         handleWindowJump()
@@ -95,6 +95,7 @@ function useMessageWindow(scrollableRef: React.RefObject<HTMLDivElement | null>)
     const moveUp = async () => {
         const anyMessagesFetched = await feed.fetchPreviousMessages()
         if (anyMessagesFetched) {
+            console.log("Fetched")
             forceUpdate()
         }
     }
@@ -131,7 +132,6 @@ function useMessagesWithScroll(scrollableRef: React.RefObject<HTMLDivElement | n
         const currentScrollState = getScrollState(scrollable)
         
         if (prevScrollState) {
-            console.log("Hellol")
             const movedToTop = currentScrollState.isTop && !prevScrollState.isTop
             const movedToBottom = currentScrollState.isBottom && !prevScrollState.isBottom
 

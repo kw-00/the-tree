@@ -14,7 +14,7 @@ class MessageFeed implements IMessageFeed {
     #messages: MessageData[]
     #window: ListWindow<MessageData>
 
-    #hasPrevious: boolean = true
+    #moreOldMessagesToLoad: boolean = true
 
     constructor(chatroomId: number) {
         this.#chatroomId = chatroomId
@@ -36,30 +36,34 @@ class MessageFeed implements IMessageFeed {
 
 
     async fetchPreviousMessages() {
-        if (!this.#hasPrevious) return false
-
+        
         if (this.#messages.length === 0) {
             return await this.#fetchInitialMessages()
         }
-
+        
         if (this.#window.hasPrevious()) {
             this.#window.movePrevious()
             return true
         }
+        
+        if (this.#moreOldMessagesToLoad) {
+            const firstMessage = this.#messages[0]
+            const requestResult = await throwErrorOnRequestFailure(
+                async () => await getPreviousMessages({
+                    before: firstMessage.id, 
+                    chatroomId: this.#chatroomId, 
+                    limit: conf.MESSAGE_BATCH_SIZE
+                })
+            )
+            const messagesFetched = requestResult.page?.messagesData!
+            this.#messages.unshift(...messagesFetched)
+            this.#window.movePrevious()
+            this.#moreOldMessagesToLoad = requestResult.page?.prevCursor ?? -1 > 0 ? true : false
 
-        const firstMessage = this.#messages[0]
-        const requestResult = await throwErrorOnRequestFailure(
-            async () => await getPreviousMessages({
-                before: firstMessage.id, 
-                chatroomId: this.#chatroomId, 
-                limit: conf.MESSAGE_BATCH_SIZE
-            })
-        )
-        const messagesFetched = requestResult.page?.messagesData!
-        this.#messages.unshift(...messagesFetched)
-        this.#window.movePrevious()
-        this.#hasPrevious = requestResult.page?.prevCursor ? true : false
-        return messagesFetched.length > 0
+            return messagesFetched.length > 0
+        } else {
+            return false
+        }
     }
 
     async fetchNextMessages() {
@@ -88,7 +92,7 @@ class MessageFeed implements IMessageFeed {
         this.#messages.length = 0
 
         this.#messages.push(...messagesFetched)
-        this.#hasPrevious = requestResult.page?.nextCursor ? true : false
+        this.#moreOldMessagesToLoad = requestResult.page?.nextCursor ? true : false
         return messagesFetched.length > 0
     }
 
