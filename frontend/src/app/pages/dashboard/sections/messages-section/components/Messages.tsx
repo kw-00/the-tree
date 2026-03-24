@@ -14,12 +14,20 @@ const chatroomId = 1
 
 function useMessageWindow(scrollableRef: React.RefObject<HTMLDivElement | null>) {
     const forceUpdate = useForceUpdate()
-    const scrollable = scrollableRef.current
 
     const feed = useMessageFeed(chatroomId)
 
     useEffect(() => {
         feed.fetchPreviousMessages()
+            .then(anyMessagesFetched => {
+                if (anyMessagesFetched) {
+                    forceUpdate()
+                    const scrollable = scrollableRef.current
+                    if (scrollable) {
+                        scrollable.scrollTop = scrollable.scrollHeight - scrollable.clientHeight
+                    }
+                }
+            })
     }, [])
 
     {    
@@ -28,6 +36,8 @@ function useMessageWindow(scrollableRef: React.RefObject<HTMLDivElement | null>)
         const messageHeightMapRef = useRef(new BTree<number, number>())
         
         function handleWindowJump() {
+            const scrollable = scrollableRef.current
+
             const prevMessageWindow = prevMessageWindowRef.current
             const currentMessageWindow = feed.getMessagesInWindow()
             const messageHeightMap = messageHeightMapRef.current
