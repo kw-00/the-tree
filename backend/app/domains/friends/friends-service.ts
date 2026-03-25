@@ -8,7 +8,7 @@ import { userDoesNotExist, queryRowsToCamelCase, recordDoesNotExist } from "../0
 export type FriendshipCodeData = {
     id: number
     code: string
-    expiresAt?: Date
+    expiresAt: Date | null
     createdAt: Date
 }
 
