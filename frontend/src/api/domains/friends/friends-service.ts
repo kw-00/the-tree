@@ -9,19 +9,19 @@ const friendsPaths = ServerConfig.api.friends
 export type FriendshipCodeData = {
     id: number
     code: string
-    expiresAt: Date | null
-    createdAt: Date
+    expiresAt: string | null
+    createdAt: string
 }
 
 export type FriendData = {
     id: number
     login: string
-    friendSince: Date
+    friendSince: string
 }
 
 export type CreateFriendshipCodeParams = {
     code: string
-    expiresAt: Date | null
+    expiresAt: string | null
 }
 export type CreateFriendshipCodeResponse = {
     friendshipCodeData?: FriendshipCodeData
@@ -33,7 +33,7 @@ export async function createFriendshipCode(params: CreateFriendshipCodeParams): 
 }
 
 export type GetFriendshipCodesParams = {
-    after: Date | null
+    after: string | null
 }
 
 export type GetFriendshipCodesResponse = {
@@ -77,7 +77,7 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
 }
 
 export type GetFriendsParams = {
-    after: Date | null
+    after: string | null
 }
 
 export type GetFriendsResponse = {

@@ -13,7 +13,7 @@ export type MessageData = {
     userId: number
     userLogin: string
     chatroomId: number
-    createdAt: Date
+    createdAt: string
 }
 
 export type CreateMessageParams = {

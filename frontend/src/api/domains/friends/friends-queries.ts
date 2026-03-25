@@ -9,13 +9,13 @@ export const createFriendshipCode = mutationOptions({
 })
 
 export function useFriendshipCodesQuery() {
-    const lastFetch = useRef<Date | null>(null)
+    const lastFetch = useRef<string | null>(null)
     const query = useQuery(_getFriendshipCodesOptions(lastFetch.current))
     return query
 }
 
 
-export const _getFriendshipCodesOptions = (after: Date | null) => queryOptions({
+export const _getFriendshipCodesOptions = (after: string | null) => queryOptions({
     queryKey: ["friendshipCodes"],
     queryFn: () => throwErrorOnRequestFailure(() => bs.getFriendshipCodes({after})),
 })
@@ -29,12 +29,12 @@ export const addFriend = mutationOptions({
 })
 
 export function useFriendsQuery() {
-    const lastFetch = useRef<Date | null>(null)
+    const lastFetch = useRef<string | null>(null)
     const query = useQuery(_getFriendsOptions(lastFetch.current))
     return query
 }
 
-export const _getFriendsOptions = (after: Date | null) => queryOptions({
+export const _getFriendsOptions = (after: string | null) => queryOptions({
     queryKey: ["friends"],
     queryFn: () => throwErrorOnRequestFailure(() => bs.getFriends({after})),
 })

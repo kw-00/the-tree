@@ -10,12 +10,12 @@ export const createChatroom = mutationOptions({
 
 
 export function useChatroomQuery() {
-    const lastFetch = useRef<Date | null>(null)
+    const lastFetch = useRef<string | null>(null)
     const query = useQuery(_getChatroomsOptions(lastFetch.current))
     return query
 }
 
-export const _getChatroomsOptions = (after: Date | null) => queryOptions({
+export const _getChatroomsOptions = (after: string | null) => queryOptions({
     queryKey: ["chatrooms"],
     queryFn: () => throwErrorOnRequestFailure(() => bs.getChatrooms({after})),
 })
