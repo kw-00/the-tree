@@ -1,8 +1,9 @@
-import { mutationOptions, queryOptions, useQuery } from "@tanstack/react-query"
+import { mutationOptions, queryOptions, useQuery, useQueryClient } from "@tanstack/react-query"
 import * as bs from "./friends-service"
 import { throwErrorOnRequestFailure } from "../00-common/queries/utility"
 import { useRef } from "react"
 
+const FRIENDSHIP_CODES_QUERY_KEY = ["friendshipCodes"]
 
 export const createFriendshipCode = mutationOptions({
     mutationFn: async (params: bs.CreateFriendshipCodeParams) => throwErrorOnRequestFailure(() => bs.createFriendshipCode(params))
@@ -14,9 +15,14 @@ export function useFriendshipCodesQuery() {
     return query
 }
 
+export function useInvalidateFriendshipCodesQuery() {
+    const queryClient = useQueryClient()
+    return async () => await queryClient.invalidateQueries({queryKey: FRIENDSHIP_CODES_QUERY_KEY})
+}
+
 
 export const _getFriendshipCodesOptions = (after: string | null) => queryOptions({
-    queryKey: ["friendshipCodes"],
+    queryKey: FRIENDSHIP_CODES_QUERY_KEY,
     queryFn: () => throwErrorOnRequestFailure(() => bs.getFriendshipCodes({after})),
 })
 

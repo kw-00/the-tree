@@ -4,8 +4,7 @@ import FriendsSection from "./sections/friends-section/FriendsSection";
 import ChatroomsSection from "./sections/chatrooms-section/ChatroomsSection";
 import MessagesSection from "./sections/messages-section/MessagesSection";
 import Header from "./sections/header/Header";
-import FriendshipCodesSection from "./sections/friendship-codes-section/FriendshipCodesSection";
-import { useDashboardState } from "./DashboardState";
+import { useUIOptionsState } from "@/app/UIOptionsState";
 import UserHeader from "../00-reused-sections/UserHeader";
 
 
@@ -13,10 +12,9 @@ import UserHeader from "../00-reused-sections/UserHeader";
 
 
 export default function Dashboard() {
-    const state = useDashboardState((state) => {
+    const state = useUIOptionsState((state) => {
         const show = state.layout.show
         return [
-            show.friendshipCodesSection,
             show.friendsSection,
             show.chatroomsSection,
             show.usersInChatroom
@@ -32,7 +30,6 @@ export default function Dashboard() {
             {/* Content */}
             <div className="h-stack grow justify-between p-4">
                 <div className={`h-stack grow justify-end ${styles["collapse"]}`}>
-                    {show.friendshipCodesSection.get() && <FriendshipCodesSection className="grow"/>}
                     {show.friendsSection.get() && <FriendsSection className="grow"/>}
                     {show.chatroomsSection.get() && <ChatroomsSection className="grow"/>}
                 </div>

@@ -2,7 +2,7 @@ import styles from "./_MessagesSection.module.css"
 import TextInput from "@/app/components/text-input/TextInput"
 
 import { useState } from "react"
-import { useDashboardState } from "../../DashboardState"
+import { useUIOptionsState } from "../../../../UIOptionsState"
 import Messages from "./components/Messages"
 
 
@@ -19,7 +19,7 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
         return fs
     })
 
-    const state = useDashboardState((state) => [state.layout.show.usersInChatroom])
+    const state = useUIOptionsState((state) => [state.layout.show.usersInChatroom])
     const show = state.layout.show
 
     return (

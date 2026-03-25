@@ -1,6 +1,6 @@
 
 import { useTheme } from "@/app/theme/theme"
-import { useDashboardState } from "../../DashboardState"
+import { useUIOptionsState } from "@/app/UIOptionsState"
 import { Link, useNavigate } from "react-router-dom"
 import * as authService from "@/api/domains/auth/auth-service"
 
@@ -10,23 +10,21 @@ import * as authService from "@/api/domains/auth/auth-service"
 
 export default function Header({className, ...rest}: Omit<React.HTMLAttributes<HTMLDivElement>, "children">) {
     const {theme, setTheme} = useTheme()
-    const state = useDashboardState((state) => {
+    const state = useUIOptionsState((state) => {
         const show = state.layout.show
         return [
-            show.friendshipCodesSection,
             show.friendsSection,
             show.chatroomsSection
         ]
     })
 
     const show = state.layout.show
-    const showFriendshipCodes = show.friendshipCodesSection.get()
     const showFriends = show.friendsSection.get()
     const showChatrooms = show.chatroomsSection.get()
     const showUsersInChatroom = show.usersInChatroom.get()
 
     const sidebarStates = [show.friendshipCodesSection, show.friendsSection, show.chatroomsSection]
-    const allHidden = !showFriendshipCodes && !showFriends && !showChatrooms
+    const allHidden = !showFriends && !showChatrooms
     const sidebarsOnClick = (e: any) => {
         e.preventDefault()
         if (!allHidden) {
@@ -43,9 +41,6 @@ export default function Header({className, ...rest}: Omit<React.HTMLAttributes<H
             <div className="h-stack justify-start flex-wrap gap-2">
                 <button onClick={sidebarsOnClick} className="button-secondary w-40">
                     {`${!allHidden ? "Hide" : "Show"} all sidebars`}
-                </button>
-                <button onClick={() => show.friendshipCodesSection.set(!showFriendshipCodes)} className="button-ghost w-50">
-                    {`${showFriendshipCodes ? "Hide" : "Show"} friendship codes`}
                 </button>
                 <button onClick={() => show.friendsSection.set(!showFriends)} className="button-ghost w-35">
                     {`${showFriends ? "Hide" : "Show"} friends`}

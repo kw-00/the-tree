@@ -2,7 +2,7 @@ import { MutationAware } from "@/utils/MutationAware"
 import { useEffect, useReducer } from "react"
 
 
-type DashboardState = Readonly<{
+type UIOptionsState = Readonly<{
     layout: Readonly<{
         show: Readonly<{
             friendshipCodesSection: MutationAware<boolean>
@@ -13,8 +13,8 @@ type DashboardState = Readonly<{
     }>
 }>
 
-class DashboardStateStore {
-    readonly state: DashboardState = {
+class UIOptionsStateStore {
+    readonly state: UIOptionsState = {
         layout: {
             show: {
                 friendshipCodesSection: new MutationAware(false),
@@ -26,9 +26,9 @@ class DashboardStateStore {
     }
 }
 
-const globalState = new DashboardStateStore()
+const globalState = new UIOptionsStateStore()
 
-export function useDashboardState(selector: (state: DashboardState) => MutationAware<any>[]) {
+export function useUIOptionsState(selector: (state: UIOptionsState) => MutationAware<any>[]) {
     const [, forceUpdate] = useReducer(x => x + 1, 0)
 
     const state = globalState.state
