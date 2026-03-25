@@ -18,10 +18,6 @@ export default function ChatroomsSection({className, ...rest}: React.HTMLAttribu
         <div className={`v-stack ${className ?? ""}`} {...rest}>
             <div className="v-stack surface-elevated gap-xs">
                 <span className="heading-3">Chatrooms</span>
-                {/* Search Bar */}
-                <form onSubmit={e => e.preventDefault()} className="flex">
-                    <input className="input grow"></input>
-                </form>
             </div>
             {/* Chatrooms */}
             <div className="v-stack overflow-y-auto surface-sunken grow contain-size">
