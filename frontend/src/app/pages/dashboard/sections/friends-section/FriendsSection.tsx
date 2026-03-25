@@ -1,23 +1,56 @@
 
 import { useState } from "react";
-import { useFriendsQuery } from "@/api/domains/friends/friends-queries";
-import { addFriend }  from "@/api/domains/friends/friends-service"
-import { useMutation } from "@tanstack/react-query";
+import { useFriendsQuery, useInvalidateFriendsQuery } from "@/api/domains/friends/friends-queries";
+import { addFriend, removeFriend, type FriendData }  from "@/api/domains/friends/friends-service"
 
+
+function FriendListItem({id, login}: FriendData) {
+    const invalidate = useInvalidateFriendsQuery()
+
+    const handleRemoveClicked = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        const requestResult = await removeFriend({friendId: id})
+        if (requestResult.status === "SUCCESS") {
+            await invalidate()
+        }
+    }
+
+    return (
+        <div className="h-stack items-center surface-item">
+            <div className="grow">
+                {login}
+            </div>
+            <button className="button-danger" onClick={handleRemoveClicked}>
+                Remove
+            </button>
+        </div>
+    )
+}
 
 export default function FriendsSection({className, ...rest}: React.HTMLAttributes<HTMLDivElement>) {
     const friendsQuery = useFriendsQuery()
+    const invalidate = useInvalidateFriendsQuery()
 
-    const handleAddFriendSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const [userToBefriendLogin, setUserToBefriendLogin] = useState("")
+    const [friendshipCode, setFriendshipCode] = useState("")
+
+    const handleAddFriendSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const requestResult = await addFriend({friendshipCode, userToBefriendLogin})
+        if (requestResult.status === "SUCCESS") {
+            await invalidate()
+        }
     }
 
     return (
         <div className={`v-stack ${className ?? ""}`} {...rest}>
-            <div className="v-stack surface-elevated gap-xs">
-                <span className="heading-3">Friends</span>
+            <div className="v-stack surface-elevated gap-sm">
                 {/* Search Bar */}
-                <form onSubmit={e => e.preventDefault()} className="flex">
-                    <input className="input grow"></input>
+                <form onSubmit={handleAddFriendSubmit} className="v-stack gap-sm">
+                    <input className="input grow" placeholder="Enter friend login..." 
+                        value={userToBefriendLogin} onChange={e => setUserToBefriendLogin(e.target.value)}/>
+                    <input className="input grow" placeholder="Enter friendship code" 
+                        value={friendshipCode} onChange={e => setFriendshipCode(e.target.value)}/>
+                    <button className="button-primary" type="submit">Add friend</button>
                 </form>
             </div>
             {/* Friends */}
@@ -25,7 +58,7 @@ export default function FriendsSection({className, ...rest}: React.HTMLAttribute
                 {
                     friendsQuery.isSuccess 
                         ?
-                        friendsQuery.data.friends.map((f, n) => <div key={n} className="surface-item">{f.login}</div>)
+                        friendsQuery.data.friends.sort((f1, f2) => f1.login.localeCompare(f2.login)).map((f, n) => <FriendListItem key={n} {...f}/>)
                         :
                         friendsQuery.isError
                             ?

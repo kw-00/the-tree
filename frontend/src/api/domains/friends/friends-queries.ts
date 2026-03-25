@@ -21,18 +21,13 @@ export function useInvalidateFriendshipCodesQuery() {
 }
 
 
-export const _getFriendshipCodesOptions = (after: string | null) => queryOptions({
+const _getFriendshipCodesOptions = (after: string | null) => queryOptions({
     queryKey: FRIENDSHIP_CODES_QUERY_KEY,
     queryFn: () => throwErrorOnRequestFailure(() => bs.getFriendshipCodes({after})),
 })
 
-export const revokeFriendshipCode = mutationOptions({
-    mutationFn: async (params: bs.RevokeFriendshipCodeParams) => throwErrorOnRequestFailure(() => bs.revokeFriendshipCode(params))
-})
 
-export const addFriend = mutationOptions({
-    mutationFn: async (params: bs.AddFriendParams) => throwErrorOnRequestFailure(() => bs.addFriend(params))
-})
+const FRIENDS_QUERY_KEY = ["friends"]
 
 export function useFriendsQuery() {
     const lastFetch = useRef<string | null>(null)
@@ -40,12 +35,14 @@ export function useFriendsQuery() {
     return query
 }
 
-export const _getFriendsOptions = (after: string | null) => queryOptions({
-    queryKey: ["friends"],
+export function useInvalidateFriendsQuery() {
+    const queryClient = useQueryClient()
+    return async () => queryClient.invalidateQueries({queryKey: FRIENDS_QUERY_KEY})
+}
+
+const _getFriendsOptions = (after: string | null) => queryOptions({
+    queryKey: FRIENDS_QUERY_KEY,
     queryFn: () => throwErrorOnRequestFailure(() => bs.getFriends({after})),
 })
 
-export const removeFriend = mutationOptions({
-    mutationFn: async (params: bs.RemoveFriendParams) => throwErrorOnRequestFailure(() => bs.removeFriend(params))
-})
 

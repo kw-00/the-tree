@@ -16,10 +16,10 @@ function FriendshipCodeItem({id, code, expiresAt}: FriendshipCodeData) {
 
     return (
         <div className="h-stack surface-elevated justify-evenly">
-            <div className="h-stack items-center flex-1">
+            <div className="h-stack items-center grow">
                 {code}
             </div>
-            <div className="h-stack items-center flex-1">
+            <div className="h-stack items-center grow">
                 {expiresAt !== null ? expiresAt : "No expiry date"}
             </div>
             <button className="button-danger" onClick={handleRemoveClick}>
