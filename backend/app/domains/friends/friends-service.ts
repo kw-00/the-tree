@@ -85,6 +85,7 @@ export async function getFriendshipCodes(params: GetFriendshipCodesParams): Prom
         INNER JOIN users u ON u.id = fc.user_id
         WHERE
             u.id = $1
+            AND NOT fc.revoked
             AND (fc.expires_at IS NULL OR fc.expires_at > now())
             AND ($2::TIMESTAMPTZ IS NULL OR fc.created_at > $2::TIMESTAMPTZ)
         ORDER BY fc.id DESC;
