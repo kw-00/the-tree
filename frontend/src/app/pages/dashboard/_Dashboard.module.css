@@ -1,9 +1,9 @@
 
 
 
-@media (width < 65rem) {
+@media (width < 80rem) {
     .collapse {
-        flex-wrap: wrap;
+        flex-direction: column;
         justify-content: center;
         flex-shrink: 20;
     }

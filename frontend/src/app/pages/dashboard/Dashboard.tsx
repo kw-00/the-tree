@@ -30,10 +30,10 @@ export default function Dashboard() {
             {/* Content */}
             <div className="h-stack grow justify-between p-4">
                 <div className={`h-stack grow justify-end ${styles["collapse"]}`}>
-                    {show.friendsSection.get() && <FriendsSection className="grow"/>}
-                    {show.chatroomsSection.get() && <ChatroomsSection className="grow"/>}
+                    {show.friendsSection.get() && <FriendsSection className="grow basis-0"/>}
+                    {show.chatroomsSection.get() && <ChatroomsSection className="grow basis-0"/>}
                 </div>
-                <div className="v-stack justify-start basis-3/4 surface-base">
+                <div className="v-stack justify-start basis-2/3 surface-base">
                     <MessagesSection className="contrast-110 grow"/>
                 </div>
             </div>
