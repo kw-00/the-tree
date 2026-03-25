@@ -5,7 +5,7 @@ import { userDoesNotExist, queryRowsToCamelCase, chatroomDoesNotExist, userNotIn
 export type ChatroomData = {
     id: number
     name: string
-    joinedAt: Date
+    joinedAt: string
 }
 
 export type CreateChatroomParams = {
@@ -62,7 +62,7 @@ export async function createChatroom(params: CreateChatroomParams): Promise<Crea
 
 export type GetChatroomsParams = {
     userId: number
-    after: Date | null
+    after: string | null
 }
 export type GetChatroomsResponse = {
     chatroomsData?: ChatroomData[]

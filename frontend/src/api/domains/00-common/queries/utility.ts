@@ -11,10 +11,10 @@ export class ServerServiceError<T extends StandardResponse<S>, S extends string>
 }
 
 export async function throwErrorOnRequestFailure
-        <Response extends StandardResponse<S>, S extends string>(request: () => Promise<Response>): Promise<Response> {
+        <Response extends StandardResponse<S>, S extends string>(request: () => Promise<Response>): Promise<Required<Response>> {
     const result = await request()
     if (result.status === "SUCCESS") {
-        return result
+        return result as Required<Response>
     } else {
         throw new ServerServiceError(result)
     }

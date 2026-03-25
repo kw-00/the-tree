@@ -9,7 +9,7 @@ const friendsPaths = ServerConfig.api.friends
 export type FriendshipCodeData = {
     id: number
     code: string
-    expiresAt?: Date
+    expiresAt: Date | null
     createdAt: Date
 }
 

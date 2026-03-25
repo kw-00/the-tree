@@ -67,7 +67,7 @@ export async function chatroomsRoutes(fastify: FastifyInstance, options: object)
                         return
                     }
                     const userId = verificationResult.userId!
-                    const dbResult = await getChatrooms({userId, after: after ? new Date(after) : null})
+                    const dbResult = await getChatrooms({userId, after})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )

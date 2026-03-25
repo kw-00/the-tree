@@ -1,15 +1,15 @@
 
 import { useState } from "react";
+import { useFriendsQuery } from "@/api/domains/friends/friends-queries";
+import { addFriend }  from "@/api/domains/friends/friends-service"
+import { useMutation } from "@tanstack/react-query";
 
 
 export default function FriendsSection({className, ...rest}: React.HTMLAttributes<HTMLDivElement>) {
-    const [friends,] = useState(() => {
-        const fs = []
-        while (fs.length < 50) {
-            fs.push(["Frank", "Bob", "Martin", "Chris", "Matt", "Elliot"][Math.floor(Math.random() * 6)])
-        }
-        return fs
-    })
+    const friendsQuery = useFriendsQuery()
+
+    const handleAddFriendSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    }
 
     return (
         <div className={`v-stack ${className ?? ""}`} {...rest}>
@@ -22,7 +22,18 @@ export default function FriendsSection({className, ...rest}: React.HTMLAttribute
             </div>
             {/* Friends */}
             <div className="v-stack overflow-y-auto surface-sunken grow contain-size">
-                {friends.map((f, n) => <div key={n} className="surface-item">{f}</div>)}
+                {
+                    friendsQuery.isSuccess 
+                        ?
+                        friendsQuery.data.friends.map((f, n) => <div key={n} className="surface-item">{f.login}</div>)
+                        :
+                        friendsQuery.isError
+                            ?
+                            friendsQuery.error.name
+                            :
+                            friendsQuery.status
+                    
+                }
             </div>
         </div>
     )

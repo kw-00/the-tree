@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import ChangePasswordSection from "./sections/ChangePasswordSection";
 import ChangeLoginSection from "./sections/ChangeLoginSection";
 import UserHeader from "../00-reused-sections/UserHeader";
+import FriendshipCodesSection from "./sections/FriendshipCodesSection";
 
 
 
@@ -23,6 +24,7 @@ export default function Settings() {
                             <div className="v-stack pb-8 gap-8">
                                 <ChangeLoginSection/>
                                 <ChangePasswordSection/>
+                                <FriendshipCodesSection/>
                             </div>
                         </div>
                 </div>

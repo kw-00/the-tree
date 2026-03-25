@@ -8,20 +8,20 @@ import { userDoesNotExist, queryRowsToCamelCase, recordDoesNotExist } from "../0
 export type FriendshipCodeData = {
     id: number
     code: string
-    expiresAt: Date | null
-    createdAt: Date
+    expiresAt: string | null
+    createdAt: string
 }
 
 export type FriendData = {
     id: number
     login: string
-    friendSince: Date
+    friendSince: string
 }
 
 export type CreateFriendshipCodeParams = {
     userId: number
     code: string
-    expiresAt: Date | null
+    expiresAt: string | null
 }
 
 export type CreateFriendshipCodeResponse = {
@@ -59,7 +59,7 @@ export async function createFrienshipCode(params: CreateFriendshipCodeParams): P
 
 export type GetFriendshipCodesParams = {
     userId: number
-    after: Date | null
+    after: string | null
 }
 
 export type GetFriendshipCodesResponse = {
@@ -261,7 +261,7 @@ export async function addFriend(params: AddFriendParams): Promise<AddFriendRespo
 
 export type GetFriendsParams = {
     userId: number
-    after: Date | null
+    after: string | null
 }
 
 

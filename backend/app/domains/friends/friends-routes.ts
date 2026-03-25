@@ -38,7 +38,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
                         return
                     }
                     const userId = verificationResult.userId!
-                    const dbResult = await createFrienshipCode({userId, code, expiresAt: expiresAt ? new Date(expiresAt) : null})
+                    const dbResult = await createFrienshipCode({userId, code, expiresAt})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )
@@ -68,7 +68,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
                         return
                     }
                     const userId = verificationResult.userId!
-                    const dbResult = await getFriendshipCodes({userId,  after: after ? new Date(after) : null})
+                    const dbResult = await getFriendshipCodes({userId,  after})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )
@@ -164,7 +164,7 @@ export async function friendsRoutes(fastify: FastifyInstance, options: object) {
                     }
                     const userId = verificationResult.userId!
 
-                    const dbResult = await getFriends({userId, after: after ? new Date(after) : null})
+                    const dbResult = await getFriends({userId, after})
                     rep.status(stMap[dbResult.status]).send(dbResult)
                 }
             )
