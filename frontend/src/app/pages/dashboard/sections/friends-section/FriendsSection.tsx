@@ -7,7 +7,7 @@ import { addFriend, removeFriend, type FriendData }  from "@/api/domains/friends
 function FriendListItem({id, login}: FriendData) {
     const invalidate = useInvalidateFriendsQuery()
 
-    const handleRemoveClicked = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleRemoveClicked = async () => {
         const requestResult = await removeFriend({friendId: id})
         if (requestResult.status === "SUCCESS") {
             await invalidate()

@@ -7,7 +7,7 @@ import { useState } from "react";
 function FriendshipCodeItem({id, code, expiresAt}: FriendshipCodeData) {
     const invalidate = useInvalidateFriendshipCodesQuery()
 
-    const handleRemoveClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleRemoveClick = async () => {
         const requestResult = await revokeFriendshipCode({friendshipCodeId: id})
         if (requestResult.status === "SUCCESS") {
             await invalidate()
