@@ -96,7 +96,10 @@ export async function chatroomDoesNotExist(id: number): Promise<ServiceResponse 
     return recordDoesNotExist({value: id, column: "id", table: "chatrooms"})
 }
 
-
+export type NotInChatroomParams = {
+    userId: number
+    chatroomId: number
+}
 
 /**
  * Checks whether a user with a given ID is in the chatroom with the given ID.
@@ -112,13 +115,13 @@ export async function chatroomDoesNotExist(id: number): Promise<ServiceResponse 
  * ```
  */
 export async function userNotInChatroom(params: NotInChatroomParams): Promise<ServiceResponse | false> {
+    const {chatroomId, userId} = params
     const inChatroom = (await pool.query(`
         SELECT EXISTS(
-            SELECT 1 FROM users u
-            INNER JOIN chatrooms_users cu ON cu.user_id = u.id
-            INNER JOIN chatrooms c ON c.id = cu.chatroom_id
+            SELECT 1 FROM chatrooms_users
+            WHERE chatroom_id = $1 AND user_id = $2
         ) AS in_chatroom;
-    `)).rows[0]["in_chatroom"]
+    `, [chatroomId, userId])).rows[0]["in_chatroom"]
     if (!inChatroom) {
         return {
             status: "NOT_IN_CHATROOM",
@@ -129,8 +132,4 @@ export async function userNotInChatroom(params: NotInChatroomParams): Promise<Se
 
 }
 
-export type NotInChatroomParams = {
-    userId: number
-    chatroomId: number
-}
 
