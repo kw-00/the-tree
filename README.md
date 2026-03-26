@@ -5,8 +5,8 @@ It already has a styled UI as well as the main server-side architecture implemen
 
 ## Next steps:
 - <p style="color: green">**<b>COMPLETED</b>** Infinite scrolling for the chat itself — messaging apps have very specific needs which means simple virtualization techniques or traditional pagination are not the best choice. The pagination itself is already implemented, but I still have to fix cursor-jumps, which requires managing multiple edge cases
-- Server notifications using HTTP/3 (*WebTransport API*) – I used polling for prototyping, but it is not the optimal solution for certain features, especially the real-time chat itself
-- Backpressure and handling of network/client/server overload — this must be implemented to prevent issues with WebTransport
+- Server notifications using WebSockets – I used polling for prototyping, but it is not the optimal solution for certain features, especially the real-time chat itself
+- Backpressure and handling of network/client/server overload — this must be implemented to prevent issues with WebSockets
 - Skeletons and error notifications for loading data and failed requests
 - Security audit
 
