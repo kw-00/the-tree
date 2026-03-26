@@ -2,8 +2,9 @@ import styles from "./_MessagesSection.module.css"
 import TextInput from "@/app/components/text-input/TextInput"
 
 import { useState } from "react"
-import { useUIOptionsState } from "../../../../UIOptionsState"
+import { useUIOptionsState } from "../../../../../state/ui/UIOptionsState"
 import Messages from "./components/Messages"
+import UsersInChatroom from "./components/UsersInChatroom"
 
 
 
@@ -33,15 +34,7 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
                     {/* Messages */}
                     <Messages/>
 
-                    {show.usersInChatroom.get() &&
-                    <div className="v-stack grow">
-                        <div className="surface-elevated">
-                            <h3 className="heading-3">Chatroom members</h3>
-                        </div>
-                        <div className="v-stack overflow-y-auto surface-sunken grow contain-size">
-                            {friends.map((f, n) => <div key={n} className="surface-item">{f}</div>)}
-                        </div>
-                    </div>}
+                    {show.usersInChatroom.get() && <UsersInChatroom/>}
                 </div>
 
                 <div className="v-stack surface-sunken gap-1">

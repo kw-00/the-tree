@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef } from "react"
 import { useForceUpdate } from "@/app/hooks/ForceUpdate"
 import { getScrollState, type ScrollState } from "@/utils/element"
 import BTree from "sorted-btree"
-import { useMessageFeed } from "@/api/domains/messages/message-feed/message-feed"
+import { useMessageFeed } from "@/state/chatrooms/message-feed"
 import type { MessageData } from "@/api/domains/messages/messages-service"
 
 
@@ -18,7 +18,7 @@ function useMessageWindow(scrollableRef: React.RefObject<HTMLDivElement | null>)
     const feed = useMessageFeed(chatroomId)
 
     useEffect(() => {
-        feed.fetchPreviousMessages()
+        feed.initialize()
             .then(anyMessagesFetched => {
                 if (anyMessagesFetched) {
                     forceUpdate()
@@ -103,14 +103,14 @@ function useMessageWindow(scrollableRef: React.RefObject<HTMLDivElement | null>)
     }
 
     const moveUp = async () => {
-        const anyMessagesFetched = await feed.fetchPreviousMessages()
+        const anyMessagesFetched = await feed.moveOlder()
         if (anyMessagesFetched) {
             forceUpdate()
         }
     }
 
     const moveDown = async () => {
-        const anyMessagesFetched = await feed.fetchNextMessages()
+        const anyMessagesFetched = await feed.moveNewer()
         if (anyMessagesFetched) {
             forceUpdate()
         }

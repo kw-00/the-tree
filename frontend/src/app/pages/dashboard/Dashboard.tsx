@@ -4,7 +4,7 @@ import FriendsSection from "./sections/friends-section/FriendsSection";
 import ChatroomsSection from "./sections/chatrooms-section/ChatroomsSection";
 import MessagesSection from "./sections/messages-section/MessagesSection";
 import Header from "./sections/header/Header";
-import { useUIOptionsState } from "@/app/UIOptionsState";
+import { useUIOptionsState } from "@/state/ui/UIOptionsState";
 import UserHeader from "../00-reused-sections/UserHeader";
 
 

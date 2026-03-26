@@ -1,6 +1,6 @@
 import { ListWindow } from "@/utils/list-window/list-window";
-import { getPreviousMessages, type MessageData } from "../messages-service";
-import { throwErrorOnRequestFailure } from "../../00-common/queries/utility";
+import { getPreviousMessages, type MessageData } from "@/api/domains/messages/messages-service";
+import { throwErrorOnRequestFailure } from "@/api/domains/00-common/queries/utility";
 import type { IChatroomMessageFeed as IMessageFeed } from "./types";
 
 const conf = {
@@ -20,27 +20,14 @@ class MessageFeed implements IMessageFeed {
         this.#chatroomId = chatroomId
         this.#messages = []
         this.#window = new ListWindow(this.#messages, conf.WINDOW_SIZE, conf.WINDOW_STEP, -1)
-    }
-
-    getAllMessages() {
-        return this.#window.source
+        this.#window.anchorStart()
     }
 
     getMessagesInWindow() {
         return this.#window.current()
     }
 
-    addNewMessages(...messages: MessageData[]) {
-        this.#messages.push(...messages)
-    }
-
-
-    async fetchPreviousMessages() {
-        
-        if (this.#messages.length === 0) {
-            return await this.#fetchInitialMessages()
-        }
-        
+    async moveOlder() {
         if (this.#window.hasPrevious()) {
             this.#window.movePrevious()
             return true
@@ -66,11 +53,7 @@ class MessageFeed implements IMessageFeed {
         }
     }
 
-    async fetchNextMessages() {
-        if (this.#messages.length === 0) {
-            return await this.#fetchInitialMessages()
-        }
-
+    async moveNewer() {
         if (this.#window.hasNext()) {
             this.#window.moveNext()
             return true
@@ -78,7 +61,7 @@ class MessageFeed implements IMessageFeed {
         return false
     }
 
-    async #fetchInitialMessages() {
+    async initialize() {
         const requestResult = await throwErrorOnRequestFailure(
             async () => await getPreviousMessages({
                 before: null, 

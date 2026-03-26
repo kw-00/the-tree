@@ -1,6 +1,6 @@
 
 import { useTheme } from "@/app/theme/theme"
-import { useUIOptionsState } from "@/app/UIOptionsState"
+import { useUIOptionsState } from "@/state/ui/UIOptionsState"
 import { Link, useNavigate } from "react-router-dom"
 import * as authService from "@/api/domains/auth/auth-service"
 
