@@ -5,10 +5,11 @@ import "./import-tailwind.css"
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Dashboard from "./app/pages/dashboard/Dashboard"
 import Settings from "./app/pages/settings/Settings.tsx"
 import AuthPage from "./app/pages/authentication/AuthPage.tsx"
+import { closews, sendMessage } from "./api/domains/messages/chat-socket/chat-socket.ts"
 
 export default function App() {
   const [queryClient] = useState(() => new QueryClient())

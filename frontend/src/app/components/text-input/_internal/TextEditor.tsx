@@ -38,11 +38,12 @@ export type TextEditorProps = {
   className?: string
   style?: React.CSSProperties
   onChange?: (text: string) => void
+  value?: string
   onScroll?: React.UIEventHandler<HTMLDivElement> 
 }
 
 export default function TextEditor(props: TextEditorProps) {
-  const {ref, className, style, onChange, onScroll} = props
+  const {ref, className, style, onChange, value, onScroll} = props
   const initialConfig = {
     namespace: 'MyEditor',
     theme,
@@ -58,6 +59,7 @@ export default function TextEditor(props: TextEditorProps) {
                 className={`${className ?? ""}`}
                 style={(style)}
                 onScroll={onScroll}
+                value={value ?? ""}
             />
             }
             ErrorBoundary={LexicalErrorBoundary}

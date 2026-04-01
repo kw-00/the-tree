@@ -98,7 +98,6 @@ export async function messagesRoutes(fastify: FastifyInstance, options: object) 
             await handleRequest(
                 req, rep,
                 async (req, rep) => {
-                    console.log(req.body)
                     const parsed = getPreviousMessagesSchema.parse(req)
                     const {chatroomId, before, limit} = parsed.body
                     const {accessToken} = parsed.cookies

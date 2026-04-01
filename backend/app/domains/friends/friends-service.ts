@@ -40,7 +40,6 @@ export async function createFrienshipCode(params: CreateFriendshipCodeParams): P
     const userNotExists = await userDoesNotExist(params.userId)
     if (userNotExists) return userNotExists
 
-    console.log(params)
     // Create friendship code
     const query = await pool.query(`
         INSERT INTO friendship_codes (user_id, code, expires_at)

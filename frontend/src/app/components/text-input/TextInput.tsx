@@ -7,13 +7,14 @@ export type TextInputProps = {
     className?: string
     style?: React.CSSProperties
     onChange?: (text: string) => void
+    value?: string
 }
 
 /**
  * Make sure to specify max-height through Tailwind or style, so that the TextInput
  * does not grow indefinitely instead of becoming scrollable when content expands.
  */
-export default function TextInput({className, style, onChange}: TextInputProps) {
+export default function TextInput({className, style, onChange, value}: TextInputProps) {
 
     return (
         <TextEditor 
@@ -22,6 +23,7 @@ export default function TextInput({className, style, onChange}: TextInputProps) 
                 onChange(text)
             }
         }}
+        value={value}
         className={`${styles.TextInput} ${className ?? ""}`}
         style={{outline: "none", ...style}}
         />

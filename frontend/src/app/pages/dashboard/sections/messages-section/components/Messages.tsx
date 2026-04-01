@@ -4,6 +4,8 @@ import { getScrollState, type ScrollState } from "@/utils/element"
 import BTree from "sorted-btree"
 import { useMessageFeed } from "@/state/chatrooms/message-feed"
 import type { MessageData } from "@/api/domains/messages/messages-service"
+import { onMessage } from "@/api/domains/messages/chat-socket/chat-socket"
+
 
 
 
@@ -29,6 +31,19 @@ function useMessageWindow(scrollableRef: React.RefObject<HTMLDivElement | null>)
                 }
             })
     }, [])
+
+    useEffect(() => {
+        onMessage(async (messageData) => {
+            const wasAtBottom = !feed.hasNext()
+            feed.appendMessage(messageData)
+            console.log("Was at bottom: ", wasAtBottom)
+            if (wasAtBottom) {
+                await moveDown()
+            }
+            forceUpdate()
+        })
+    }, [])
+    console.log("Rerender")
 
     {    
         const prevMessageWindowRef = useRef<MessageData[] | null>(null)
@@ -110,6 +125,7 @@ function useMessageWindow(scrollableRef: React.RefObject<HTMLDivElement | null>)
     }
 
     const moveDown = async () => {
+        console.log("Has next: ", feed.hasNext())
         const anyMessagesFetched = await feed.moveNewer()
         if (anyMessagesFetched) {
             forceUpdate()

@@ -8,7 +8,7 @@ const payloadSchemas = {
 
     chatMessage: z.object({
         type: z.literal("chat"),
-        roomId: z.number().nonnegative(),
+        chatroomId: z.number().nonnegative(),
         content: z.string()
     }),
 }
@@ -21,7 +21,8 @@ export function tryParsePayload<K extends keyof typeof payloadSchemas>(
     try {
         const parsed = payloadSchemas[type].parse(data) as any
         return parsed
-    } catch {
+    } catch (e) {
+        console.log(e)
         return undefined
     }
 }

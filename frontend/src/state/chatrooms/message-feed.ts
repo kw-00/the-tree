@@ -19,7 +19,7 @@ class MessageFeed implements IMessageFeed {
     constructor(chatroomId: number) {
         this.#chatroomId = chatroomId
         this.#messages = []
-        this.#window = new ListWindow(this.#messages, conf.WINDOW_SIZE, conf.WINDOW_STEP, -1)
+        this.#window = new ListWindow(this.#messages, conf.WINDOW_SIZE, conf.WINDOW_STEP, 0)
         this.#window.anchorStart()
     }
 
@@ -53,7 +53,14 @@ class MessageFeed implements IMessageFeed {
         }
     }
 
+    hasNext() {
+        return this.#window.hasNext()
+    }
+
     async moveNewer() {
+        console.log(this.getMessagesInWindow())
+        console.log(this.hasNext())
+        console.log("\n\n")
         if (this.#window.hasNext()) {
             this.#window.moveNext()
             return true
@@ -77,6 +84,10 @@ class MessageFeed implements IMessageFeed {
         this.#messages.push(...messagesFetched)
         this.#moreOldMessagesToLoad = requestResult.page?.nextCursor ? true : false
         return messagesFetched.length > 0
+    }
+
+    appendMessage(message: MessageData) {
+        this.#window.source.push(message)
     }
 
     clear() {

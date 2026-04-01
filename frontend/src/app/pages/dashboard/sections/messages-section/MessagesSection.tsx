@@ -6,19 +6,15 @@ import { useUIOptionsState } from "../../../../../state/ui/UIOptionsState"
 import Messages from "./components/Messages"
 import UsersInChatroom from "./components/UsersInChatroom"
 
+import {sendMessage} from "@/api/domains/messages/chat-socket/chat-socket"
+
 
 
 
 
 
 export default function MessagesSection({className, ...rest}: React.HTMLAttributes<HTMLDivElement>) {
-    const [friends,] = useState(() => {
-        const fs = []
-        while (fs.length < 50) {
-            fs.push(["Frank", "Bob", "Martin", "Chris", "Matt", "Elliot"][Math.floor(Math.random() * 6)])
-        }
-        return fs
-    })
+    const [message, setMessage] = useState("")
 
     const state = useUIOptionsState((state) => [state.layout.show.usersInChatroom])
     const show = state.layout.show
@@ -38,8 +34,15 @@ export default function MessagesSection({className, ...rest}: React.HTMLAttribut
                 </div>
 
                 <div className="v-stack surface-sunken gap-1">
-                    <TextInput className={`${styles["message-input"]} input grow`}></TextInput>
-                    <button className={`button-primary ${styles["send-button"]}`}>Send</button>
+                    <TextInput className={`${styles["message-input"]} input grow`} value={message} onChange={s => {
+                        setMessage(s)
+                    }}/>
+                    <button 
+                        className={`button-primary ${styles["send-button"]}`}
+                        onClick={() => sendMessage(message, 1)}
+                    >
+                        Send
+                    </button>
                 </div>
             </div>
 

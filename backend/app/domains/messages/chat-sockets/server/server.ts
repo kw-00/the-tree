@@ -6,9 +6,13 @@ import { tryParsePayload, type ChatMessagePayload } from "../protocol.js";
 import http from "http"
 import * as authService from "@/domains/auth/auth-service.js";
 import * as chatroomsService from "@/domains/chatrooms/chatrooms-service.js"
+import * as messageService from "@/domains/messages/messages-service.js"
 import validation from "@/domains/00-common/route/validation.js";
 import type Stream from "stream";
 
+interface MetaWebSocket extends WebSocket {
+    userId: number
+}
 
 class Room {
     _users = new Set<number>()
@@ -126,30 +130,33 @@ class ClientRegistry {
         roomIds.delete(roomId)
     }
 
-    broadcast(message: ChatMessagePayload, roomId: number) {
+    broadcast(message: messageService.MessageData, roomId: number) {
         this.getConnections(roomId)?.forEach(ws => ws.send(JSON.stringify(message)))
     }
 }
 
 const globalRegistry = new ClientRegistry()
 
-async function attachWSServer(server: http.Server) {
+export async function attachWSServer(server: http.Server) {
     const wss = new WebSocketServer({noServer: true})
-
+    
     server.on("upgrade", (req, socket, head) => {
         try {
+            console.log("hello")
             if (req.headers.cookie !== undefined) {
                 const cookies = cookie.parse(req.headers.cookie)
                 const accessToken = validation.auth.accessToken.parse(cookies.accessToken)
                 const verificationResult = authService.verifyAccessToken(accessToken)
-
-                if (verificationResult.status != "SUCCESS") {
+                if (verificationResult.status !== "SUCCESS") {
                     _passResponseAndDestroySocket(socket, verificationResult)
                     return
                 }
 
                 const userId = verificationResult.userId!
                 wss.handleUpgrade(req, socket, head, async (client, request) => {
+                    const clientWithMetadata = client as MetaWebSocket
+                    clientWithMetadata.userId = userId
+                    
                     const getChatroomsResult = await chatroomsService.getChatrooms({userId, after: null})
                     if (getChatroomsResult.status !== "SUCCESS") {
                         client.send("An error occurred when loading chatrooms.")
@@ -157,6 +164,9 @@ async function attachWSServer(server: http.Server) {
                         return
                     }
                     globalRegistry.register(userId, client, getChatroomsResult.chatroomsData!.map(cd => cd.id))
+                    
+                    
+                    wss.emit("connection", clientWithMetadata, request)
                 })
             }
         } catch (e) {
@@ -167,10 +177,16 @@ async function attachWSServer(server: http.Server) {
         }
 
     })
-
+    
     wss.on("connection", (ws, req) => {
-        ws.on("message", data => {
-            let parsed = tryParsePayload("chatMessage", data)
+        const mws = ws as MetaWebSocket
+        console.log("Connected.")
+        ws.on("message", async (data, isBinary) => {
+    
+            const message = JSON.parse(data.toString())
+            console.log("Message incoming")
+            let parsed = tryParsePayload("chatMessage", message)
+            console.log("Payload: ", parsed)
             if (parsed === undefined) {
                 ws.send(JSON.stringify({
                     type: "server",
@@ -178,11 +194,27 @@ async function attachWSServer(server: http.Server) {
                 }))
                 return
             }
-            const roomId = parsed.roomId
-            globalRegistry.broadcast(parsed, roomId)
-        })
-    })
+            const {content, chatroomId} = parsed
+            const {userId} = mws
+            const messageCreationResult = await messageService.createMessage({content, userId, chatroomId})
 
+            if (messageCreationResult.status !== "SUCCESS") {
+                ws.send(JSON.stringify({
+                    type: "server",
+                    code: "invalid_message"
+                }))
+                return
+            }
+
+            globalRegistry.broadcast(messageCreationResult.messageData!, chatroomId)
+        })
+    
+        ws.on("close", () => {
+            globalRegistry.terminate(mws.userId)
+        })
+    
+        ws.on("error", () => globalRegistry.terminate(mws.userId))
+    })
 }
 
 function _passResponseAndDestroySocket(socket: Stream.Duplex, response: any) {
@@ -191,3 +223,4 @@ function _passResponseAndDestroySocket(socket: Stream.Duplex, response: any) {
     socket.write(JSON.stringify(response))
     socket.destroy()
 }
+
