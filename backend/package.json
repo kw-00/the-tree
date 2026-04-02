@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "@the-tree/backend",
   "version": "1.0.0",
   "description": "",
   "license": "UNLICENSED",
@@ -11,23 +11,23 @@
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
-    "@fastify/cors": "^11.1.0",
-    "dotenv": "^17.2.3",
-    "fastify": "^5.6.2",
+    "@fastify/cors": "^11.2.0",
+    "@the-tree/api": "^1.0.0",
+    "dotenv": "^17.3.1",
+    "fastify": "^5.8.4",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
-    "jsonwebtoken": "^9.0.2",
-    "pg": "^8.16.3",
-    "ws": "^8.20.0",
-    "zod": "^4.1.13"
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.20.0",
+    "ws": "^8.20.0"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^24.10.3",
-    "@types/pg": "^8.15.6",
+    "@types/node": "^25.5.0",
+    "@types/pg": "^8.20.0",
     "@types/ws": "^8.18.1",
-    "nodemon": "^3.1.11",
-    "tsx": "^4.20.6",
-    "typescript": "^5.9.3"
+    "nodemon": "^3.1.14",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
   }
 }

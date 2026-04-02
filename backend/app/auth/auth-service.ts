@@ -1,9 +1,9 @@
 import { DatabaseError } from "pg"
-import { pgErrorCondition } from "../00-common/service/db-error-codes-mapping"
-import { pool } from "../00-common/service/pool"
-import type { ServiceResponse as ServiceResponse } from "../00-common/service/types"
-import { queryRowsToCamelCase, userDoesNotExist } from "../00-common/service/utility"
 import { AccessTokenManagement } from "@/utilities/access-token-management"
+import { pgErrorCondition } from "@/domains/00-common/service/db-error-codes-mapping"
+import  { pool } from "@/domains/00-common/service/pool"
+import type { ServiceResponse } from "@/domains/00-common/service/types"
+import { queryRowsToCamelCase, userDoesNotExist } from "@/domains/00-common/service/utility"
 
 
 

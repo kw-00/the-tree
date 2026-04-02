@@ -1,0 +1,25 @@
+{
+  "name": "the-tree",
+  "version": "1.0.0",
+  "description": "A web chatroom app written in React + Fastify + PostgreSQL. My main goal is to execute its core functionality perfectly, with responsiveness, simplicity and security in mind. I’ve currently taken a hiatus from working on this one, as implementing a real chat app from scratch is time-consuming without taking any shortcuts.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kw-00/the-tree.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/kw-00/the-tree/issues"
+  },
+  "homepage": "https://github.com/kw-00/the-tree#readme",
+  "workspaces": [
+    "api",
+    "frontend",
+    "backend"
+  ]
+}
