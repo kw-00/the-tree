@@ -19,6 +19,8 @@ export const STATUS_MAP = {
     "UUID_COLLISION": 409,
     "LOGIN_IN_USE": 409,
     "BEFRIENDING_SELF": 409,
+
+    "UNEXPECTED_ERROR": 500
 }
 
 type ResponseStatus = keyof typeof STATUS_MAP
@@ -87,10 +89,10 @@ export class ApiParserFactory {
         SuccessFieldsShape extends z.core.$ZodShape,
         SuccessFields extends z.ZodObject<SuccessFieldsShape>,
 
-    >(successFieldsSchema: SuccessFields, possibleStatus: S[]): (response: any) => z.infer<ApiResponseSchema<S, SuccessFields>> {
+    >(successFieldsSchema: SuccessFields, possibleStatus: S[]): (response: any) => z.infer<ApiResponseSchema<S | "UNEXPECTED_ERROR", SuccessFields>> {
         const possibleSuccessStatus: SuccessStatus<S>[] 
             = possibleStatus.filter((s: any) => SUCCESS_STATUS_VALUES.includes(s)) as any
-        const possibleErrorStatus: ErrorStatus<S> 
+        const possibleErrorStatus: ErrorStatus<S | "UNEXPECTED_ERROR">[]
             = possibleStatus.filter((s: any) => !possibleSuccessStatus.includes(s)) as any
 
         
