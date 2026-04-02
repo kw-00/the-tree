@@ -5,7 +5,7 @@ const baseValidators = {
     serialId: z.int().positive()
 }
 
-export default class CommonValidators {
+export class FieldValidators {
 
     static user = {
         id: baseValidators.serialId,
@@ -33,3 +33,5 @@ export default class CommonValidators {
         content: z.string().min(1).max(5000)
     }
 }
+
+
