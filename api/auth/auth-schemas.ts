@@ -23,18 +23,15 @@ export default class AuthParsers {
         }), "refresh"),
 
         parseResponse: ApiParserFactory.createResponseParser(
-            z.object({
-
-            })
+            z.object(),
+            [
+                "SUCCESS",
+                "REFRESH_TOKEN_INVALID",
+                "REFRESH_TOKEN_REVOKED",
+                "REFRESH_TOKEN_REUSE",
+                "NOT_FOUND",
+                "UUID_COLLISION",
+            ]
         )
     }
-}
-
-function f(schema: z.ZodType<{userId: number}>) {
-
-}
-
-const parse = AuthParsers.authenticateUser.parseResponse({})
-if (parse.status === "INVALID_CREDENTIALS") {
-    parse.userId
 }
