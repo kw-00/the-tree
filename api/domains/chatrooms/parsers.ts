@@ -13,7 +13,7 @@ const models = {
 export default class ChatroomsParsers{
     static createChatroom = {
         parseRequest: ApiParserFactory.createRequestParser(z.object({
-            userId: FieldValidators.user.id,
+            accessToken: FieldValidators.auth.accessToken,
             chatroomName: FieldValidators.chatroom.name
         })),
 
@@ -27,7 +27,7 @@ export default class ChatroomsParsers{
 
     static getChatrooms = {
         parseRequest: ApiParserFactory.createRequestParser(z.object({
-            userId: FieldValidators.user.id,
+            accessToken: FieldValidators.auth.accessToken,
             after: FieldValidators.base.timestamptz
         })),
 
@@ -47,7 +47,7 @@ export default class ChatroomsParsers{
 
     static addFriendsToChatroom = {
         parseRequest: ApiParserFactory.createRequestParser(z.object({
-            userId: FieldValidators.user.id,
+            accessToken: FieldValidators.auth.accessToken,
             friendIds: z.array(FieldValidators.user.id),
             chatroomId: FieldValidators.chatroom.id
         })),
@@ -64,7 +64,7 @@ export default class ChatroomsParsers{
 
     static leaveChatroom = {
         parseRequest: ApiParserFactory.createRequestParser(z.object({
-            userId: FieldValidators.user.id,
+            accessToken: FieldValidators.auth.accessToken,
             chatroomId: FieldValidators.chatroom.id
         })),
 
