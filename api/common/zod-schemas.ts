@@ -16,7 +16,11 @@ export class FieldValidators {
 
     static auth = {
         accessToken: z.string(),
-        refreshToken: z.uuidv4()
+        refreshToken: z.uuidv4(),
+        credentials: z.object({
+            login: FieldValidators.user.login,
+            password: FieldValidators.user.password
+        })
     }
 
     static friendshipCode = {

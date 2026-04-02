@@ -5,8 +5,7 @@ import { ApiParserFactory } from "../common/api-parsing"
 export default class AuthParsers {
     static authenticateUser = {
         parseRequest: ApiParserFactory.createRequestParser(z.object({
-            login: FieldValidators.user.login,
-            password: FieldValidators.user.password
+            credentials: FieldValidators.auth.credentials,
         })),
 
         parseResponse: ApiParserFactory.createResponseParser(
