@@ -55,16 +55,16 @@ domainPaths.forEach(({domainName, source, destination}) => {
     const parserClassName = `${domainNameCapitalized}Parsers`
     const parserImportPath = path.join("@", path.dirname(source), `${path.basename(source, ".ts")}.js`).replaceAll(/\\/g, "/")
     let destinationCode = 
-        `/** Auto-generated code — do not modify */`
-        + `\n\nimport ${parserClassName} from "${parserImportPath}"`
-        + `\nimport z from "zod"`
-        + "\n\n\n"
-
-
+    `/** Auto-generated code — do not modify */`
+    + `\n\nimport ${parserClassName} from "${parserImportPath}"`
+    + "\n\n\n"
+    
+    
     endpointNames.forEach(endpoint => {
+        const endpointCapitalized = `${endpoint[0]?.toUpperCase()}${endpoint.slice(1)}`
         destinationCode += 
-            `export type ${domainNameCapitalized}Request = z.infer<ReturnType<typeof ${parserClassName}.${endpoint}.parseRequest>>`
-            + `\n\nexport type ${domainNameCapitalized}Response = z.infer<ReturnType<typeof ${parserClassName}.${endpoint}.parseResponse>>`
+            `export type ${endpointCapitalized}Request = ReturnType<typeof ${parserClassName}.${endpoint}.parseRequest>`
+            + `\n\nexport type ${endpointCapitalized}Response = ReturnType<typeof ${parserClassName}.${endpoint}.parseResponse>`
             + `\n\n`
     })
     fs.writeFile(destination, destinationCode, (err) => {
