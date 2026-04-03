@@ -64,7 +64,7 @@ domainPaths.forEach(({domainName, source, destination}) => {
         const endpointCapitalized = `${endpoint[0]?.toUpperCase()}${endpoint.slice(1)}`
         destinationCode += 
             `export type ${endpointCapitalized}Request = ReturnType<typeof ${parserClassName}.${endpoint}.parseRequest>`
-            + `\n\nexport type ${endpointCapitalized}Response = ReturnType<typeof ${parserClassName}.${endpoint}.parseResponse>`
+            + `\nexport type ${endpointCapitalized}Response = ReturnType<typeof ${parserClassName}.${endpoint}.parseResponse>`
             + `\n\n`
     })
     fs.writeFile(destination, destinationCode, (err) => {
