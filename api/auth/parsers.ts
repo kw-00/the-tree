@@ -1,6 +1,6 @@
 import z from "zod"
-import { FieldValidators } from "../common/zod-schemas"
-import { ApiParserFactory } from "../common/api-parsing"
+import { FieldValidators } from "@/common/zod-schemas"
+import { ApiParserFactory } from "@/common/api-parsing"
 
 export default class AuthParsers {
     static authenticateUser = {

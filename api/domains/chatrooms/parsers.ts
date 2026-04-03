@@ -1,6 +1,6 @@
 import z from "zod";
-import { ApiParserFactory } from "../../common/api-parsing";
-import { FieldValidators } from "../../common/zod-schemas";
+import { ApiParserFactory } from "@/common/api-parsing";
+import { FieldValidators } from "@/common/zod-schemas";
 
 const models = {
     chatroomData: z.object({
