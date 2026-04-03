@@ -19,7 +19,7 @@ class Models {
     })
 }
 
-export default class MessagesParser {
+export default class MessagesParsers {
     static createMessage = {
         parseRequest: ApiParserFactory.createRequestParser(z.object({
             accessToken: FieldValidators.auth.accessToken,

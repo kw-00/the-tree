@@ -4,7 +4,7 @@ import { FieldValidators } from "@/common/zod-schemas.js"
 
 
 
-export default class UsersParser {
+export default class UsersParsers {
     static registerUser = {
         parseRequest: ApiParserFactory.createRequestParser(z.object({
             login: FieldValidators.user.login,

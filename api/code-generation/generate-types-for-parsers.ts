@@ -42,8 +42,16 @@ domainPaths.forEach(({domainName, source, destination}) => {
         ts.ScriptTarget.ESNext,
         true
     )
+
+    const domainNameCapitalized = `${domainName[0]?.toUpperCase()}${domainName.slice(1)}`
+    const parserClassName = `${domainNameCapitalized}Parsers`
+    
     const endpointNames: string[] = []
     searchAndOperate(sourceFile, node => {
+        if (ts.isClassDeclaration(node)) {
+            const name = node.name
+            if (name === undefined || name.getText() !== parserClassName) return true
+        }
         if (ts.isClassElement(node)) {
             const endpointName = node.getChildAt(1).getText()
             endpointNames.push(endpointName)
@@ -51,8 +59,6 @@ domainPaths.forEach(({domainName, source, destination}) => {
         }
     })
 
-    const domainNameCapitalized = `${domainName[0]?.toUpperCase()}${domainName.slice(1)}`
-    const parserClassName = `${domainNameCapitalized}Parsers`
     const parserImportPath = path.join("@", path.dirname(source), `${path.basename(source, ".ts")}.js`).replaceAll(/\\/g, "/")
     let destinationCode = 
     `/** Auto-generated code — do not modify */`
@@ -75,8 +81,8 @@ domainPaths.forEach(({domainName, source, destination}) => {
 })
 
 function searchAndOperate(node: ts.Node, operation: (node: ts.Node) => boolean | undefined) {
-    const doNotGoFurther = operation(node)
-    if (doNotGoFurther) return
+    const stop = operation(node)
+    if (stop) return
     node.forEachChild(c => searchAndOperate(c, operation))
 }
 
