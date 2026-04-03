@@ -13,7 +13,7 @@ type DomainPaths = {
 
 const domainPaths = []
 
-const domainsFolderPath = path.resolve(process.cwd(), "domains")
+const domainsFolderPath = "domains"
 const domainsFolder = fs.opendirSync(domainsFolderPath)
 while (true) {
     const entry = domainsFolder.readSync()
@@ -21,8 +21,8 @@ while (true) {
 
     domainPaths.push({
         domainName: entry.name,
-        source: path.resolve(entry.parentPath, entry.name, SOURCE_FILES_FILENAME),
-        destination: path.resolve(entry.parentPath, entry.name, DESTINATION_FILES_FILENAME)
+        source: path.join(entry.parentPath, entry.name, SOURCE_FILES_FILENAME),
+        destination: path.join(entry.parentPath, entry.name, DESTINATION_FILES_FILENAME)
     })
 }
 domainsFolder.close()
@@ -30,12 +30,53 @@ domainsFolder.close()
 const authDomainName = "auth"
 domainPaths.push({
     domainName: authDomainName,
-    source: path.resolve(process.cwd(), authDomainName, SOURCE_FILES_FILENAME),
-    destination: path.resolve(process.cwd(), authDomainName, DESTINATION_FILES_FILENAME)
+    source: path.join(authDomainName, SOURCE_FILES_FILENAME),
+    destination: path.join(authDomainName, DESTINATION_FILES_FILENAME)
 })
 
 domainPaths.forEach(({domainName, source, destination}) => {
     const sourceCode = fs.readFileSync(source, "utf-8")
-    const sourceFile = ts.createSourceFile
+    const sourceFile = ts.createSourceFile(
+        destination,
+        sourceCode,
+        ts.ScriptTarget.ESNext,
+        true
+    )
+    const endpointNames: string[] = []
+    searchAndOperate(sourceFile, node => {
+        if (ts.isClassElement(node)) {
+            const endpointName = node.getChildAt(1).getText()
+            endpointNames.push(endpointName)
+            return true
+        }
+    })
+
+    const domainNameCapitalized = `${domainName[0]?.toUpperCase()}${domainName.slice(1)}`
+    const parserClassName = `${domainNameCapitalized}Parsers`
+    const parserImportPath = path.join("@", path.dirname(source), `${path.basename(source, ".ts")}.js`).replaceAll(/\\/g, "/")
+    let destinationCode = 
+        `/** Auto-generated code — do not modify */`
+        + `\n\nimport ${parserClassName} from "${parserImportPath}"`
+        + `\nimport z from "zod"`
+        + "\n\n\n"
+
+
+    endpointNames.forEach(endpoint => {
+        destinationCode += 
+            `export type ${domainNameCapitalized}Request = z.infer<ReturnType<typeof ${parserClassName}.${endpoint}.parseRequest>>`
+            + `\n\nexport type ${domainNameCapitalized}Response = z.infer<ReturnType<typeof ${parserClassName}.${endpoint}.parseResponse>>`
+            + `\n\n`
+    })
+    fs.writeFile(destination, destinationCode, (err) => {
+        if (err !== null) {
+            throw new Error("An error occurred during writing generated code.")
+        }
+    })
 })
+
+function searchAndOperate(node: ts.Node, operation: (node: ts.Node) => boolean | undefined) {
+    const doNotGoFurther = operation(node)
+    if (doNotGoFurther) return
+    node.forEachChild(c => searchAndOperate(c, operation))
+}
 
